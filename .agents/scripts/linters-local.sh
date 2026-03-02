@@ -11,6 +11,7 @@
 #   - Secretlint for exposed secrets
 #   - Pattern validation (return statements, positional parameters)
 #   - Markdown formatting
+#   - Skill frontmatter validation (name field matches skill-sources.json)
 #
 # For remote auditing (CodeRabbit, Codacy, SonarCloud), use:
 #   /code-audit-remote or code-audit-helper.sh
@@ -621,6 +622,94 @@ check_remote_cli_status() {
 }
 
 # =============================================================================
+# Skill Frontmatter Validation
+# =============================================================================
+# Validates that all imported skills registered in skill-sources.json have a
+# 'name' field in their YAML frontmatter matching the registered skill name.
+# This prevents opencode startup errors from missing name fields.
+
+check_skill_frontmatter() {
+	echo -e "${BLUE}Checking Skill Frontmatter...${NC}"
+
+	local skill_sources=".agents/configs/skill-sources.json"
+
+	if [[ ! -f "$skill_sources" ]]; then
+		print_info "No skill-sources.json found (skipping)"
+		return 0
+	fi
+
+	if ! command -v jq &>/dev/null; then
+		print_info "jq not available (skipping skill frontmatter check)"
+		return 0
+	fi
+
+	local skill_count
+	if ! skill_count=$(jq -er '
+		if (.skills | type) == "array" then (.skills | length)
+		else error(".skills must be an array")
+		end
+	' "$skill_sources" 2>/dev/null); then
+		print_error "Invalid $skill_sources (cannot parse .skills array)"
+		return 1
+	fi
+
+	if [[ "$skill_count" -eq 0 ]]; then
+		print_info "No imported skills to validate"
+		return 0
+	fi
+
+	local errors=0
+	local checked=0
+
+	local skill_entries
+	if ! skill_entries=$(jq -er '.skills[] | "\(.name)|\(.local_path)"' "$skill_sources" 2>/dev/null); then
+		print_error "Failed to read skill entries from $skill_sources"
+		return 1
+	fi
+
+	while IFS='|' read -r name local_path; do
+		if [[ ! -f "$local_path" ]]; then
+			print_warning "Skill file missing: $local_path (skill: $name)"
+			((errors++)) || true
+			continue
+		fi
+
+		# Extract name from YAML frontmatter (initial block only)
+		local fm_name
+		fm_name=$(awk '
+			NR == 1 && /^---$/ { in_fm = 1; next }
+			in_fm && /^---$/ { exit }
+			in_fm && /^[[:space:]]*name:[[:space:]]*/ {
+				sub(/^[[:space:]]*name:[[:space:]]*/, "")
+				sub(/[[:space:]]+#.*$/, "")
+				gsub(/^["'"'"']|["'"'"']$/, "")
+				print
+				exit
+			}
+		' "$local_path")
+
+		if [[ -z "$fm_name" ]]; then
+			print_error "Missing 'name' field in frontmatter: $local_path (expected: $name)"
+			((errors++)) || true
+		elif [[ "$fm_name" != "$name" ]]; then
+			print_error "Name mismatch in $local_path: got '$fm_name', expected '$name'"
+			((errors++)) || true
+		fi
+
+		((checked++)) || true
+	done <<<"$skill_entries"
+
+	if [[ $errors -eq 0 ]]; then
+		print_success "Skill frontmatter: $checked skills validated, all have correct 'name' field"
+	else
+		print_error "Skill frontmatter: $errors error(s) in $checked skills"
+		return 1
+	fi
+
+	return 0
+}
+
+# =============================================================================
 # Bundle-Aware Gate Filtering (t1364.6)
 # =============================================================================
 # Resolves the project bundle and checks whether a gate should be skipped.
@@ -728,6 +817,11 @@ main() {
 
 	if ! should_skip_gate "toon-syntax"; then
 		check_toon_syntax || exit_code=1
+		echo ""
+	fi
+
+	if ! should_skip_gate "skill-frontmatter"; then
+		check_skill_frontmatter || exit_code=1
 		echo ""
 	fi
 
