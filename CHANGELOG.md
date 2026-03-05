@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.151.1] - 2026-03-05
+
+### Fixed
+
+- write SHELLCHECK_PATH to .zshenv for non-interactive shell coverage (#2937)
+- config-helper.sh _jsonc_get discards false/0 values due to jq // empty (#2931)
+- add timeout and hung-process detection to get_installed_version (#2932)
+
 ## [2.151.0] - 2026-03-05
 
 ### Fixed
