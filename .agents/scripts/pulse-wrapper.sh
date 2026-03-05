@@ -41,6 +41,13 @@ RAM_RESERVE_MB="${RAM_RESERVE_MB:-8192}"                  # 8 GB reserved for OS
 MAX_WORKERS_CAP="${MAX_WORKERS_CAP:-8}"                   # Hard ceiling regardless of RAM
 QUALITY_SWEEP_INTERVAL="${QUALITY_SWEEP_INTERVAL:-86400}" # 24 hours between sweeps
 
+# Process guard limits (t1398)
+CHILD_RSS_LIMIT_KB="${CHILD_RSS_LIMIT_KB:-2097152}"           # 2 GB default — kill child if RSS exceeds this
+CHILD_RUNTIME_LIMIT="${CHILD_RUNTIME_LIMIT:-600}"             # 10 min default — kill child if runtime exceeds this
+SHELLCHECK_RSS_LIMIT_KB="${SHELLCHECK_RSS_LIMIT_KB:-1048576}" # 1 GB — ShellCheck-specific (lower due to exponential expansion)
+SHELLCHECK_RUNTIME_LIMIT="${SHELLCHECK_RUNTIME_LIMIT:-300}"   # 5 min — ShellCheck-specific
+SESSION_COUNT_WARN="${SESSION_COUNT_WARN:-5}"                 # Warn when >N concurrent sessions detected
+
 # Validate numeric configuration — prevent command injection via $(( )) expansion.
 # Bash arithmetic evaluates variable contents as expressions, so unsanitised strings
 # like "a[$(cmd)]" would execute arbitrary commands.
@@ -70,6 +77,11 @@ RAM_PER_WORKER_MB=$(_validate_int RAM_PER_WORKER_MB "$RAM_PER_WORKER_MB" 1024 1)
 RAM_RESERVE_MB=$(_validate_int RAM_RESERVE_MB "$RAM_RESERVE_MB" 8192)
 MAX_WORKERS_CAP=$(_validate_int MAX_WORKERS_CAP "$MAX_WORKERS_CAP" 8)
 QUALITY_SWEEP_INTERVAL=$(_validate_int QUALITY_SWEEP_INTERVAL "$QUALITY_SWEEP_INTERVAL" 86400)
+CHILD_RSS_LIMIT_KB=$(_validate_int CHILD_RSS_LIMIT_KB "$CHILD_RSS_LIMIT_KB" 2097152 1)
+CHILD_RUNTIME_LIMIT=$(_validate_int CHILD_RUNTIME_LIMIT "$CHILD_RUNTIME_LIMIT" 600 1)
+SHELLCHECK_RSS_LIMIT_KB=$(_validate_int SHELLCHECK_RSS_LIMIT_KB "$SHELLCHECK_RSS_LIMIT_KB" 1048576 1)
+SHELLCHECK_RUNTIME_LIMIT=$(_validate_int SHELLCHECK_RUNTIME_LIMIT "$SHELLCHECK_RUNTIME_LIMIT" 300 1)
+SESSION_COUNT_WARN=$(_validate_int SESSION_COUNT_WARN "$SESSION_COUNT_WARN" 5 1)
 
 # Sanitise untrusted strings before embedding in GitHub markdown comments.
 # Strips @ mentions (prevents unwanted notifications) and backtick sequences
@@ -792,7 +804,7 @@ check_permission_failure_pr() {
 #######################################
 prefetch_active_workers() {
 	local worker_lines
-	worker_lines=$(ps axo pid,etime,command 2>/dev/null | grep '/full-loop' | grep '\.opencode' | grep -v grep || true)
+	worker_lines=$(ps axo pid,etime,command | grep '/full-loop' | grep '\.opencode' | grep -v grep || true)
 
 	echo ""
 	echo "# Active Workers"
@@ -811,9 +823,7 @@ prefetch_active_workers() {
 		echo ""
 		echo "$worker_lines" | while IFS= read -r line; do
 			local pid etime cmd
-			pid=$(echo "$line" | awk '{print $1}')
-			etime=$(echo "$line" | awk '{print $2}')
-			cmd=$(echo "$line" | cut -d' ' -f3-)
+			read -r pid etime cmd <<<"$line"
 
 			# Compute elapsed seconds for struggle ratio
 			local elapsed_seconds
@@ -843,12 +853,132 @@ prefetch_active_workers() {
 }
 
 #######################################
+# Process guard: kill child processes exceeding RSS or runtime limits (t1398)
+#
+# Scans all child processes of the current pulse (and their descendants)
+# for resource violations. ShellCheck processes get stricter limits due
+# to their known exponential expansion with --external-sources.
+#
+# This is the primary defense against the March 3 kernel panic scenario:
+# a single shellcheck invocation consuming 5+ GB RAM for 35+ minutes.
+#
+# Called from the watchdog loop inside run_pulse() every 60s.
+#
+# Arguments:
+#   $1 - (optional) PID of the primary pulse process to exempt from
+#        CHILD_RUNTIME_LIMIT (governed by PULSE_STALE_THRESHOLD instead)
+# Returns: 0 always (best-effort, never breaks the pulse)
+#######################################
+guard_child_processes() {
+	local pulse_pid="${1:-}"
+	local killed=0
+	local total_freed_mb=0
+
+	# Get all descendant PIDs of the current shell process.
+	# Use 'command' (full command line) instead of 'comm' (basename only)
+	# so that patterns like 'node.*opencode' can match. (CodeRabbit review)
+	local descendants
+	descendants=$(ps -eo pid,ppid,rss,etime,command | awk -v parent=$$ '
+		BEGIN { pids[parent]=1 }
+		{ if ($2 in pids) { pids[$1]=1; print $0 } }
+	') || return 0
+
+	while IFS= read -r line; do
+		[[ -z "$line" ]] && continue
+
+		# Fields from ps -eo pid,ppid,rss,etime,command
+		# command is last and may contain spaces — read captures the rest
+		local pid _ppid rss etime cmd_full
+		read -r pid _ppid rss etime cmd_full <<<"$line"
+
+		# Validate numeric fields
+		[[ "$pid" =~ ^[0-9]+$ ]] || continue
+		[[ "$rss" =~ ^[0-9]+$ ]] || rss=0
+
+		local age_seconds
+		age_seconds=$(_get_process_age "$pid")
+
+		# Extract basename for limit selection (e.g., /usr/bin/shellcheck → shellcheck)
+		local cmd_base="${cmd_full%% *}"
+		cmd_base="${cmd_base##*/}"
+
+		# Determine limits: ShellCheck gets stricter limits
+		local rss_limit="$CHILD_RSS_LIMIT_KB"
+		local runtime_limit="$CHILD_RUNTIME_LIMIT"
+		if [[ "$cmd_base" == "shellcheck" ]]; then
+			rss_limit="$SHELLCHECK_RSS_LIMIT_KB"
+			runtime_limit="$SHELLCHECK_RUNTIME_LIMIT"
+		fi
+
+		local violation=""
+		if [[ "$rss" -gt "$rss_limit" ]]; then
+			local rss_mb=$((rss / 1024))
+			local limit_mb=$((rss_limit / 1024))
+			violation="RSS ${rss_mb}MB > ${limit_mb}MB limit"
+		elif [[ -n "$pulse_pid" && "$pid" == "$pulse_pid" ]]; then
+			# Primary pulse process — runtime governed by PULSE_STALE_THRESHOLD,
+			# not CHILD_RUNTIME_LIMIT. Skip runtime check but keep RSS check.
+			:
+		elif [[ "$age_seconds" -gt "$runtime_limit" ]]; then
+			violation="runtime ${age_seconds}s > ${runtime_limit}s limit"
+		fi
+
+		if [[ -n "$violation" ]]; then
+			local rss_mb=$((rss / 1024))
+			echo "[pulse-wrapper] Process guard: killing PID $pid ($cmd_base) — $violation" >>"$LOGFILE"
+			_kill_tree "$pid"
+			sleep 1
+			if kill -0 "$pid" 2>/dev/null; then
+				_force_kill_tree "$pid"
+			fi
+			killed=$((killed + 1))
+			total_freed_mb=$((total_freed_mb + rss_mb))
+		fi
+	done <<<"$descendants"
+
+	if [[ "$killed" -gt 0 ]]; then
+		echo "[pulse-wrapper] Process guard: killed $killed process(es), freed ~${total_freed_mb}MB" >>"$LOGFILE"
+	fi
+	return 0
+}
+
+#######################################
+# Check concurrent session count and warn (t1398)
+#
+# Counts running opencode/claude interactive sessions (those with a TTY).
+# If count exceeds SESSION_COUNT_WARN, logs a warning. This is informational
+# — the pulse doesn't kill user sessions, but the health issue will show it.
+#
+# Returns: session count via stdout
+#######################################
+check_session_count() {
+	local interactive_count=0
+
+	# Count opencode processes with a real TTY (interactive sessions).
+	# Filter both '?' (Linux) and '??' (macOS) headless TTY entries.
+	interactive_count=$(ps axo tty,command | awk '
+		/(\.(opencode|claude)|opencode-ai|claude-ai)/ && !/awk/ && $1 != "?" && $1 != "??" { count++ }
+		END { print count + 0 }
+	') || interactive_count=0
+
+	if [[ "$interactive_count" -gt "$SESSION_COUNT_WARN" ]]; then
+		echo "[pulse-wrapper] Session warning: $interactive_count interactive sessions open (threshold: $SESSION_COUNT_WARN). Each consumes 100-440MB + language servers. Consider closing unused tabs." >>"$LOGFILE"
+	fi
+
+	echo "$interactive_count"
+	return 0
+}
+
+#######################################
 # Run the pulse — with internal watchdog timeout (t1397)
 #
 # The pulse runs until opencode exits naturally. A watchdog loop checks
 # every 60s whether the process has exceeded PULSE_STALE_THRESHOLD. If so,
 # it kills the process tree and returns, allowing the wrapper to continue
 # to the quality sweep and health issue phases.
+#
+# The watchdog also runs guard_child_processes() every 60s to kill any
+# child process exceeding RSS or runtime limits (t1398).
 #
 # Previous design relied on the NEXT launchd invocation's check_dedup()
 # to kill stale processes. This failed because launchd StartInterval only
@@ -886,8 +1016,9 @@ ${state_content}
 	echo "[pulse-wrapper] opencode PID: $opencode_pid" >>"$LOGFILE"
 
 	# Watchdog loop: check every 60s if the process is still alive and within
-	# the stale threshold. This replaces the bare `wait` that blocked the
-	# wrapper indefinitely when opencode hung.
+	# the stale threshold. Also runs process guard to kill runaway children (t1398).
+	# This replaces the bare `wait` that blocked the wrapper indefinitely when
+	# opencode hung.
 	while kill -0 "$opencode_pid" 2>/dev/null; do
 		local now
 		now=$(date +%s)
@@ -902,6 +1033,10 @@ ${state_content}
 			fi
 			break
 		fi
+		# Process guard: kill children exceeding RSS/runtime limits (t1398)
+		# Pass opencode_pid so the primary pulse process is exempt from
+		# CHILD_RUNTIME_LIMIT (it's governed by PULSE_STALE_THRESHOLD above).
+		guard_child_processes "$opencode_pid"
 		# Sleep 60s then re-check. Portable across bash 3.2+ (macOS default).
 		# The process may exit during sleep — kill -0 at top of loop catches that.
 		sleep 60
@@ -1152,19 +1287,17 @@ _update_health_issue_for_repo() {
 	local workers_md=""
 	local worker_count=0
 	local worker_lines
-	worker_lines=$(ps axo pid,tty,etime,command 2>/dev/null | grep '\.opencode' | grep -v grep | grep -v 'bash-language-server' || true)
+	worker_lines=$(ps axo pid,tty,etime,command | grep '\.opencode' | grep -v grep | grep -v 'bash-language-server' || true)
 
 	if [[ -n "$worker_lines" ]]; then
 		local worker_table=""
 		while IFS= read -r line; do
 			local w_pid w_tty w_etime w_cmd
-			w_pid=$(echo "$line" | awk '{print $1}')
-			w_tty=$(echo "$line" | awk '{print $2}')
-			w_etime=$(echo "$line" | awk '{print $3}')
-			w_cmd=$(echo "$line" | cut -d' ' -f4-)
+			read -r w_pid w_tty w_etime w_cmd <<<"$line"
 
-			# Only count headless workers (no TTY)
-			[[ "$w_tty" != "??" ]] && continue
+			# Only count headless workers (no TTY).
+			# Exclude both '?' (Linux headless) and '??' (macOS headless).
+			[[ "$w_tty" != "?" && "$w_tty" != "??" ]] && continue
 
 			# Extract title if present (--title "...")
 			local w_title="headless"
@@ -1285,6 +1418,14 @@ ${worker_table}"
 		max_workers=$(cat "$max_workers_file" 2>/dev/null || echo "?")
 	fi
 
+	# Interactive session count (t1398)
+	local session_count
+	session_count=$(check_session_count)
+	local session_warning=""
+	if [[ "$session_count" -gt "$SESSION_COUNT_WARN" ]]; then
+		session_warning=" **WARNING: exceeds threshold of ${SESSION_COUNT_WARN}**"
+	fi
+
 	# --- Assemble body ---
 	local body
 	body="## Queue Health Dashboard
@@ -1303,6 +1444,7 @@ ${worker_table}"
 | Active Workers | ${worker_count} |
 | Max Workers | ${max_workers} |
 | Worktrees | ${wt_count} |
+| Interactive Sessions | ${session_count}${session_warning} |
 
 ### Open PRs
 
@@ -1712,49 +1854,71 @@ _quality_sweep_for_repo() {
 			local sc_summary=""
 			local sc_details=""
 
-			while IFS= read -r shfile; do
-				[[ -z "$shfile" ]] && continue
-				local result
-				result=$(shellcheck -f gcc "$shfile" 2>/dev/null || true)
-				if [[ -n "$result" ]]; then
-					local file_errors
-					file_errors=$(echo "$result" | grep -c ':.*: error:') || file_errors=0
-					local file_warnings
-					file_warnings=$(echo "$result" | grep -c ':.*: warning:') || file_warnings=0
-					sc_errors=$((sc_errors + file_errors))
-					sc_warnings=$((sc_warnings + file_warnings))
+			# Determine timeout command (t1398: prevent runaway shellcheck)
+			local sc_timeout_cmd=""
+			if command -v timeout &>/dev/null; then
+				sc_timeout_cmd="timeout 30s"
+			elif command -v gtimeout &>/dev/null; then
+				sc_timeout_cmd="gtimeout 30s"
+			fi
 
-					# Capture first 3 findings per file for the summary
-					local rel_path="${shfile#"$repo_path"/}"
-					local top_findings
-					top_findings=$(echo "$result" | head -3 | while IFS= read -r line; do
-						echo "  - \`${rel_path}\`: ${line##*: }"
-					done)
-					if [[ -n "$top_findings" ]]; then
-						sc_details="${sc_details}${top_findings}
+			# t1398: skip shellcheck entirely when no timeout utility is available.
+			# Running shellcheck without a timeout risks unbounded execution
+			# (exponential source expansion can consume 5+ GB RAM for 35+ min).
+			if [[ -z "$sc_timeout_cmd" ]]; then
+				echo "[pulse-wrapper] WARNING: no timeout/gtimeout available — skipping ShellCheck to avoid runaway risk" >>"$LOGFILE"
+				shellcheck_section="### ShellCheck (skipped)
+
+- **Reason**: no timeout utility available — skipping to prevent runaway expansion risk
 "
-					fi
-				fi
-			done <<<"$sh_files"
+			else
 
-			local file_count
-			file_count=$(echo "$sh_files" | wc -l | tr -d ' ')
-			shellcheck_section="### ShellCheck ($file_count files scanned)
+				while IFS= read -r shfile; do
+					[[ -z "$shfile" ]] && continue
+					local result
+					# t1398: timeout each shellcheck invocation to prevent exponential expansion
+					result=$($sc_timeout_cmd shellcheck -f gcc "$shfile" || true)
+					if [[ -n "$result" ]]; then
+						local file_errors
+						file_errors=$(grep -c ':.*: error:' <<<"$result") || file_errors=0
+						local file_warnings
+						file_warnings=$(grep -c ':.*: warning:' <<<"$result") || file_warnings=0
+						sc_errors=$((sc_errors + file_errors))
+						sc_warnings=$((sc_warnings + file_warnings))
+
+						# Capture first 3 findings per file for the summary
+						local rel_path="${shfile#"$repo_path"/}"
+						local top_findings
+						top_findings=$(head -3 <<<"$result" | while IFS= read -r line; do
+							echo "  - \`${rel_path}\`: ${line##*: }"
+						done)
+						if [[ -n "$top_findings" ]]; then
+							sc_details="${sc_details}${top_findings}
+"
+						fi
+					fi
+				done <<<"$sh_files"
+
+				local file_count
+				file_count=$(echo "$sh_files" | wc -l | tr -d ' ')
+				shellcheck_section="### ShellCheck ($file_count files scanned)
 
 - **Errors**: ${sc_errors}
 - **Warnings**: ${sc_warnings}
 "
-			if [[ -n "$sc_details" ]]; then
-				shellcheck_section="${shellcheck_section}
+				if [[ -n "$sc_details" ]]; then
+					shellcheck_section="${shellcheck_section}
 **Top findings:**
 ${sc_details}"
-			fi
-			if [[ "$sc_errors" -eq 0 && "$sc_warnings" -eq 0 ]]; then
-				shellcheck_section="${shellcheck_section}
+				fi
+				if [[ "$sc_errors" -eq 0 && "$sc_warnings" -eq 0 ]]; then
+					shellcheck_section="${shellcheck_section}
 _All clear — no issues found._
 "
-			fi
-			tool_count=$((tool_count + 1))
+				fi
+				tool_count=$((tool_count + 1))
+
+			fi # end: sc_timeout_cmd non-empty guard
 		fi
 	fi
 
@@ -2082,6 +2246,7 @@ main() {
 	cleanup_orphans
 	cleanup_worktrees
 	calculate_max_workers
+	check_session_count >/dev/null
 	prefetch_state
 	run_pulse
 	run_daily_quality_sweep
@@ -2108,14 +2273,12 @@ cleanup_orphans() {
 
 	while IFS= read -r line; do
 		local pid tty etime rss cmd
-		pid=$(echo "$line" | awk '{print $1}')
-		tty=$(echo "$line" | awk '{print $2}')
-		etime=$(echo "$line" | awk '{print $3}')
-		rss=$(echo "$line" | awk '{print $4}')
-		cmd=$(echo "$line" | cut -d' ' -f5-)
+		read -r pid tty etime rss cmd <<<"$line"
 
-		# Skip interactive sessions (has a real TTY)
-		if [[ "$tty" != "??" ]]; then
+		# Skip interactive sessions (has a real TTY).
+		# Exclude both '?' (Linux headless) and '??' (macOS headless) — only
+		# those are headless; anything else (pts/N, ttys00N) is interactive.
+		if [[ "$tty" != "?" && "$tty" != "??" ]]; then
 			continue
 		fi
 
@@ -2142,13 +2305,9 @@ cleanup_orphans() {
 	# Also kill orphaned node launchers (parent of .opencode processes)
 	while IFS= read -r line; do
 		local pid tty etime rss cmd
-		pid=$(echo "$line" | awk '{print $1}')
-		tty=$(echo "$line" | awk '{print $2}')
-		etime=$(echo "$line" | awk '{print $3}')
-		rss=$(echo "$line" | awk '{print $4}')
-		cmd=$(echo "$line" | cut -d' ' -f5-)
+		read -r pid tty etime rss cmd <<<"$line"
 
-		[[ "$tty" != "??" ]] && continue
+		[[ "$tty" != "?" && "$tty" != "??" ]] && continue
 		echo "$cmd" | grep -qE '/full-loop|Supervisor Pulse|Strategic Review|language-server|eslintServer' && continue
 
 		local age_seconds

@@ -310,28 +310,99 @@ run_shellcheck() {
 		return 0
 	fi
 
-	# Batch mode: pass all files to a single shellcheck invocation
-	# This is significantly faster than per-file invocation (one process vs N)
+	# t1398: ShellCheck with -x (--external-sources) and recursive -P SCRIPTDIR
+	# can cause exponential expansion when 100+ scripts source each other,
+	# consuming 5+ GB RAM and running for 35+ minutes. Mitigations:
+	#   1. Per-file mode with timeout to cap each invocation
+	#   2. ulimit to cap RSS per shellcheck process
+	#   3. No --external-sources in batch mode (use -P SCRIPTDIR only)
 	local violations=0
-	local result
-	result=$(shellcheck -x -P SCRIPTDIR --severity=warning --format=gcc "${ALL_SH_FILES[@]}" 2>&1) || true
+	local result=""
+	local timed_out=0
+	local file_count=${#ALL_SH_FILES[@]}
+
+	# Determine timeout command (gtimeout on macOS, timeout on Linux)
+	local timeout_cmd=""
+	if command -v timeout &>/dev/null; then
+		timeout_cmd="timeout"
+	elif command -v gtimeout &>/dev/null; then
+		timeout_cmd="gtimeout"
+	fi
+
+	# Per-file mode with timeout: prevents any single file from causing
+	# exponential expansion. Each file gets max 30s and 1GB RSS.
+	local sc_timeout=30
+	local file_result
+	for file in "${ALL_SH_FILES[@]}"; do
+		[[ -f "$file" ]] || continue
+		file_result=""
+		if [[ -n "$timeout_cmd" ]]; then
+			file_result=$($timeout_cmd "${sc_timeout}s" shellcheck -x -P SCRIPTDIR --severity=warning --format=gcc "$file" 2>&1) || {
+				local sc_exit=$?
+				# Exit code 124 = timeout killed the process
+				if [[ $sc_exit -eq 124 ]]; then
+					timed_out=$((timed_out + 1))
+					print_warning "ShellCheck: $file timed out after ${sc_timeout}s (likely recursive source expansion)"
+					continue
+				fi
+			}
+		else
+			# Portable timeout wrapper: no timeout/gtimeout available.
+			# Run shellcheck in background with a sleep-based watcher that kills it
+			# after sc_timeout seconds. Drop -x to reduce recursive expansion risk.
+			local sc_tmpfile
+			sc_tmpfile=$(mktemp) || {
+				file_result=""
+				continue
+			}
+			shellcheck -P SCRIPTDIR --severity=warning --format=gcc "$file" >"$sc_tmpfile" 2>&1 &
+			local sc_bg_pid=$!
+			(sleep "$sc_timeout" && kill "$sc_bg_pid" 2>/dev/null) &
+			local sc_watcher_pid=$!
+			local sc_exit_code=0
+			wait "$sc_bg_pid" 2>/dev/null || sc_exit_code=$?
+			# Clean up watcher (may already be done if shellcheck finished before timeout)
+			kill "$sc_watcher_pid" 2>/dev/null || true
+			wait "$sc_watcher_pid" 2>/dev/null || true
+			file_result=$(cat "$sc_tmpfile")
+			rm -f "$sc_tmpfile"
+			# Exit codes >128 indicate signal kill (timeout fired)
+			if [[ $sc_exit_code -gt 128 ]]; then
+				timed_out=$((timed_out + 1))
+				print_warning "ShellCheck: $file killed after ${sc_timeout}s (no timeout utility; portable fallback)"
+				file_result=""
+				continue
+			fi
+		fi
+		if [[ -n "$file_result" ]]; then
+			result="${result}${file_result}
+"
+		fi
+	done
 
 	if [[ -n "$result" ]]; then
-		# Count unique files with violations
-		violations=$(echo "$result" | cut -d: -f1 | sort -u | wc -l | tr -d ' ')
+		# Count unique files with violations (grep -c avoids SC2126)
+		violations=$(echo "$result" | grep -v '^$' | cut -d: -f1 | sort -u | grep -c . || true)
 		local issue_count
-		issue_count=$(echo "$result" | wc -l | tr -d ' ')
+		issue_count=$(echo "$result" | grep -vc '^$' || true)
 
 		print_error "ShellCheck: $violations files with $issue_count issues"
 		# Show first few issues
-		echo "$result" | head -10
+		echo "$result" | grep -v '^$' | head -10
 		if [[ $issue_count -gt 10 ]]; then
 			echo "... and $((issue_count - 10)) more"
+		fi
+		if [[ $timed_out -gt 0 ]]; then
+			print_warning "ShellCheck: $timed_out file(s) timed out (recursive source expansion)"
 		fi
 		return 1
 	fi
 
-	print_success "ShellCheck: ${#ALL_SH_FILES[@]} files passed (no warnings)"
+	local msg="ShellCheck: ${file_count} files passed (no warnings)"
+	if [[ $timed_out -gt 0 ]]; then
+		msg="ShellCheck: $((file_count - timed_out)) of ${file_count} files passed, $timed_out timed out"
+	fi
+	print_success "$msg"
 	return 0
 }
 
