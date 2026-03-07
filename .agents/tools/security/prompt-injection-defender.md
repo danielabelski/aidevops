@@ -25,7 +25,7 @@ tools:
 - **Patterns**: Built-in (~40) + YAML (`patterns.yaml`) + custom (`PROMPT_GUARD_CUSTOM_PATTERNS`)
 - **Lasso reference**: [lasso-security/claude-hooks](https://github.com/lasso-security/claude-hooks) (MIT, Claude Code hooks)
 - **Product-side**: [`@stackone/defender`](https://www.npmjs.com/package/@stackone/defender) (Apache-2.0, Node.js — pattern + ML classifier for tool outputs)
-- **Related**: `tools/security/opsec.md`, `tools/security/privacy-filter.md`, `tools/code-review/security-analysis.md`
+- **Related**: `tools/security/opsec.md`, `tools/security/privacy-filter.md`, `tools/security/tamper-evident-audit.md`, `tools/code-review/security-analysis.md`
 
 **When to read this doc**: Building or operating an agentic app that ingests untrusted content — web pages, MCP tool outputs, user uploads, PR content, repo files.
 

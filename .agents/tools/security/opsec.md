@@ -20,7 +20,7 @@ tools:
 
 - **Purpose**: Threat modeling, platform selection, network privacy, anti-detect, and CI/CD AI agent security
 - **Scope**: Communications, network, browser, device, identity hygiene, and AI agent pipeline security
-- **Related**: `tools/security/tirith.md`, `tools/credentials/encryption-stack.md`, `services/communications/simplex.md`, `tools/browser/browser-automation.md`, `tools/security/prompt-injection-defender.md`
+- **Related**: `tools/security/tirith.md`, `tools/security/tamper-evident-audit.md`, `tools/credentials/encryption-stack.md`, `services/communications/simplex.md`, `tools/browser/browser-automation.md`, `tools/security/prompt-injection-defender.md`
 
 **Decision tree**:
 
