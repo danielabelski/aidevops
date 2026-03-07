@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- shellcheck wrapper: fast-path .real binary lookup (3.4s -> 0.38s per invocation) (#3136)
+- shellcheck wrapper: concurrency limiter (max 4 parallel, configurable) (#3136)
+- shellcheck wrapper: debounce cache for unchanged files within 10s (#3136)
+- process guard: orphan reaper kills shellcheck processes with ppid=1 and age >120s (#3136)
+
 ## [2.154.1] - 2026-03-07
 
 ### Changed
