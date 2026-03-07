@@ -182,6 +182,8 @@ Key decisions from the conversation:
 - **Tamper-evident logging via privilege separation** — named pipe to a separate logger process running as a different UID. Worker can write to the pipe but cannot read, modify, or delete the log file. Optional remote syslog forwarding for true tamper-prevention (bytes leave the machine before attacker can delete them). `chattr +a` on Linux as a simpler alternative; macOS `chflags sappnd` is ineffective with SIP.
 - **MCP servers are a distinct trust boundary** — MCP servers run as persistent processes with network access and can inject via tool responses. Users should be warned at install time. Socket.dev is already configured for aidevops and can scan MCP server dependencies.
 - **CI/CD AI agent security is a documentation gap** — our workers run locally, but users may deploy AI triage in their own CI. The Clinejection pattern (AI bot + shell access + cached credentials + untrusted input) applies to any CI/CD AI integration. Guidance belongs in opsec.md with cross-refs from git-workflow.md.
+- **Per-repo security posture via `aidevops init`** — the framework protections (Phases 1-8) apply to all repos automatically via the dispatch layer. But per-repo configuration (branch protection, CI workflow scanning, Socket.dev dependency scanning) needs to happen at init time. `aidevops init` already has a feature-flag system (`planning`, `git-workflow`, `code-quality`, etc.) — add a `security` feature that audits the repo's CI workflows, branch protection, and dependencies. Also add `aidevops security audit` for re-running checks on demand.
+- **Phase 7 collaborator check is per-repo, not global** — the intelligence-layer scan checks `gh api repos/{slug}/collaborators` for the specific repo the worker is operating on. A maintainer of repo A is not necessarily trusted in repo B. Never cache a global trusted-users list — always query the target repo's collaborator list at scan time.
 
 ## Relevant Files
 
@@ -199,6 +201,7 @@ Key decisions from the conversation:
 - `.agents/tools/mcp-toolkit/mcporter.md` — MCP install flow, add security warnings (Phase 10)
 - `.agents/tools/code-review/skill-scanner.md` — existing skill scanning, extend to MCP servers
 - `.agents/services/monitoring/socket.md` — Socket.dev integration (already configured)
+- `aidevops.sh:1170` — `cmd_init()` function, add security feature (Phase 11)
 
 ## Dependencies
 
@@ -216,9 +219,10 @@ Key decisions from the conversation:
 | Phase 4: Runtime content scanning | ~3h | Hook integration, scan-stdin wiring |
 | Phase 5: Command baseline | ~3h | Logging, anomaly patterns, transcript analysis |
 | Phase 6: Startup security check | ~2h | security-posture-helper.sh, `aidevops security setup` |
-| Phase 7: Intelligence-layer scan | ~3h | Haiku classifier, collaborator check, dispatch integration |
+| Phase 7: Intelligence-layer scan | ~3h | Haiku classifier, per-repo collaborator check, dispatch integration |
 | Phase 8: Tamper-evident audit logging | ~4h | Named pipe, privileged logger daemon, launchd/systemd |
 | Phase 9: CI/CD AI agent security docs | ~2h | opsec.md section, cross-refs, Clinejection case study |
 | Phase 10: MCP install security warnings | ~2h | mcporter.md, install flow warnings, Socket.dev integration |
+| Phase 11: Per-repo security in aidevops init | ~3h | CI workflow scan, branch protection check, Socket.dev, `aidevops security audit` |
 | Testing | ~3h | End-to-end worker dispatch + audit trail verification |
-| **Total** | **~31h** | Phases are independent, can be parallelised |
+| **Total** | **~34h** | Phases are independent, can be parallelised |
