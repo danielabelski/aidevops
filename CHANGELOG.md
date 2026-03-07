@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.154.3] - 2026-03-07
+
 ### Changed
 
-- Performance: auto-detect CPU count for shellcheck concurrency limit instead of hardcoded 4 (#3142)
+- Documentation: add changelog for shellcheck auto-parallel (#3142)
+- Performance: auto-detect CPU count for shellcheck concurrency limit (#3142)
 
 ## [2.154.2] - 2026-03-07
 
