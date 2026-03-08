@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.154.5] - 2026-03-08
+
+### Fixed
+
+- expand version history for opencode-anthropic-auth changelog clarity (GH#3808) (#3825)
+- pin sst/opencode/github action to v1.2.21 SHA for supply chain security (#3824)
+- add daily PR creation cap to prevent CodeRabbit quota exhaustion (GH#3821) (#3822)
+- escape all SQL-interpolated values in cache_get/cache_put (SQL injection) (#3676)
+- address critical quality-debt from PR #152 review feedback (#3506)
+
 ## [2.154.4] - 2026-03-07
 
 ### Added
