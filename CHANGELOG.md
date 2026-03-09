@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.170.1] - 2026-03-09
+
+### Changed
+
+- Documentation: add changelog entry for screen time fallback fix
+
 ### Fixed
 
-- screen time shows 0h when launchd job lacks Knowledge DB access — falls back to accumulated history (#3997)
-- rename "Today" column to "24h" (rolling 24-hour window) in profile README stats tables
+- screen time shows 0h when launchd job lacks Knowledge DB access (#3997)
+- add top-level permissions to code-review-monitoring workflow (GH#3848) (#3850)
+- validate $limit as positive integer to prevent SQL injection in quality-sweep-helper.sh (#3968)
 
 ## [2.168.1] - 2026-03-09
 
