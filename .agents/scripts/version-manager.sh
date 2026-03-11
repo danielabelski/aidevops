@@ -355,26 +355,63 @@ run_preflight_checks() {
 SECRETLINT_CMD=()
 PATCH_PREFLIGHT_TMP_DIR=""
 
-configure_secretlint_command() {
-	SECRETLINT_CMD=()
+secretlint_runtime_works() {
+	local -a candidate_cmd=("$@")
+	local smoke_output=""
+	local smoke_file=""
 
-	if command -v secretlint &>/dev/null; then
-		SECRETLINT_CMD=(secretlint)
-		return 0
+	smoke_file=$(mktemp "$REPO_ROOT/.secretlint-smoke.XXXXXX")
+	if [[ -z "$smoke_file" ]]; then
+		return 1
 	fi
 
+	smoke_output=$(
+		cd "$REPO_ROOT" || exit 1
+		"${candidate_cmd[@]}" "$smoke_file" --format compact 2>&1
+	)
+	local smoke_exit=$?
+	rm -f "$smoke_file"
+
+	if [[ $smoke_exit -ne 0 ]]; then
+		if [[ "$smoke_output" == *"AggregationError"* ]] || [[ "$smoke_output" == *"Failed to load rule module"* ]] || [[ "$smoke_output" == *"Cannot find module"* ]] || [[ "$smoke_output" == *"at async file://"* ]]; then
+			return 1
+		fi
+		return 1
+	fi
+
+	return 0
+}
+
+configure_secretlint_command() {
+	SECRETLINT_CMD=()
+	local -a candidate_cmd=()
+
 	if [[ -x "$REPO_ROOT/node_modules/.bin/secretlint" ]]; then
-		SECRETLINT_CMD=("$REPO_ROOT/node_modules/.bin/secretlint")
-		return 0
+		candidate_cmd=("$REPO_ROOT/node_modules/.bin/secretlint")
+		if secretlint_runtime_works "${candidate_cmd[@]}"; then
+			SECRETLINT_CMD=("${candidate_cmd[@]}")
+			return 0
+		fi
+	fi
+
+	if command -v secretlint &>/dev/null; then
+		candidate_cmd=(secretlint)
+		if secretlint_runtime_works "${candidate_cmd[@]}"; then
+			SECRETLINT_CMD=("${candidate_cmd[@]}")
+			return 0
+		fi
 	fi
 
 	if [[ -f "$REPO_ROOT/package.json" ]]; then
-		SECRETLINT_CMD=(npx -y -p secretlint -p @secretlint/secretlint-rule-preset-recommend secretlint)
-		return 0
+		candidate_cmd=(npx -y -p secretlint -p @secretlint/secretlint-rule-preset-recommend secretlint)
+		if secretlint_runtime_works "${candidate_cmd[@]}"; then
+			SECRETLINT_CMD=("${candidate_cmd[@]}")
+			return 0
+		fi
 	fi
 
-	print_error "Secretlint is required for patch release preflight"
-	print_info "Install dependencies or make secretlint available before releasing"
+	print_error "No working secretlint runtime found for patch release preflight"
+	print_info "Install project dependencies or repair global secretlint rule modules before releasing"
 	return 1
 }
 
