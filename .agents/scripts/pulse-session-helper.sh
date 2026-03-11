@@ -21,13 +21,14 @@ export PATH="/bin:/usr/bin:/usr/local/bin:/opt/homebrew/bin:${PATH}"
 
 # Source config-helper for _jsonc_get (shared JSONC config reader)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=config-helper.sh
+# shellcheck source=/dev/null
 source "${SCRIPT_DIR}/config-helper.sh" 2>/dev/null || true
 
 # Configuration
 readonly SESSION_FLAG="${HOME}/.aidevops/logs/pulse-session.flag"
 readonly STOP_FLAG="${HOME}/.aidevops/logs/pulse-session.stop"
 readonly LOGFILE="${HOME}/.aidevops/logs/pulse.log"
+readonly WRAPPER_LOGFILE="${HOME}/.aidevops/logs/pulse-wrapper.log"
 readonly PIDFILE="${HOME}/.aidevops/logs/pulse.pid"
 readonly MAX_WORKERS_FILE="${HOME}/.aidevops/logs/pulse-max-workers"
 readonly REPOS_JSON="${HOME}/.config/aidevops/repos.json"
@@ -135,14 +136,16 @@ get_pulse_repo_count() {
 # Get last pulse timestamp from log
 #######################################
 get_last_pulse_time() {
-	if [[ -f "$LOGFILE" ]]; then
-		local last_line
-		last_line=$(grep 'Starting pulse at' "$LOGFILE" | tail -1)
-		if [[ -n "$last_line" ]]; then
-			echo "$last_line" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' | tail -1
-			return 0
+	local candidate_log last_line
+	for candidate_log in "$WRAPPER_LOGFILE" "$LOGFILE"; do
+		if [[ -f "$candidate_log" ]]; then
+			last_line=$(grep 'Starting pulse at' "$candidate_log" | tail -1)
+			if [[ -n "$last_line" ]]; then
+				echo "$last_line" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' | tail -1
+				return 0
+			fi
 		fi
-	fi
+	done
 	echo "never"
 	return 0
 }

@@ -48,8 +48,21 @@ export PATH="/bin:/usr/bin:/usr/local/bin:/opt/homebrew/bin:${PATH}"
 # resolves correctly whether the script is executed directly (bash) or sourced
 # from zsh. See GH#3931.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)" || return 2>/dev/null || exit
+# shellcheck source=/dev/null
+source "${SCRIPT_DIR}/config-helper.sh" 2>/dev/null || true
+# shellcheck source=/dev/null
 source "${SCRIPT_DIR}/shared-constants.sh"
+# shellcheck source=/dev/null
 source "${SCRIPT_DIR}/worker-lifecycle-common.sh"
+
+if ! type config_get >/dev/null 2>&1; then
+	config_get() {
+		local _key="$1"
+		local default_value="$2"
+		printf '%s\n' "$default_value"
+		return 0
+	}
+fi
 
 #######################################
 # Configuration
