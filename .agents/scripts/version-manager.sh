@@ -353,6 +353,7 @@ run_preflight_checks() {
 }
 
 SECRETLINT_CMD=()
+PATCH_PREFLIGHT_TMP_DIR=""
 
 configure_secretlint_command() {
 	SECRETLINT_CMD=()
@@ -418,6 +419,14 @@ capture_secretlint_findings() {
 	return 0
 }
 
+cleanup_temp_dir() {
+	local target_dir="$1"
+
+	[[ -n "$target_dir" ]] || return 0
+	rm -rf "$target_dir"
+	return 0
+}
+
 run_patch_release_preflight() {
 	local baseline_ref=""
 	baseline_ref=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -444,11 +453,12 @@ run_patch_release_preflight() {
 
 	local tmp_dir=""
 	tmp_dir=$(mktemp -d)
+	PATCH_PREFLIGHT_TMP_DIR="$tmp_dir"
 	local baseline_dir="$tmp_dir/baseline"
 	local current_findings="$tmp_dir/current.secretlint"
 	local baseline_findings="$tmp_dir/baseline.secretlint"
 	local new_findings="$tmp_dir/new.secretlint"
-	trap "rm -rf '$tmp_dir'" RETURN
+	trap 'cleanup_temp_dir "$PATCH_PREFLIGHT_TMP_DIR"; PATCH_PREFLIGHT_TMP_DIR=""' RETURN
 	mkdir -p "$baseline_dir"
 
 	if ! git archive "$baseline_ref" | tar -x -C "$baseline_dir"; then
