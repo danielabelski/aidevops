@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.172.1] - 2026-03-12
+
+### Fixed
+
+- add adaptive pulse queue-governor signals
+- use Path.as_posix for thread index links (#4181)
+- consolidate fail-closed scanner skip handling (#4210)
+- correct NeuronWriter endpoint guidance (#4211)
+
 ## [2.172.0] - 2026-03-12
 
 ### Added
