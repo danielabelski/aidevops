@@ -4,6 +4,19 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || exit
 
+pattern_exists() {
+	local pattern="$1"
+	local file_path="$2"
+
+	if command -v rg >/dev/null 2>&1; then
+		rg -q --fixed-strings "$pattern" "$file_path"
+		return $?
+	fi
+
+	grep -qF "$pattern" "$file_path"
+	return $?
+}
+
 check_generator_rules() {
 	local generator_file="${SCRIPT_DIR}/generate-claude-agents.sh"
 	if [[ ! -f "$generator_file" ]]; then
@@ -66,22 +79,22 @@ check_policy_markers() {
 	local build_prompt="${SCRIPT_DIR}/../prompts/build.txt"
 	local sandbox_helper="${SCRIPT_DIR}/sandbox-exec-helper.sh"
 
-	if ! rg -q "Session transcript exposure model" "$build_prompt"; then
+	if ! pattern_exists "Session transcript exposure model" "$build_prompt"; then
 		echo "FAIL: transcript exposure policy missing from build prompt" >&2
 		return 1
 	fi
 
-	if ! rg -q "Never paste secret values into AI chat" "$build_prompt"; then
+	if ! pattern_exists "Never paste secret values into AI chat" "$build_prompt"; then
 		echo "FAIL: mandatory warning guidance missing from build prompt" >&2
 		return 1
 	fi
 
-	if ! rg -q "_sandbox_emit_redacted_output" "$sandbox_helper"; then
+	if ! pattern_exists "_sandbox_emit_redacted_output" "$sandbox_helper"; then
 		echo "FAIL: sandbox output redaction function missing" >&2
 		return 1
 	fi
 
-	if ! rg -q "_sandbox_is_secret_tainted_command" "$sandbox_helper"; then
+	if ! pattern_exists "_sandbox_is_secret_tainted_command" "$sandbox_helper"; then
 		echo "FAIL: sandbox taint handling function missing" >&2
 		return 1
 	fi
