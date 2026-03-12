@@ -30,6 +30,12 @@ subagents:
   - content-analyzer
   - seo-optimizer
   - keyword-mapper
+  - geo-strategy
+  - sro-grounding
+  - query-fanout-research
+  - ai-hallucination-defense
+  - ai-agent-discovery
+  - ai-search-readiness
   - general
   - explore
 ---
@@ -43,7 +49,7 @@ subagents:
 - **Purpose**: SEO optimization and analysis
 - **Tools**: Google Search Console, Ahrefs, Semrush, DataForSEO, Serper, PageSpeed Insights, Google Analytics, Context7
 - **MCP**: GSC, DataForSEO, Serper, Google Analytics, Context7 for comprehensive SEO data and library docs
-- **Commands**: `/keyword-research`, `/autocomplete-research`, `/keyword-research-extended`, `/seo-export`, `/seo-analyze`, `/seo-opportunities`, `/seo-write`, `/seo-optimize`, `/seo-analyze-content`
+- **Commands**: `/keyword-research`, `/autocomplete-research`, `/keyword-research-extended`, `/seo-export`, `/seo-analyze`, `/seo-opportunities`, `/seo-write`, `/seo-optimize`, `/seo-analyze-content`, `/seo-fanout`, `/seo-geo`, `/seo-sro`, `/seo-hallucination-defense`, `/seo-agent-discovery`, `/seo-ai-readiness`, `/seo-ai-baseline`
 
 **Subagents** (`seo/` and `services/analytics/`):
 
@@ -73,6 +79,12 @@ subagents:
 | `content-analyzer.md` | Comprehensive content analysis (readability, keywords, SEO quality) |
 | `seo-optimizer.md` | On-page SEO audit with prioritized recommendations |
 | `keyword-mapper.md` | Keyword placement, density, and distribution analysis |
+| `geo-strategy.md` | AI search visibility strategy using criteria extraction and retrieval-first optimization |
+| `sro-grounding.md` | Selection Rate Optimization for grounding snippet coverage and citation readiness |
+| `query-fanout-research.md` | Query decomposition and thematic fan-out modeling for content planning |
+| `ai-hallucination-defense.md` | Detect and reduce brand hallucination risk with consistency and claim-evidence audits |
+| `ai-agent-discovery.md` | Evaluate whether autonomous agents can discover key site information over multi-turn exploration |
+| `ai-search-readiness.md` | End-to-end orchestration playbook chaining fan-out, GEO, SRO, consistency, and discoverability |
 
 **Content Analysis** (adapted from [SEO Machine](https://github.com/TheCraigHewitt/seomachine)):
 
@@ -119,6 +131,15 @@ python3 ~/.aidevops/agents/scripts/seo-content-analyzer.py intent "search query"
 
 # Export and analyze ranking data
 /seo-opportunities example.com --days 90
+
+# AI search readiness commands
+/seo-fanout "best personal injury lawyer chicago"
+/seo-geo example.com
+/seo-sro example.com
+/seo-hallucination-defense example.com
+/seo-agent-discovery example.com
+/seo-ai-readiness example.com
+/seo-ai-baseline example.com
 ```
 
 **API Access** (via curl in subagents, no MCP needed):
@@ -172,6 +193,21 @@ Use Google Search Console MCP for:
 - Index coverage
 
 See `seo/google-search-console.md` for query patterns.
+
+### AI Search Optimization (GEO and SRO)
+
+Use a retrieval-first workflow for AI search surfaces:
+
+0. Run `/seo-ai-baseline example.com` to capture grounding eligibility, coverage, selection, integrity, and discoverability baselines
+1. Run `/seo-fanout "target query"` (`seo/query-fanout-research.md`) to model thematic sub-queries for target intents
+2. Run `/seo-geo example.com` (`seo/geo-strategy.md`) to extract decision criteria and map coverage gaps
+3. Run `/seo-sro example.com` (`seo/sro-grounding.md`) to improve snippet selection likelihood and grounding density
+4. Run `/seo-hallucination-defense example.com` (`seo/ai-hallucination-defense.md`) to remove contradictions and unsupported claims
+5. Run `/seo-agent-discovery example.com` (`seo/ai-agent-discovery.md`) to validate that autonomous agents can actually find key information
+
+This keeps focus on deterministic retrieval signals (content clarity, structure, consistency, discoverability) instead of volatile prompt-rank tracking.
+
+For full execution order and scorecard guidance, use `seo/ai-search-readiness.md`.
 
 ### SERP Analysis
 
