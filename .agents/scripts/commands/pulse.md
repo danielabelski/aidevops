@@ -40,8 +40,9 @@ This is idempotent — safe to run even when PATH is already correct. All subseq
 # Max workers (dynamic, from available RAM)
 MAX_WORKERS=$(cat ~/.aidevops/logs/pulse-max-workers 2>/dev/null || echo 4)
 
-# Count running workers (only .opencode binaries, not node launchers)
-WORKER_COUNT=$(ps axo command | grep '/full-loop' | grep '\.opencode' | grep -v grep | wc -l | tr -d ' ')
+# Count running issue workers only (exclude supervisor /pulse processes whose
+# command payload can contain '/full-loop' text from pre-fetched state)
+WORKER_COUNT=$(ps axo command | grep '\.opencode run' | grep '/full-loop Implement issue #' | grep -v '/pulse' | grep -v grep | wc -l | tr -d ' ')
 AVAILABLE=$((MAX_WORKERS - WORKER_COUNT))
 
 # Priority-class allocations (t1423) — read from pre-fetched state
@@ -369,7 +370,7 @@ gh pr close <number> --repo <slug> \
 
 ### Kill stuck workers
 
-Check `ps axo pid,etime,command | grep '/full-loop' | grep '\.opencode'`. Any worker running 3+ hours with no open PR is likely stuck. Kill it: `kill <pid>`. Comment on the issue with the full audit-quality fields (model, branch, reason, diagnosis, next action — see "Audit-quality state in issue and PR comments" below). This frees a slot. If the worker has recent commits or an open PR with activity, leave it alone — it's making progress.
+Check `ps axo pid,etime,command | grep '\.opencode run' | grep '/full-loop Implement issue #' | grep -v '/pulse'`. Any worker running 3+ hours with no open PR is likely stuck. Kill it: `kill <pid>`. Comment on the issue with the full audit-quality fields (model, branch, reason, diagnosis, next action — see "Audit-quality state in issue and PR comments" below). This frees a slot. If the worker has recent commits or an open PR with activity, leave it alone — it's making progress.
 
 Before killing a worker for thrash, read the latest worker transcript/log tail and attempt one targeted coaching intervention unless the worker is clearly hard-stuck (for example: repeated identical fatal error, no commits for many hours, or provider backoff exhaustion). Coaching intervention means: post a concise issue comment with the exact blocker pattern, then re-dispatch with a narrower acceptance target and explicit checkpoint deadline. If that coached retry still fails to produce a checkpoint, then kill/requeue and comment why completion was not possible.
 
