@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.172.0] - 2026-03-12
+
+### Added
+
+- add AI-search GEO/SRO specialist workflows
+
+### Fixed
+
+- address review feedback in AI-search docs
+- narrow pulse worker matching to real issue runs
+
 ## [2.171.11] - 2026-03-12
 
 ### Fixed
