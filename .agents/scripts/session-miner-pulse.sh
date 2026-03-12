@@ -385,7 +385,7 @@ previous_metrics = {}
 if metrics_path.exists():
     try:
         previous_metrics = json.loads(metrics_path.read_text())
-    except Exception:
+    except (OSError, json.JSONDecodeError):
         previous_metrics = {}
 
 previous_patterns = previous_metrics.get("patterns", {})
@@ -509,7 +509,7 @@ for action in actions:
     if dedup.returncode == 0:
         try:
             existing = json.loads(dedup.stdout)
-        except Exception:
+        except json.JSONDecodeError:
             existing = []
         if existing:
             continue
