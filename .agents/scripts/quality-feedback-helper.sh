@@ -54,6 +54,202 @@ get_sha() {
 	return 0
 }
 
+# Resolve default branch for repo (cached per process)
+_QF_DEFAULT_BRANCH=""
+_QF_DEFAULT_BRANCH_REPO=""
+
+_get_default_branch() {
+	local repo_slug="$1"
+
+	if [[ -n "$_QF_DEFAULT_BRANCH" && "$_QF_DEFAULT_BRANCH_REPO" == "$repo_slug" ]]; then
+		echo "$_QF_DEFAULT_BRANCH"
+		return 0
+	fi
+
+	local branch
+	branch=$(gh api "repos/${repo_slug}" --jq '.default_branch' 2>/dev/null || echo "main")
+	if [[ -z "$branch" || "$branch" == "null" ]]; then
+		branch="main"
+	fi
+
+	_QF_DEFAULT_BRANCH="$branch"
+	_QF_DEFAULT_BRANCH_REPO="$repo_slug"
+	echo "$branch"
+	return 0
+}
+
+_trim_whitespace() {
+	local text="$1"
+	text="${text#"${text%%[![:space:]]*}"}"
+	text="${text%"${text##*[![:space:]]}"}"
+	echo "$text"
+	return 0
+}
+
+_extract_verification_snippet() {
+	local body_full="$1"
+	local line=""
+	local in_fence="false"
+	local fence_type=""
+	local candidate=""
+
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^\`\`\` ]]; then
+			if [[ "$in_fence" == "false" ]]; then
+				in_fence="true"
+				fence_type=""
+				if [[ "$line" =~ ^\`\`\`([[:alnum:]_-]+) ]]; then
+					fence_type="${BASH_REMATCH[1],,}"
+				fi
+				continue
+			fi
+			break
+		fi
+
+		if [[ "$in_fence" == "true" ]]; then
+			candidate=$(_trim_whitespace "$line")
+			[[ -z "$candidate" ]] && continue
+
+			if [[ "$fence_type" == "diff" || "$fence_type" == "suggestion" ]]; then
+				# diff/suggestion fences: skip all diff markers and added/removed lines
+				[[ "$candidate" == "@@"* ]] && continue
+				[[ "$candidate" == "diff --git"* ]] && continue
+				[[ "$candidate" == "index "* ]] && continue
+				[[ "$candidate" == "+++"* ]] && continue
+				[[ "$candidate" == "---"* ]] && continue
+				[[ "$candidate" == +* ]] && continue
+				[[ "$candidate" == -* ]] && continue
+			else
+				# non-diff fences: lines starting with +/- are diff markers too —
+				# skip them rather than stripping the prefix and using the content
+				[[ "$candidate" == +* ]] && continue
+				[[ "$candidate" == -* ]] && continue
+			fi
+
+			[[ "$candidate" == "Suggestion:"* ]] && continue
+			[[ "$candidate" == "//"* ]] && continue
+			[[ "$candidate" == "# "* ]] && continue
+			[[ "$candidate" == "/*"* ]] && continue
+			[[ "$candidate" == "*"* ]] && continue
+
+			if [[ -n "$candidate" && ${#candidate} -ge 12 ]]; then
+				echo "$candidate"
+				return 0
+			fi
+		fi
+	done <<<"$body_full"
+
+	while IFS= read -r line; do
+		case "$line" in
+		'> '*)
+			line="${line#> }"
+			;;
+		'    '* | '	'*)
+			# indented code block (4 spaces or tab)
+			line="${line#    }"
+			line="${line#	}"
+			;;
+		'`'*)
+			# inline backtick code — strip surrounding backticks
+			line="${line//\`/}"
+			;;
+		*)
+			continue
+			;;
+		esac
+		line=$(_trim_whitespace "$line")
+		if [[ -n "$line" && ${#line} -ge 12 ]]; then
+			echo "$line"
+			return 0
+		fi
+	done <<<"$body_full"
+
+	return 1
+}
+
+_finding_still_exists_on_main() {
+	local repo_slug="$1"
+	local file_path="$2"
+	local line_num="$3"
+	local body_full="$4"
+
+	if [[ -z "$file_path" || "$file_path" == "null" ]]; then
+		echo '{"result":true,"status":"unverifiable"}'
+		return 0
+	fi
+
+	local default_branch
+	default_branch=$(_get_default_branch "$repo_slug")
+
+	local file_content
+	local api_err
+	api_err="$(mktemp)"
+	if ! file_content=$(gh api -H "Accept: application/vnd.github.raw" \
+		"repos/${repo_slug}/contents/${file_path}?ref=${default_branch}" 2>"$api_err"); then
+		if grep -q "404" "$api_err"; then
+			echo "[scan] Skipping resolved finding: ${file_path}:${line_num} - file missing on ${default_branch}" >&2
+			rm -f "$api_err"
+			echo '{"result":false,"status":"resolved"}'
+			return 1
+		fi
+		echo "[scan] Keeping unverifiable finding: ${file_path}:${line_num} - failed to fetch ${default_branch}" >&2
+		rm -f "$api_err"
+		echo '{"result":true,"status":"unverifiable"}'
+		return 0
+	fi
+	rm -f "$api_err"
+
+	if [[ -z "$file_content" ]]; then
+		echo "[scan] Skipping resolved finding: ${file_path}:${line_num} - file missing on ${default_branch}" >&2
+		echo '{"result":false,"status":"resolved"}'
+		return 1
+	fi
+
+	local snippet
+	if ! snippet=$(_extract_verification_snippet "$body_full"); then
+		echo "[scan] Keeping unverifiable finding: ${file_path}:${line_num} - no snippet extracted" >&2
+		echo '{"result":true,"status":"unverifiable"}'
+		return 0
+	fi
+
+	local found_in_window="false"
+	if [[ "$line_num" =~ ^[0-9]+$ && "$line_num" -gt 0 ]]; then
+		local total_lines
+		total_lines=$(printf '%s\n' "$file_content" | wc -l | tr -d ' ')
+
+		if [[ "$line_num" -le "$total_lines" ]]; then
+			local start_line=$((line_num - 20))
+			local end_line=$((line_num + 20))
+			((start_line < 1)) && start_line=1
+			((end_line > total_lines)) && end_line=$total_lines
+
+			local current_line=0
+			local file_line=""
+			while IFS= read -r file_line; do
+				current_line=$((current_line + 1))
+				if [[ "$current_line" -ge "$start_line" && "$current_line" -le "$end_line" && "$file_line" == *"$snippet"* ]]; then
+					found_in_window="true"
+					break
+				fi
+			done <<<"$file_content"
+		fi
+	fi
+
+	if [[ "$found_in_window" == "true" ]]; then
+		echo '{"result":true,"status":"verified"}'
+		return 0
+	fi
+
+	if printf '%s' "$file_content" | grep -Fq "$snippet"; then
+		echo '{"result":true,"status":"verified"}'
+		return 0
+	fi
+
+	echo "[scan] Skipping resolved finding: ${file_path}:${line_num} - snippet not found on ${default_branch}" >&2
+	echo '{"result":false,"status":"resolved"}'
+	return 1
+}
+
 # Show status of all checks
 cmd_status() {
 	local pr_number="${1:-}"
@@ -957,6 +1153,50 @@ _create_quality_debt_issues() {
 	local repo_slug="$1"
 	local pr_num="$2"
 	local findings="$3"
+	local verified_findings_stream=""
+
+	while IFS= read -r finding; do
+		[[ -z "$finding" ]] && continue
+
+		local file_path=""
+		local line_num=""
+		local body_full=""
+		local verification_json=""
+		local verification_result=""
+		local verification_status=""
+		local finding_fields=""
+		local finding_with_status=""
+
+		# Single jq call to extract all three fields (body_full base64-encoded to preserve newlines)
+		finding_fields=$(printf '%s' "$finding" | jq -r '"\(.file // "")\t\(.line // "?")\t\(.body_full // .body // "" | @base64)"')
+		IFS=$'\t' read -r file_path line_num body_full <<<"$finding_fields"
+		body_full=$(printf '%s' "$body_full" | base64 -d)
+
+		verification_json=$(_finding_still_exists_on_main "$repo_slug" "$file_path" "$line_num" "$body_full" || true)
+
+		# Parse fixed-format JSON without jq — format is {"result":bool,"status":"str"}
+		verification_result="false"
+		verification_status="verified"
+		if [[ "$verification_json" == *'"result":true'* ]]; then
+			verification_result="true"
+		fi
+		if [[ "$verification_json" == *'"status":"unverifiable"'* ]]; then
+			verification_status="unverifiable"
+		elif [[ "$verification_json" == *'"status":"resolved"'* ]]; then
+			verification_status="resolved"
+		fi
+
+		if [[ "$verification_result" == "true" ]]; then
+			finding_with_status=$(printf '%s' "$finding" | jq --arg status "$verification_status" '. + {verification_status: $status}')
+			verified_findings_stream+="${finding_with_status}"$'\n'
+		fi
+	done < <(printf '%s' "$findings" | jq -c '.[]')
+
+	if [[ -n "$verified_findings_stream" ]]; then
+		findings=$(printf '%s' "$verified_findings_stream" | jq -s '.')
+	else
+		findings="[]"
+	fi
 
 	local finding_count
 	finding_count=$(echo "$findings" | jq 'length' 2>/dev/null || echo "0")
@@ -1034,6 +1274,7 @@ _create_quality_debt_issues() {
 		finding_details=$(echo "$file_findings" | jq -r '.[] |
 			"### \(.severity | ascii_upcase): \(.reviewer) (\(.reviewer_login))\n" +
 			(if .file != null and .line != null then "**File**: `\(.file):\(.line)`\n" else "" end) +
+			(if .verification_status == "unverifiable" then "**Verification**: kept as unverifiable (no stable snippet extracted)\n" else "" end) +
 			"\(.body_full)\n\n" +
 			(if .url != null then "[View comment](\(.url))\n" else "" end) +
 			"---\n"
@@ -1265,4 +1506,6 @@ main() {
 	return 0
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+	main "$@"
+fi
