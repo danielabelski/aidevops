@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.172.22] - 2026-03-13
+
+### Changed
+
+- Maintenance: claim t1477
+- Maintenance: address PR #353 review feedback (t3777) (#4437)
+
 ## [2.172.21] - 2026-03-13
 
 ### Changed
