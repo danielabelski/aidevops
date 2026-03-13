@@ -35,6 +35,14 @@ mkdir -p "$(dirname "$STATS_PIDFILE")"
 
 #######################################
 # Portable elapsed-seconds lookup for a running PID
+#
+# Robustness notes:
+# - The `ps` commands use `|| true` to prevent `set -euo pipefail` from
+#   aborting the script if the process disappears. This allows the `etime`
+#   fallback logic to execute.
+# - The `awk` command substitution also uses `|| true`. `awk` is scripted to
+#   `exit 1` on invalid input, and this guard prevents script termination.
+#   The subsequent `^[0-9]+$` check handles the empty output case.
 #######################################
 _stats_process_elapsed_seconds() {
 	local pid="$1"
