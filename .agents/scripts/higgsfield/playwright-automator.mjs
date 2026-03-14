@@ -913,6 +913,67 @@ function discoveryNeeded() {
 }
 
 // Run site discovery - crawl all nav links and cache routes + UI structure
+// Categorise discovered links into route buckets by URL prefix.
+const ROUTE_PREFIXES = [
+  { prefix: '/image/',              bucket: 'image' },
+  { prefix: '/create/',             bucket: 'video' },
+  { prefix: '/edit',                bucket: 'edit' },
+  { prefix: '/app/',                bucket: 'apps' },
+  { prefix: '/motion/',             bucket: 'motions' },
+  { prefix: '/mixed-media-presets/',bucket: 'mixed_media' },
+];
+
+const ACCOUNT_PREFIXES = ['/asset/all', '/library/image', '/profile', '/pricing', '/auth/'];
+const FEATURE_PREFIXES = [
+  '/cinema-studio', '/vibe-motion', '/lipsync-studio', '/character',
+  '/ai-influencer-studio', '/upscale', '/fashion-factory', '/chat',
+  '/ugc-factory', '/photodump-studio', '/storyboard-generator',
+  '/nano-banana-pro', '/seedream-4-5', '/kling', '/sora', '/wan', '/veo', '/minimax',
+];
+
+function categoriseRoutes(links) {
+  const routes = { image: {}, video: {}, edit: {}, apps: {}, features: {}, account: {}, motions: {}, mixed_media: {}, other: {} };
+  for (const [path, label] of Object.entries(links)) {
+    const match = ROUTE_PREFIXES.find(r => path.startsWith(r.prefix));
+    if (match) {
+      routes[match.bucket][path] = label;
+    } else if (ACCOUNT_PREFIXES.some(p => path.startsWith(p))) {
+      routes.account[path] = label;
+    } else if (FEATURE_PREFIXES.some(p => path.startsWith(p))) {
+      routes.features[path] = label;
+    } else {
+      routes.other[path] = label;
+    }
+  }
+  return routes;
+}
+
+// Diff current routes against previous cache, returning a list of change descriptions.
+function diffRoutesAgainstCache(routes) {
+  const changes = [];
+  if (!existsSync(ROUTES_CACHE)) return changes;
+  try {
+    const prev = JSON.parse(readFileSync(ROUTES_CACHE, 'utf-8'));
+    const diffBuckets = [
+      { key: 'apps', label: 'APP' },
+      { key: 'image', label: 'IMAGE MODEL' },
+      { key: 'features', label: 'FEATURE' },
+    ];
+    for (const { key, label } of diffBuckets) {
+      const prevKeys = new Set(Object.keys(prev[key] || {}));
+      for (const path of Object.keys(routes[key])) {
+        if (!prevKeys.has(path)) changes.push(`NEW ${label}: ${path} → ${routes[key][path]}`);
+      }
+      if (key === 'apps') {
+        for (const path of prevKeys) {
+          if (!routes.apps[path]) changes.push(`REMOVED APP: ${path}`);
+        }
+      }
+    }
+  } catch { /* first run or corrupt cache */ }
+  return changes;
+}
+
 async function runDiscovery(options = {}) {
   console.log('Running site discovery (checking for new/changed features)...');
   const { browser, context, page } = await launchBrowser({ ...options, headless: true });
@@ -928,7 +989,6 @@ async function runDiscovery(options = {}) {
       const map = {};
       allLinks.forEach(a => {
         const href = a.getAttribute('href');
-        // Clean the text: strip "Your browser does not support the video." prefix
         let text = a.textContent?.trim()
           .replace(/Your browser does not support the video\.\s*/g, '')
           .replace(/\s+/g, ' ')
@@ -940,65 +1000,22 @@ async function runDiscovery(options = {}) {
       return map;
     });
 
-    // Categorise routes
-    const routes = { image: {}, video: {}, edit: {}, apps: {}, features: {}, account: {}, motions: {}, mixed_media: {}, other: {} };
-    for (const [path, label] of Object.entries(links)) {
-      if (path.startsWith('/image/'))                    routes.image[path] = label;
-      else if (path.startsWith('/create/'))              routes.video[path] = label;
-      else if (path.startsWith('/edit'))                 routes.edit[path] = label;
-      else if (path.startsWith('/app/'))                 routes.apps[path] = label;
-      else if (path.startsWith('/motion/'))              routes.motions[path] = label;
-      else if (path.startsWith('/mixed-media-presets/')) routes.mixed_media[path] = label;
-      else if (['/asset/all','/library/image','/profile','/pricing','/auth/'].some(p => path.startsWith(p)))
-                                                         routes.account[path] = label;
-      else if (['/cinema-studio','/vibe-motion','/lipsync-studio','/character',
-                '/ai-influencer-studio','/upscale','/fashion-factory','/chat',
-                '/ugc-factory','/photodump-studio','/storyboard-generator',
-                '/nano-banana-pro','/seedream-4-5','/kling','/sora','/wan','/veo','/minimax',
-               ].some(p => path.startsWith(p)))
-                                                         routes.features[path] = label;
-      else                                               routes.other[path] = label;
-    }
+    const routes = categoriseRoutes(links);
 
     // Also snapshot the image page to capture current model options
     await page.goto(`${BASE_URL}/image/soul`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.waitForTimeout(3000);
     await dismissAllModals(page);
-    const imageAria = await page.locator('body').ariaSnapshot();
 
     // Extract model selector options if visible
     const imageModels = await page.evaluate(() => {
-      // Look for model selector buttons/dropdowns
       const modelBtns = [...document.querySelectorAll('button')].filter(b =>
         b.textContent?.match(/soul|nano|seedream|flux|gpt|wan|kontext/i)
       );
       return modelBtns.map(b => b.textContent?.trim().substring(0, 60));
     });
 
-    // Diff against previous cache
-    let changes = [];
-    if (existsSync(ROUTES_CACHE)) {
-      try {
-        const prev = JSON.parse(readFileSync(ROUTES_CACHE, 'utf-8'));
-        const prevApps = new Set(Object.keys(prev.apps || {}));
-        const prevImage = new Set(Object.keys(prev.image || {}));
-        const prevFeatures = new Set(Object.keys(prev.features || {}));
-
-        for (const path of Object.keys(routes.apps)) {
-          if (!prevApps.has(path)) changes.push(`NEW APP: ${path} → ${routes.apps[path]}`);
-        }
-        for (const path of Object.keys(routes.image)) {
-          if (!prevImage.has(path)) changes.push(`NEW IMAGE MODEL: ${path} → ${routes.image[path]}`);
-        }
-        for (const path of Object.keys(routes.features)) {
-          if (!prevFeatures.has(path)) changes.push(`NEW FEATURE: ${path} → ${routes.features[path]}`);
-        }
-        // Check for removed items
-        for (const path of prevApps) {
-          if (!routes.apps[path]) changes.push(`REMOVED APP: ${path}`);
-        }
-      } catch { /* first run or corrupt cache */ }
-    }
+    const changes = diffRoutesAgainstCache(routes);
 
     // Save cache
     const cacheData = {
@@ -1241,6 +1258,43 @@ async function forceCloseDialogs(page) {
 }
 
 // Login to Higgsfield
+// Try multiple selectors to find and fill a form field. Returns true if successful.
+async function tryFillField(page, selectors, value, fieldName) {
+  for (const selector of selectors) {
+    const el = page.locator(selector);
+    const count = await el.count();
+    if (count > 0) {
+      console.log(`Found ${fieldName} field with selector: ${selector}${count > 1 ? ` (${count} matches)` : ''}`);
+      await el.first().click();
+      await page.waitForTimeout(300);
+      await el.first().fill(value);
+      console.log(`${fieldName} entered`);
+      return true;
+    }
+  }
+  return false;
+}
+
+// Try multiple selectors to find and click a submit button. Returns true if clicked.
+async function tryClickSubmit(page, selectors) {
+  for (const selector of selectors) {
+    const el = page.locator(selector).filter({ hasNotText: /google|apple|discord/i });
+    const count = await el.count();
+    if (count > 0) {
+      console.log(`Clicking submit button: ${selector}`);
+      await el.first().click();
+      return true;
+    }
+  }
+  return false;
+}
+
+// Wait for the page to leave the auth/login URL. Returns true if redirected.
+function isNonAuthUrl(url) {
+  const u = url.toString();
+  return !u.includes('/auth/') && !u.includes('/login');
+}
+
 async function login(options = {}) {
   const { user, pass } = loadCredentials();
   const { browser, context, page } = await launchBrowser({ ...options, headed: true });
@@ -1272,7 +1326,6 @@ async function login(options = {}) {
   const ariaSnap = await page.locator('body').ariaSnapshot();
   console.log('Page structure:', ariaSnap.substring(0, 2000));
 
-  // Try multiple strategies to find and fill the email field
   const emailSelectors = [
     'input[type="email"]',
     'input[name="email"]',
@@ -1283,20 +1336,7 @@ async function login(options = {}) {
     'input:not([type="hidden"]):not([type="password"])',
   ];
 
-  let emailFilled = false;
-  for (const selector of emailSelectors) {
-    const el = page.locator(selector);
-    const count = await el.count();
-    if (count > 0) {
-      console.log(`Found email field with selector: ${selector} (${count} matches)`);
-      await el.first().click();
-      await page.waitForTimeout(300);
-      await el.first().fill(user);
-      emailFilled = true;
-      console.log('Email entered');
-      break;
-    }
-  }
+  const emailFilled = await tryFillField(page, emailSelectors, user, 'Email');
 
   if (!emailFilled) {
     console.log('Could not find email field automatically');
@@ -1312,7 +1352,6 @@ async function login(options = {}) {
 
   await page.waitForTimeout(1000);
 
-  // Try to find and fill password field
   const passwordSelectors = [
     'input[type="password"]',
     'input[name="password"]',
@@ -1320,20 +1359,7 @@ async function login(options = {}) {
     'input[autocomplete="current-password"]',
   ];
 
-  let passFilled = false;
-  for (const selector of passwordSelectors) {
-    const el = page.locator(selector);
-    const count = await el.count();
-    if (count > 0) {
-      console.log(`Found password field with selector: ${selector}`);
-      await el.first().click();
-      await page.waitForTimeout(300);
-      await el.first().fill(pass);
-      passFilled = true;
-      console.log('Password entered');
-      break;
-    }
-  }
+  let passFilled = await tryFillField(page, passwordSelectors, pass, 'Password');
 
   if (!passFilled) {
     console.log('No password field found yet - may appear after email submission');
@@ -1341,7 +1367,6 @@ async function login(options = {}) {
 
   await page.waitForTimeout(500);
 
-  // Click submit/continue button
   const submitSelectors = [
     'button[type="submit"]',
     'button:has-text("Sign in")',
@@ -1351,17 +1376,7 @@ async function login(options = {}) {
     'input[type="submit"]',
   ];
 
-  let submitted = false;
-  for (const selector of submitSelectors) {
-    const el = page.locator(selector).filter({ hasNotText: /google|apple|discord/i });
-    const count = await el.count();
-    if (count > 0) {
-      console.log(`Clicking submit button: ${selector}`);
-      await el.first().click();
-      submitted = true;
-      break;
-    }
-  }
+  const submitted = await tryClickSubmit(page, submitSelectors);
 
   if (!submitted) {
     console.log('No submit button found, trying Enter key...');
@@ -1376,37 +1391,16 @@ async function login(options = {}) {
 
   if (!passFilled) {
     // Password might appear on a second step
-    for (const selector of passwordSelectors) {
-      const el = page.locator(selector);
-      const count = await el.count();
-      if (count > 0) {
-        console.log(`Found password field on step 2: ${selector}`);
-        await el.first().click();
-        await page.waitForTimeout(300);
-        await el.first().fill(pass);
-        passFilled = true;
-        console.log('Password entered on step 2');
-
-        // Submit again
-        for (const subSelector of submitSelectors) {
-          const subEl = page.locator(subSelector).filter({ hasNotText: /google|apple|discord/i });
-          if (await subEl.count() > 0) {
-            await subEl.first().click();
-            break;
-          }
-        }
-        break;
-      }
+    passFilled = await tryFillField(page, passwordSelectors, pass, 'Password (step 2)');
+    if (passFilled) {
+      await tryClickSubmit(page, submitSelectors);
     }
   }
 
   // Wait for redirect after login
   console.log('Waiting for login to complete...');
   try {
-    await page.waitForURL(url => {
-      const u = url.toString();
-      return !u.includes('/auth/') && !u.includes('/login');
-    }, { timeout: 30000 });
+    await page.waitForURL(isNonAuthUrl, { timeout: 30000 });
     console.log('Login successful! Redirected to:', page.url());
   } catch {
     console.log('Still on auth page. Current URL:', page.url());
@@ -1425,10 +1419,7 @@ async function login(options = {}) {
     if (options.headed) {
       console.log('Waiting 60s for manual login completion...');
       try {
-        await page.waitForURL(url => {
-          const u = url.toString();
-          return !u.includes('/auth/') && !u.includes('/login');
-        }, { timeout: 60000 });
+        await page.waitForURL(isNonAuthUrl, { timeout: 60000 });
         console.log('Login completed manually! URL:', page.url());
       } catch {
         console.log('Timeout. Saving current state anyway...');
@@ -2123,6 +2114,56 @@ async function downloadVideoFromHistory(page, outputDir, metadata = {}, options 
 // Fetch project API data, polling if the newest video is still processing (t269).
 // Returns the API response with at least one completed job, or the last response
 // if timeout is reached. Uses exponential backoff: 10s, 15s, 20s, 25s, 30s (cap).
+// Fetch project API data via page reload interception, with direct-fetch fallback.
+async function fetchProjectApiData(page) {
+  let projectApiData = null;
+
+  // Try API interception via page reload first
+  const apiHandler = async (response) => {
+    const url = response.url();
+    if (url.includes('fnf.higgsfield.ai/project')) {
+      try { projectApiData = await response.json(); } catch {}
+    }
+  };
+  page.on('response', apiHandler);
+  await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.waitForTimeout(6000);
+  page.off('response', apiHandler);
+
+  // Fallback: Direct API fetch if interception missed the response
+  if (!projectApiData) {
+    try {
+      projectApiData = await page.evaluate(async () => {
+        const resp = await fetch('https://fnf.higgsfield.ai/project?job_set_type=image2video&limit=20&offset=0', {
+          credentials: 'include',
+          headers: { 'Accept': 'application/json' },
+        });
+        if (resp.ok) return await resp.json();
+        return null;
+      });
+      if (projectApiData?.job_sets?.length > 0) {
+        console.log(`Direct API fetch got ${projectApiData.job_sets.length} job set(s)`);
+      }
+    } catch (fetchErr) {
+      console.log(`Direct API fetch failed: ${fetchErr.message}`);
+    }
+  }
+  return projectApiData;
+}
+
+// Evaluate the newest job status: 'done', 'failed', 'processing', or 'empty'.
+const PROCESSING_STATUSES = ['queued', 'processing', 'in_queue', 'pending', 'running'];
+
+function evaluateNewestJobStatus(projectApiData) {
+  if (!projectApiData?.job_sets?.length) return { verdict: 'empty' };
+  const newestJob = projectApiData.job_sets[0]?.jobs?.[0];
+  const status = newestJob?.status;
+  if (status === 'completed' && newestJob?.results?.raw?.url) return { verdict: 'done', newestJob };
+  if (status === 'failed') return { verdict: 'failed', newestJob };
+  const isProcessing = PROCESSING_STATUSES.includes(status) || !status;
+  return { verdict: isProcessing ? 'processing' : 'unknown', status, newestJob };
+}
+
 async function fetchProjectApiWithPolling(page, { shouldWait = true, maxWaitMs = 300000 } = {}) {
   const startTime = Date.now();
   let pollDelay = 10000; // Start at 10s — video generation typically takes 60-180s
@@ -2130,77 +2171,34 @@ async function fetchProjectApiWithPolling(page, { shouldWait = true, maxWaitMs =
 
   while (true) {
     attempt++;
-    let projectApiData = null;
+    const projectApiData = await fetchProjectApiData(page);
+    const jobStatus = evaluateNewestJobStatus(projectApiData);
 
-    // Try API interception via page reload first
-    const apiHandler = async (response) => {
-      const url = response.url();
-      if (url.includes('fnf.higgsfield.ai/project')) {
-        try { projectApiData = await response.json(); } catch {}
+    if (jobStatus.verdict === 'done') {
+      if (attempt > 1) {
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+        console.log(`Video ready after ${elapsed}s of polling (${attempt} attempts)`);
       }
-    };
-    page.on('response', apiHandler);
-    await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForTimeout(6000);
-    page.off('response', apiHandler);
-
-    // Fallback: Direct API fetch if interception missed the response
-    if (!projectApiData) {
-      try {
-        projectApiData = await page.evaluate(async () => {
-          const resp = await fetch('https://fnf.higgsfield.ai/project?job_set_type=image2video&limit=20&offset=0', {
-            credentials: 'include',
-            headers: { 'Accept': 'application/json' },
-          });
-          if (resp.ok) return await resp.json();
-          return null;
-        });
-        if (projectApiData?.job_sets?.length > 0) {
-          console.log(`Direct API fetch got ${projectApiData.job_sets.length} job set(s)`);
-        }
-      } catch (fetchErr) {
-        console.log(`Direct API fetch failed: ${fetchErr.message}`);
-      }
+      return projectApiData;
     }
 
-    // Check if the newest job is completed
-    if (projectApiData?.job_sets?.length > 0) {
-      const newestJobSet = projectApiData.job_sets[0];
-      const newestJob = newestJobSet?.jobs?.[0];
-      const status = newestJob?.status;
+    if (jobStatus.verdict === 'failed') {
+      console.log(`Newest video job failed: ${jobStatus.newestJob?.error || 'unknown error'}`);
+      return projectApiData;
+    }
 
-      if (status === 'completed' && newestJob?.results?.raw?.url) {
-        if (attempt > 1) {
-          const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-          console.log(`Video ready after ${elapsed}s of polling (${attempt} attempts)`);
-        }
-        return projectApiData;
-      }
-
-      if (status === 'failed') {
-        console.log(`Newest video job failed: ${newestJob?.error || 'unknown error'}`);
-        return projectApiData;
-      }
-
-      // Video is still processing — decide whether to poll or return
-      const processingStatuses = ['queued', 'processing', 'in_queue', 'pending', 'running'];
-      const isProcessing = processingStatuses.includes(status) || !status;
+    if (jobStatus.verdict === 'processing') {
       const elapsed = Date.now() - startTime;
-
-      if (isProcessing && shouldWait && elapsed < maxWaitMs) {
+      if (shouldWait && elapsed < maxWaitMs) {
         const elapsedSec = (elapsed / 1000).toFixed(0);
         const remainingSec = ((maxWaitMs - elapsed) / 1000).toFixed(0);
-        console.log(`  Video still processing (status: ${status || 'unknown'}, ${elapsedSec}s elapsed, ${remainingSec}s remaining)...`);
+        console.log(`  Video still processing (status: ${jobStatus.status || 'unknown'}, ${elapsedSec}s elapsed, ${remainingSec}s remaining)...`);
         await page.waitForTimeout(pollDelay);
-        // Gradual backoff: 10s -> 15s -> 20s -> 25s -> 30s (cap)
         pollDelay = Math.min(pollDelay + 5000, 30000);
         continue;
       }
-
-      if (isProcessing) {
-        const elapsedSec = ((Date.now() - startTime) / 1000).toFixed(0);
-        console.log(`Video still processing after ${elapsedSec}s. Use 'download --model video' to retry later.`);
-      }
+      const elapsedSec = ((Date.now() - startTime) / 1000).toFixed(0);
+      console.log(`Video still processing after ${elapsedSec}s. Use 'download --model video' to retry later.`);
     }
 
     return projectApiData;
@@ -2547,33 +2545,42 @@ async function waitForVideoGeneration(page, historyState, prompt, options = {}) 
       return true;
     }
 
-    if (state.isProcessing) {
-      wasProcessing = true;
-      console.log(`  ${elapsedSec}s: processing (${state.currentCount} items)...`);
-    } else if (wasProcessing && !state.matchesOurPrompt && !state.isNewItem) {
-      if (Date.now() - lastRefreshTime > 30000) {
-        console.log(`  ${elapsedSec}s: processing ended, refreshing History...`);
-        const settingsTab = page.locator('[role="tab"]:has-text("Settings")');
-        if (await settingsTab.count() > 0) {
-          await settingsTab.click({ force: true });
-          await page.waitForTimeout(1000);
-        }
-        if (await historyTab.count() > 0) {
-          await historyTab.click({ force: true });
-          await page.waitForTimeout(2000);
-        }
-        lastRefreshTime = Date.now();
-      } else {
-        console.log(`  ${elapsedSec}s: waiting for result (${state.currentCount} items)...`);
-      }
-    } else {
-      console.log(`  ${elapsedSec}s: waiting (${state.currentCount} items, prompt: "${state.promptText?.substring(0, 40)}...")...`);
-    }
+    // Log polling progress and refresh History tab if needed
+    ({ wasProcessing, lastRefreshTime } = await logVideoPollingProgress(
+      page, state, { elapsedSec, wasProcessing, lastRefreshTime, historyTab }
+    ));
   }
 
   console.log('Timeout waiting for video generation. The video may still be processing.');
   console.log('Check back later with: node playwright-automator.mjs download --model video');
   return false;
+}
+
+// Log video polling progress and optionally refresh the History tab.
+async function logVideoPollingProgress(page, state, { elapsedSec, wasProcessing, lastRefreshTime, historyTab }) {
+  if (state.isProcessing) {
+    console.log(`  ${elapsedSec}s: processing (${state.currentCount} items)...`);
+    return { wasProcessing: true, lastRefreshTime };
+  }
+  if (wasProcessing && !state.matchesOurPrompt && !state.isNewItem) {
+    if (Date.now() - lastRefreshTime > 30000) {
+      console.log(`  ${elapsedSec}s: processing ended, refreshing History...`);
+      const settingsTab = page.locator('[role="tab"]:has-text("Settings")');
+      if (await settingsTab.count() > 0) {
+        await settingsTab.click({ force: true });
+        await page.waitForTimeout(1000);
+      }
+      if (await historyTab.count() > 0) {
+        await historyTab.click({ force: true });
+        await page.waitForTimeout(2000);
+      }
+      return { wasProcessing, lastRefreshTime: Date.now() };
+    }
+    console.log(`  ${elapsedSec}s: waiting for result (${state.currentCount} items)...`);
+    return { wasProcessing, lastRefreshTime };
+  }
+  console.log(`  ${elapsedSec}s: waiting (${state.currentCount} items, prompt: "${state.promptText?.substring(0, 40)}...")...`);
+  return { wasProcessing, lastRefreshTime };
 }
 
 // --- End video generation helpers ---
@@ -3102,7 +3109,7 @@ function finalizeDownload(filePath, metadata, outputDir, options = {}) {
 // Download a single image via the Asset showcase dialog.
 // Clicks the image, waits for dialog, clicks Download, saves file.
 // Returns the saved file path, or null if download failed.
-async function downloadImageViaDialog(page, imgLocator, index, outputDir, extraMeta, options) {
+async function downloadImageViaDialog({ page, imgLocator, index, outputDir, extraMeta, options }) {
   await imgLocator.click({ force: true });
   await page.waitForTimeout(1500);
 
@@ -3205,7 +3212,7 @@ async function downloadLatestResult(page, outputDir, count = 4, options = {}) {
       const toDownload = count === 0 ? imgCount : Math.min(count, imgCount);
       for (let i = 0; i < toDownload; i++) {
         try {
-          const path = await downloadImageViaDialog(page, generatedImgs.nth(i), i, outputDir, { command: 'download' }, options);
+          const path = await downloadImageViaDialog({ page, imgLocator: generatedImgs.nth(i), index: i, outputDir, extraMeta: { command: 'download' }, options });
           if (path) {
             console.log(`Downloaded [${i + 1}/${toDownload}]: ${path}`);
             downloaded.push(path);
@@ -3245,7 +3252,7 @@ async function downloadSpecificImages(page, outputDir, indices, options = {}) {
 
   for (const idx of indices) {
     try {
-      const path = await downloadImageViaDialog(page, generatedImgs.nth(idx), downloaded.length, outputDir, { command: 'image', imageIndex: idx }, options);
+      const path = await downloadImageViaDialog({ page, imgLocator: generatedImgs.nth(idx), index: downloaded.length, outputDir, extraMeta: { command: 'image', imageIndex: idx }, options });
       if (path) {
         console.log(`Downloaded [${downloaded.length + 1}/${indices.length}]: ${path}`);
         downloaded.push(path);
@@ -4048,7 +4055,7 @@ async function pipelineAnimateScenes(brief, sceneImages, options, outputDir, pip
 }
 
 // Pipeline Step 4: Add lipsync dialogue to scenes that have it.
-async function pipelineLipsync(brief, sceneVideos, characterImagePath, options, outputDir, pipelineState) {
+async function pipelineLipsync({ brief, sceneVideos, characterImagePath, options, outputDir, pipelineState }) {
   console.log(`\n--- Step 4: Add lipsync dialogue ---`);
   const lipsyncVideos = [];
   const scenesWithDialogue = brief.scenes.filter(s => s.dialogue);
@@ -4100,7 +4107,7 @@ function pipelineAssemble(brief, validVideos, outputDir, pipelineState) {
   const hasCaptions = brief.captions && brief.captions.length > 0;
 
   if (remotionInstalled && (hasCaptions || validVideos.length > 1)) {
-    assembleWithRemotion(validVideos, finalPath, brief, remotionDir, outputDir, pipelineState);
+    assembleWithRemotion({ validVideos, finalPath, brief, remotionDir, outputDir, pipelineState });
   } else if (validVideos.length === 1 && !hasCaptions) {
     copyFileSync(validVideos[0], finalPath);
     console.log(`Final video (single scene): ${finalPath}`);
@@ -4115,7 +4122,7 @@ function pipelineAssemble(brief, validVideos, outputDir, pipelineState) {
 }
 
 // Assemble video using Remotion (captions + transitions).
-function assembleWithRemotion(validVideos, finalPath, brief, remotionDir, outputDir, pipelineState) {
+function assembleWithRemotion({ validVideos, finalPath, brief, remotionDir, outputDir, pipelineState }) {
   console.log(`Using Remotion for assembly (${validVideos.length} scenes, ${brief.captions?.length || 0} captions)`);
 
   const publicDir = join(remotionDir, 'public');
@@ -4174,7 +4181,7 @@ async function pipeline(options = {}) {
   const characterImagePath = await pipelineCharacterImage(brief, options, outputDir, pipelineState);
   const sceneImages = await pipelineSceneImages(brief, options, outputDir, pipelineState);
   const sceneVideos = await pipelineAnimateScenes(brief, sceneImages, options, outputDir, pipelineState);
-  const lipsyncVideos = await pipelineLipsync(brief, sceneVideos, characterImagePath, options, outputDir, pipelineState);
+  const lipsyncVideos = await pipelineLipsync({ brief, sceneVideos, characterImagePath, options, outputDir, pipelineState });
   pipelineAssemble(brief, lipsyncVideos.filter(Boolean), outputDir, pipelineState);
 
   const elapsed = ((Date.now() - pipelineState.startTime) / 1000).toFixed(0);
@@ -6052,7 +6059,27 @@ function initBatch(type, options, defaultConcurrency) {
   return { jobs, defaults, concurrency, outputDir, completedIndices, batchState };
 }
 
-function finalizeBatch(type, batchState, results, startTime, outputDir, jobCount) {
+// Shared try/catch wrapper for batch image and lipsync jobs.
+// Handles retry, state persistence, and result formatting.
+async function runBatchJob({ generatorFn, jobOptions, index, jobCount, batchState, outputDir, retryLabel }) {
+  try {
+    const result = await withRetry(
+      () => generatorFn(jobOptions),
+      { maxRetries: 1, baseDelay: 5000, label: retryLabel }
+    );
+    batchState.completed.push(index);
+    saveBatchState(outputDir, batchState);
+    console.log(`[${index + 1}/${jobCount}] Complete`);
+    return { success: true, index, ...result };
+  } catch (error) {
+    batchState.failed.push({ index, error: error.message });
+    saveBatchState(outputDir, batchState);
+    console.error(`[${index + 1}/${jobCount}] Failed: ${error.message}`);
+    return { success: false, index, error: error.message };
+  }
+}
+
+function finalizeBatch({ type, batchState, results, startTime, outputDir, jobCount }) {
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
   const succeeded = results.filter(r => r?.success).length;
   const failed = results.filter(r => r && !r.success).length;
@@ -6095,25 +6122,53 @@ async function batchImage(options = {}) {
     const jobOptions = { ...options, ...defaults, ...job, output: outputDir, batchFile: undefined };
     console.log(`[${index + 1}/${jobs.length}] Generating: "${(job.prompt || '').substring(0, 60)}..." (model: ${jobOptions.model || 'soul'})`);
 
-    try {
-      const result = await withRetry(
-        () => generateImage(jobOptions),
-        { maxRetries: 1, baseDelay: 5000, label: `batch-image[${index}]` }
-      );
-      batchState.completed.push(index);
-      saveBatchState(outputDir, batchState);
-      console.log(`[${index + 1}/${jobs.length}] Complete`);
-      return { success: true, index, ...result };
-    } catch (error) {
-      batchState.failed.push({ index, error: error.message });
-      saveBatchState(outputDir, batchState);
-      console.error(`[${index + 1}/${jobs.length}] Failed: ${error.message}`);
-      return { success: false, index, error: error.message };
-    }
+    return runBatchJob({ generatorFn: generateImage, jobOptions, index, jobCount: jobs.length, batchState, outputDir, retryLabel: `batch-image[${index}]` });
   });
 
   const results = await runWithConcurrency(tasks, concurrency);
-  return finalizeBatch('batch-image', batchState, results, startTime, outputDir, jobs.length);
+  return finalizeBatch({ type: 'batch-image', batchState, results, startTime, outputDir, jobCount: jobs.length });
+}
+
+// Submit a batch of video jobs on a single page, returning the list of successfully submitted jobs.
+async function submitVideoBatch(page, batch, defaults, totalJobCount, batchState) {
+  const submittedJobs = [];
+  for (const { job, index } of batch) {
+    const jobOptions = { ...defaults, ...job };
+    const model = jobOptions.model || 'kling-2.6';
+
+    console.log(`  Submitting [${index + 1}/${totalJobCount}]: "${(job.prompt || '').substring(0, 50)}..." (model: ${model})`);
+
+    const promptPrefix = await submitVideoJobOnPage(page, {
+      prompt: jobOptions.prompt || '',
+      imageFile: jobOptions.imageFile,
+      model,
+      duration: String(jobOptions.duration || 5),
+    });
+
+    if (promptPrefix) {
+      submittedJobs.push({ sceneIndex: index, promptPrefix, model });
+    } else {
+      batchState.failed.push({ index, error: 'Failed to submit job' });
+    }
+  }
+  return submittedJobs;
+}
+
+// Poll for submitted video results and record outcomes in batchState.
+async function pollAndRecordVideoResults({ page, submittedJobs, batch, batchState, outputDir, totalJobCount, options }) {
+  if (submittedJobs.length === 0) return;
+  console.log(`\n  Polling for ${submittedJobs.length} video(s)...`);
+  const timeout = options.timeout || 600000;
+  const videoResults = await pollAndDownloadVideos(page, submittedJobs, outputDir, timeout);
+
+  for (const { index } of batch) {
+    if (videoResults.has(index)) {
+      batchState.completed.push(index);
+      console.log(`  [${index + 1}/${totalJobCount}] Downloaded: ${videoResults.get(index)}`);
+    } else if (!batchState.failed.some(f => f.index === index)) {
+      batchState.failed.push({ index, error: 'Generation timed out or download failed' });
+    }
+  }
 }
 
 // Batch Video Generation
@@ -6154,48 +6209,8 @@ async function batchVideo(options = {}) {
     const { browser, context, page } = await launchBrowser(options);
 
     try {
-      // Phase 1: Submit all jobs in this batch
-      const submittedJobs = [];
-      for (const { job, index } of batch) {
-        const jobOptions = { ...defaults, ...job };
-        const model = jobOptions.model || 'kling-2.6';
-
-        console.log(`  Submitting [${index + 1}/${jobs.length}]: "${(job.prompt || '').substring(0, 50)}..." (model: ${model})`);
-
-        const promptPrefix = await submitVideoJobOnPage(page, {
-          prompt: jobOptions.prompt || '',
-          imageFile: jobOptions.imageFile,
-          model,
-          duration: String(jobOptions.duration || 5),
-        });
-
-        if (promptPrefix) {
-          submittedJobs.push({
-            sceneIndex: index,
-            promptPrefix,
-            model,
-          });
-        } else {
-          batchState.failed.push({ index, error: 'Failed to submit job' });
-        }
-      }
-
-      // Phase 2: Poll for all submitted jobs
-      if (submittedJobs.length > 0) {
-        console.log(`\n  Polling for ${submittedJobs.length} video(s)...`);
-        const timeout = options.timeout || 600000;
-        const videoResults = await pollAndDownloadVideos(page, submittedJobs, outputDir, timeout);
-
-        for (const { index } of batch) {
-          if (videoResults.has(index)) {
-            batchState.completed.push(index);
-            console.log(`  [${index + 1}/${jobs.length}] Downloaded: ${videoResults.get(index)}`);
-          } else if (!batchState.failed.some(f => f.index === index)) {
-            batchState.failed.push({ index, error: 'Generation timed out or download failed' });
-          }
-        }
-      }
-
+      const submittedJobs = await submitVideoBatch(page, batch, defaults, jobs.length, batchState);
+      await pollAndRecordVideoResults({ page, submittedJobs, batch, batchState, outputDir, totalJobCount: jobs.length, options });
       saveBatchState(outputDir, batchState);
       await context.storageState({ path: STATE_FILE });
     } catch (error) {
@@ -6216,7 +6231,7 @@ async function batchVideo(options = {}) {
     success: batchState.completed.includes(i),
     index: i,
   }));
-  return finalizeBatch('batch-video', batchState, results, startTime, outputDir, jobs.length);
+  return finalizeBatch({ type: 'batch-video', batchState, results, startTime, outputDir, jobCount: jobs.length });
 }
 
 // Batch Lipsync Generation — each job needs: text (prompt), imageFile (character face).
@@ -6246,25 +6261,11 @@ async function batchLipsync(options = {}) {
 
     console.log(`[${index + 1}/${jobs.length}] Generating lipsync: "${(job.prompt || '').substring(0, 60)}..."`);
 
-    try {
-      const result = await withRetry(
-        () => generateLipsync(jobOptions),
-        { maxRetries: 1, baseDelay: 5000, label: `batch-lipsync[${index}]` }
-      );
-      batchState.completed.push(index);
-      saveBatchState(outputDir, batchState);
-      console.log(`[${index + 1}/${jobs.length}] Complete`);
-      return { success: true, index, ...result };
-    } catch (error) {
-      batchState.failed.push({ index, error: error.message });
-      saveBatchState(outputDir, batchState);
-      console.error(`[${index + 1}/${jobs.length}] Failed: ${error.message}`);
-      return { success: false, index, error: error.message };
-    }
+    return runBatchJob({ generatorFn: generateLipsync, jobOptions, index, jobCount: jobs.length, batchState, outputDir, retryLabel: `batch-lipsync[${index}]` });
   });
 
   const results = await runWithConcurrency(tasks, concurrency);
-  return finalizeBatch('batch-lipsync', batchState, results, startTime, outputDir, jobs.length);
+  return finalizeBatch({ type: 'batch-lipsync', batchState, results, startTime, outputDir, jobCount: jobs.length });
 }
 
 // Run a command with API-first fallback to Playwright browser automation.

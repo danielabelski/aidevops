@@ -123,6 +123,49 @@ const SKIP_NAMES = new Set([
 ]);
 
 /**
+ * Collect leaf agent names from a pipe-separated key_files string.
+ * @param {string} keyFiles - e.g. "dataforseo|serper|semrush"
+ * @param {string} purpose - Description for the agent entry
+ * @param {Array} agents - Mutable agents array
+ * @param {Set} seen - Dedup set
+ */
+function collectLeafAgents(keyFiles, purpose, agents, seen) {
+  for (const leaf of keyFiles.split("|")) {
+    const name = leaf.trim();
+    if (!name || SKIP_NAMES.has(name) || name.endsWith("-skill")) continue;
+    if (seen.has(name)) continue;
+    seen.add(name);
+    agents.push({ name, description: purpose });
+  }
+}
+
+/**
+ * Parse a TOON subagents block into agent entries.
+ * Each line: folder,purpose,keyfile1|keyfile2|...
+ * @param {string} blockText - Raw text from the TOON block
+ * @returns {Array<{name: string, description: string}>}
+ */
+function parseToonSubagentBlock(blockText) {
+  const agents = [];
+  const seen = new Set();
+
+  for (const line of blockText.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const parts = trimmed.split(",");
+    if (parts.length < 3) continue;
+
+    const folder = parts[0] || "";
+    if (folder.includes("references/") || folder.includes("loop-state/")) continue;
+
+    collectLeafAgents(parts.slice(2).join(","), parts[1] || "", agents, seen);
+  }
+
+  return agents;
+}
+
+/**
  * Parse subagent-index.toon and return leaf agent names with descriptions.
  * Reads ONE file instead of 500+. Returns entries like:
  *   { name: "dataforseo", description: "Search optimization - keywords..." }
@@ -133,40 +176,12 @@ function loadAgentIndex() {
   const content = readIfExists(indexPath);
   if (!content) return loadAgentsFallback();
 
-  const agents = [];
-  const seen = new Set();
-
-  // Parse the subagents TOON block: folder, purpose, key_files
-  // e.g.: seo/,Search optimization - keywords and rankings,dataforseo|serper|semrush|...
   const subagentMatch = content.match(
     /<!--TOON:subagents\[\d+\]\{[^}]+\}:\n([\s\S]*?)-->/,
   );
   if (!subagentMatch) return loadAgentsFallback();
 
-  for (const line of subagentMatch[1].split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-
-    const parts = trimmed.split(",");
-    if (parts.length < 3) continue;
-
-    const folder = parts[0] || "";
-    // Skip reference/skill directories (not real agents)
-    if (folder.includes("references/") || folder.includes("loop-state/")) continue;
-
-    const purpose = parts[1] || "";
-    const keyFiles = parts.slice(2).join(",");
-
-    for (const leaf of keyFiles.split("|")) {
-      const name = leaf.trim();
-      if (!name || SKIP_NAMES.has(name) || name.endsWith("-skill")) continue;
-      if (seen.has(name)) continue;
-      seen.add(name);
-      agents.push({ name, description: purpose });
-    }
-  }
-
-  return agents;
+  return parseToonSubagentBlock(subagentMatch[1]);
 }
 
 /**
@@ -209,6 +224,22 @@ function loadAgentsFallback() {
  * @param {Array} agents
  * @param {Set} seen - dedup set
  */
+/**
+ * Try to register a .md file entry as a discovered agent.
+ * @param {object} entry - Dirent object
+ * @param {string} folderDesc - Description fallback
+ * @param {Array} agents - Mutable agents array
+ * @param {Set} seen - Dedup set
+ */
+function tryRegisterMdAgent(entry, folderDesc, agents, seen) {
+  if (!entry.isFile() || !entry.name.endsWith(".md")) return;
+  const name = entry.name.replace(/\.md$/, "");
+  if (SKIP_NAMES.has(name) || name.endsWith("-skill")) return;
+  if (seen.has(name)) return;
+  seen.add(name);
+  agents.push({ name, description: `aidevops subagent: ${folderDesc}` });
+}
+
 function scanDirNames(dirPath, folderDesc, agents, seen) {
   let entries;
   try {
@@ -221,15 +252,8 @@ function scanDirNames(dirPath, folderDesc, agents, seen) {
     if (entry.isDirectory()) {
       if (SKIP_NAMES.has(entry.name)) continue;
       scanDirNames(join(dirPath, entry.name), folderDesc, agents, seen);
-    } else if (entry.isFile() && entry.name.endsWith(".md")) {
-      const name = entry.name.replace(/\.md$/, "");
-      if (SKIP_NAMES.has(name) || name.endsWith("-skill")) continue;
-      if (seen.has(name)) continue;
-      seen.add(name);
-      agents.push({
-        name,
-        description: `aidevops subagent: ${folderDesc}`,
-      });
+    } else {
+      tryRegisterMdAgent(entry, folderDesc, agents, seen);
     }
   }
 }
@@ -514,6 +538,27 @@ function registerMcpServers(config) {
  * @param {object} config - OpenCode Config object (mutable)
  * @returns {number} Number of agents updated
  */
+/**
+ * Apply tool patterns to a single agent config entry.
+ * Only sets tools not already configured (shell script takes precedence).
+ * @param {object} agentEntry - Mutable agent config object
+ * @param {string[]} toolPatterns - Tool patterns to enable
+ * @returns {number} Number of tools newly enabled
+ */
+function applyToolPatternsToAgent(agentEntry, toolPatterns) {
+  let count = 0;
+  if (!agentEntry.tools) {
+    agentEntry.tools = {};
+  }
+  for (const pattern of toolPatterns) {
+    if (!(pattern in agentEntry.tools)) {
+      agentEntry.tools[pattern] = true;
+      count++;
+    }
+  }
+  return count;
+}
+
 function applyAgentMcpTools(config) {
   if (!config.agent) return 0;
 
@@ -528,21 +573,9 @@ function applyAgentMcpTools(config) {
     const matchingKeys = Object.keys(config.agent).filter(
       (key) => key === mcpAgentName || key.endsWith("/" + mcpAgentName),
     );
-    if (matchingKeys.length === 0) continue;
 
     for (const matchKey of matchingKeys) {
-      // Ensure agent has a tools section
-      if (!config.agent[matchKey].tools) {
-        config.agent[matchKey].tools = {};
-      }
-
-      for (const pattern of toolPatterns) {
-        // Only set if not already configured (shell script takes precedence)
-        if (!(pattern in config.agent[matchKey].tools)) {
-          config.agent[matchKey].tools[pattern] = true;
-          updated++;
-        }
-      }
+      updated += applyToolPatternsToAgent(config.agent[matchKey], toolPatterns);
     }
   }
 
@@ -704,6 +737,69 @@ function recordMissingReturn(details, functionStart, functionName) {
 }
 
 /**
+ * Check if the current function (being tracked) is missing a return and record it.
+ * @param {object} state - Mutable function-tracking state
+ * @param {string[]} details - Mutable details array
+ * @returns {number} 0 or 1
+ */
+function checkAndRecordMissingReturn(state, details) {
+  if (state.inFunction && !state.hasReturn) {
+    return recordMissingReturn(details, state.functionStart, state.functionName);
+  }
+  return 0;
+}
+
+/**
+ * Begin tracking a new function definition.
+ * @param {object} state - Mutable function-tracking state
+ * @param {string} name - Function name
+ * @param {number} lineIndex - 0-based line index
+ * @param {string} trimmed - Trimmed line content
+ */
+function beginFunction(state, name, lineIndex, trimmed) {
+  state.inFunction = true;
+  state.functionName = name;
+  state.functionStart = lineIndex + 1;
+  state.braceDepth = trimmed.includes("{") ? 1 : 0;
+  state.hasReturn = false;
+}
+
+/**
+ * Walk shell script lines tracking function boundaries and return statements.
+ * @param {string[]} lines - File lines
+ * @param {string[]} details - Mutable details array
+ * @returns {number} Total violation count
+ */
+function walkFunctionsForReturns(lines, details) {
+  let violations = 0;
+  const state = { inFunction: false, functionName: "", functionStart: 0, braceDepth: 0, hasReturn: false };
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    const name = matchFunctionDef(trimmed);
+
+    if (name) {
+      violations += checkAndRecordMissingReturn(state, details);
+      beginFunction(state, name, i, trimmed);
+      continue;
+    }
+
+    if (!state.inFunction) continue;
+
+    state.braceDepth += braceDepthDelta(trimmed);
+    if (hasReturnStatement(trimmed)) state.hasReturn = true;
+
+    if (state.braceDepth <= 0) {
+      violations += checkAndRecordMissingReturn(state, details);
+      state.inFunction = false;
+    }
+  }
+
+  violations += checkAndRecordMissingReturn(state, details);
+  return violations;
+}
+
+/**
  * Validate shell script return statements.
  * Checks that functions have explicit return statements (aidevops convention).
  * @param {string} filePath
@@ -715,51 +811,89 @@ function validateReturnStatements(filePath) {
 
   try {
     const content = readFileSync(filePath, "utf-8");
-    const lines = content.split("\n");
-
-    let inFunction = false;
-    let functionName = "";
-    let functionStart = 0;
-    let braceDepth = 0;
-    let hasReturn = false;
-
-    for (let i = 0; i < lines.length; i++) {
-      const trimmed = lines[i].trim();
-      const name = matchFunctionDef(trimmed);
-
-      if (name) {
-        if (inFunction && !hasReturn) {
-          violations += recordMissingReturn(details, functionStart, functionName);
-        }
-        inFunction = true;
-        functionName = name;
-        functionStart = i + 1;
-        braceDepth = trimmed.includes("{") ? 1 : 0;
-        hasReturn = false;
-        continue;
-      }
-
-      if (!inFunction) continue;
-
-      braceDepth += braceDepthDelta(trimmed);
-      if (hasReturnStatement(trimmed)) hasReturn = true;
-
-      if (braceDepth <= 0) {
-        if (!hasReturn) {
-          violations += recordMissingReturn(details, functionStart, functionName);
-        }
-        inFunction = false;
-      }
-    }
-
-    if (inFunction && !hasReturn) {
-      violations += recordMissingReturn(details, functionStart, functionName);
-    }
+    violations = walkFunctionsForReturns(content.split("\n"), details);
   } catch {
     // File read error — skip validation
   }
 
   return { violations, details };
+}
+
+/** Patterns for shell constructs where direct $N usage is acceptable. */
+const ALLOWED_POSITIONAL_PATTERNS = [
+  /^\s*shift/,
+  /case\s+.*\$[1-9]/,
+  /getopts/,
+  /"\$@"/,
+  /"\$\*"/,
+];
+
+/**
+ * Check if a line uses a shift, case, or getopts pattern that allows direct $N.
+ * @param {string} trimmed - Trimmed line content
+ * @returns {boolean}
+ */
+function isShiftOrCasePattern(trimmed) {
+  return ALLOWED_POSITIONAL_PATTERNS.some((re) => re.test(trimmed));
+}
+
+/** Patterns that indicate currency/pricing/table contexts (false-positives for $N params). */
+const PRICE_TABLE_PATTERNS = [
+  { re: /\$[1-9][0-9.,]/, useStripped: true },            // $28, $1.99, $1,000
+  { re: /\$[1-9]\/(?:mo(?:nth)?|yr|year|day|week|hr|hour)\b/, useStripped: true },  // $5/mo, $9/year
+  { re: /\$[1-9]\s+(?:per|mo(?:nth)?|year|yr|day|week|hr|hour|flat|each|off|fee|plan|tier|user|seat|unit|addon|setup|trial|credit|annual|quarterly|monthly)\b/, useStripped: true },
+  { re: /^\s*\|/, useStripped: false },                    // Markdown table row
+  { re: /\$[1-9]\s*\|/, useStripped: true },               // Pipe-delimited cell
+];
+
+/**
+ * Check if a line contains a currency/pricing pattern (false-positive for $N params).
+ * @param {string} stripped - Line with escaped dollar signs removed
+ * @param {string} rawLine - Original unstripped line
+ * @returns {boolean}
+ */
+function isPriceOrTablePattern(stripped, rawLine) {
+  return PRICE_TABLE_PATTERNS.some((p) => p.re.test(p.useStripped ? stripped : rawLine));
+}
+
+/**
+ * Check whether a trimmed line has a bare positional $N that isn't in a local assignment.
+ * @param {string} trimmed - Trimmed line content
+ * @returns {boolean}
+ */
+function hasBarePositionalParam(trimmed) {
+  return /\$[1-9]/.test(trimmed) && !/local\s+\w+=.*\$[1-9]/.test(trimmed);
+}
+
+/**
+ * Check whether stripped content still contains unescaped $N after removing \$N.
+ * Also returns false if the remaining $N matches a price/table pattern.
+ * @param {string} trimmed - Trimmed line content
+ * @param {string} rawLine - Original unstripped line
+ * @returns {boolean} true if a real positional param violation exists
+ */
+function hasUnescapedPositionalParam(trimmed, rawLine) {
+  const stripped = trimmed.replace(/\\\$[1-9]/g, "");
+  if (!/\$[1-9]/.test(stripped)) return false;
+  if (isPriceOrTablePattern(stripped, rawLine)) return false;
+  return true;
+}
+
+/**
+ * Check a single line for positional parameter violations.
+ * @param {string} line - Raw line content
+ * @param {string} trimmed - Trimmed line content
+ * @param {number} lineNum - 1-based line number
+ * @param {string[]} details - Mutable details array
+ * @returns {number} 0 or 1 (violation count increment)
+ */
+function checkPositionalParamLine(line, trimmed, lineNum, details) {
+  if (trimmed.startsWith("#") || !hasBarePositionalParam(trimmed)) return 0;
+  if (isShiftOrCasePattern(trimmed)) return 0;
+  if (!hasUnescapedPositionalParam(trimmed, line)) return 0;
+
+  details.push(`  Line ${lineNum}: direct positional parameter: ${trimmed.substring(0, 80)}`);
+  return 1;
 }
 
 /**
@@ -777,51 +911,7 @@ function validatePositionalParams(filePath) {
     const lines = content.split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const trimmed = line.trim();
-
-      // Skip comments
-      if (trimmed.startsWith("#")) continue;
-
-      // Check for direct $1-$9 usage not in a local assignment
-      if (/\$[1-9]/.test(trimmed) && !/local\s+\w+=.*\$[1-9]/.test(trimmed)) {
-        // Allow shift, case "$1", and getopts patterns
-        if (
-          /^\s*shift/.test(trimmed) ||
-          /case\s+.*\$[1-9]/.test(trimmed) ||
-          /getopts/.test(trimmed) ||
-          /"\$@"/.test(trimmed) ||
-          /"\$\*"/.test(trimmed)
-        ) {
-          continue;
-        }
-        // Strip escaped dollar signs before further checks so that lines with
-        // mixed content (e.g. "\$5 fee $1") still detect unescaped positional params.
-        // This replaces the previous whole-line skip for escaped dollars.
-        const stripped = trimmed.replace(/\\\$[1-9]/g, "");
-        // Skip if no unescaped $N remains after stripping escaped ones
-        if (!/\$[1-9]/.test(stripped)) {
-          continue;
-        }
-        // Skip currency/pricing patterns (false-positives in markdown tables,
-        // heredocs, and echo strings):
-        //   - $N followed by digits, decimal, or comma (e.g. $28, $1.99, $1,000)
-        //   - $N/billing-unit (e.g. $5/mo, $9/year) — but NOT $1/config (path)
-        //   - $N followed by space + pricing/unit word (e.g. $5 flat, $3 fee, $9 per month)
-        //   - Markdown table rows (lines starting with |)
-        //   - $N followed by pipe (pipe-delimited cells, e.g. $5 | next column)
-        if (
-          /\$[1-9][0-9.,]/.test(stripped) ||
-          /\$[1-9]\/(?:mo(?:nth)?|yr|year|day|week|hr|hour)\b/.test(stripped) ||
-          /\$[1-9]\s+(?:per|mo(?:nth)?|year|yr|day|week|hr|hour|flat|each|off|fee|plan|tier|user|seat|unit|addon|setup|trial|credit|annual|quarterly|monthly)\b/.test(stripped) ||
-          /^\s*\|/.test(line) ||
-          /\$[1-9]\s*\|/.test(stripped)
-        ) {
-          continue;
-        }
-        details.push(`  Line ${i + 1}: direct positional parameter: ${trimmed.substring(0, 80)}`);
-        violations++;
-      }
+      violations += checkPositionalParamLine(lines[i], lines[i].trim(), i + 1, details);
     }
   } catch {
     // File read error — skip validation
@@ -938,47 +1028,61 @@ function runShellQualityPipeline(filePath) {
  * @param {string} filePath
  * @returns {{ totalViolations: number, report: string }}
  */
+/**
+ * Check MD031: fenced code blocks should be surrounded by blank lines.
+ * @param {string[]} lines - File lines
+ * @param {string[]} sections - Mutable report sections array
+ * @returns {number} Violation count
+ */
+function checkMD031(lines, sections) {
+  let violations = 0;
+  let inCodeBlock = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^```/.test(lines[i].trim())) continue;
+
+    if (!inCodeBlock) {
+      if (i > 0 && lines[i - 1].trim() !== "") {
+        sections.push(`  Line ${i + 1}: MD031 — missing blank line before code fence`);
+        violations++;
+      }
+    } else {
+      if (i < lines.length - 1 && lines[i + 1] !== undefined && lines[i + 1].trim() !== "") {
+        sections.push(`  Line ${i + 1}: MD031 — missing blank line after code fence`);
+        violations++;
+      }
+    }
+    inCodeBlock = !inCodeBlock;
+  }
+
+  return violations;
+}
+
+/**
+ * Count lines with trailing whitespace.
+ * @param {string[]} lines - File lines
+ * @param {string[]} sections - Mutable report sections array
+ * @returns {number} Violation count
+ */
+function checkTrailingWhitespace(lines, sections) {
+  let trailingCount = 0;
+  for (const line of lines) {
+    if (/\s+$/.test(line)) trailingCount++;
+  }
+  if (trailingCount > 0) {
+    sections.push(`  Trailing whitespace on ${trailingCount} line${trailingCount !== 1 ? "s" : ""}`);
+  }
+  return trailingCount;
+}
+
 function runMarkdownQualityPipeline(filePath) {
   const sections = [];
   let totalViolations = 0;
 
   try {
-    const content = readFileSync(filePath, "utf-8");
-    const lines = content.split("\n");
-
-    // MD031: Fenced code blocks should be surrounded by blank lines
-    let inCodeBlock = false;
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      if (/^```/.test(line.trim())) {
-        if (!inCodeBlock) {
-          // Opening fence — check line before
-          if (i > 0 && lines[i - 1].trim() !== "") {
-            sections.push(`  Line ${i + 1}: MD031 — missing blank line before code fence`);
-            totalViolations++;
-          }
-        } else {
-          // Closing fence — check line after
-          if (i < lines.length - 1 && lines[i + 1] !== undefined && lines[i + 1].trim() !== "") {
-            sections.push(`  Line ${i + 1}: MD031 — missing blank line after code fence`);
-            totalViolations++;
-          }
-        }
-        inCodeBlock = !inCodeBlock;
-      }
-    }
-
-    // Check for trailing whitespace (common quality issue)
-    let trailingCount = 0;
-    for (let i = 0; i < lines.length; i++) {
-      if (/\s+$/.test(lines[i]) && !inCodeBlock) {
-        trailingCount++;
-      }
-    }
-    if (trailingCount > 0) {
-      sections.push(`  Trailing whitespace on ${trailingCount} line${trailingCount !== 1 ? "s" : ""}`);
-      totalViolations += trailingCount;
-    }
+    const lines = readFileSync(filePath, "utf-8").split("\n");
+    totalViolations += checkMD031(lines, sections);
+    totalViolations += checkTrailingWhitespace(lines, sections);
   } catch {
     // File read error — skip
   }
@@ -1562,6 +1666,24 @@ let _ttsrRules = null;
  * User rules can override built-in rules by matching id.
  * @returns {Array<{id: string, description: string, pattern: string, correction: string, severity: string, systemPrompt: string}>}
  */
+/**
+ * Merge user-defined rules into a rules array (mutates the array).
+ * Rules with a matching id override the existing entry; new rules are appended.
+ * @param {Array<object>} rules - Base rules array (mutated)
+ * @param {Array<object>} userRules - User-defined rules to merge
+ */
+function mergeUserTtsrRules(rules, userRules) {
+  for (const rule of userRules) {
+    if (!rule.id || !rule.pattern) continue;
+    const existingIdx = rules.findIndex((r) => r.id === rule.id);
+    if (existingIdx >= 0) {
+      rules[existingIdx] = { ...rules[existingIdx], ...rule };
+    } else {
+      rules.push(rule);
+    }
+  }
+}
+
 function loadTtsrRules() {
   if (_ttsrRules !== null) return _ttsrRules;
 
@@ -1570,17 +1692,9 @@ function loadTtsrRules() {
   const userContent = readIfExists(TTSR_RULES_PATH);
   if (userContent) {
     try {
-      const userRules = JSON.parse(userContent);
-      if (Array.isArray(userRules)) {
-        for (const rule of userRules) {
-          if (!rule.id || !rule.pattern) continue;
-          const existingIdx = _ttsrRules.findIndex((r) => r.id === rule.id);
-          if (existingIdx >= 0) {
-            _ttsrRules[existingIdx] = { ..._ttsrRules[existingIdx], ...rule };
-          } else {
-            _ttsrRules.push(rule);
-          }
-        }
+      const parsed = JSON.parse(userContent);
+      if (Array.isArray(parsed)) {
+        mergeUserTtsrRules(_ttsrRules, parsed);
       }
     } catch {
       console.error("[aidevops] Failed to parse TTSR rules file — using built-in rules only");
@@ -1735,60 +1849,72 @@ const _ttsrFiredState = new Map();
  * @param {object} _input - {}
  * @param {object} output - { messages: { info: Message, parts: Part[] }[] } (mutable)
  */
-async function messagesTransformHook(_input, output) {
-  if (!output.messages || output.messages.length === 0) return;
-
-  // Scan the last 3 assistant messages for violations
-  const scanWindow = 3;
-  const assistantMessages = output.messages
+/**
+ * Filter messages to recent assistant messages, excluding synthetic TTSR corrections.
+ * @param {Array} messages - Full message history
+ * @param {number} windowSize - Number of recent assistant messages to return
+ * @returns {Array} Filtered assistant messages
+ */
+function getRecentAssistantMessages(messages, windowSize) {
+  return messages
     .filter((m) => {
       if (!m.info || m.info.role !== "assistant") return false;
-      // Skip synthetic TTSR correction messages that were injected previously
       if (m.info.id && m.info.id.startsWith("ttsr-correction-")) return false;
       return true;
     })
-    .slice(-scanWindow);
+    .slice(-windowSize);
+}
 
-  if (assistantMessages.length === 0) return;
-
+/**
+ * Collect deduplicated TTSR violations from assistant messages.
+ * Applies cross-turn dedup (skips rules already fired on the same message)
+ * and within-scan dedup (one violation per rule id per scan).
+ * @param {Array} assistantMessages - Messages to scan
+ * @returns {Array<{rule: object, matches: string[], msgId: string}>}
+ */
+function collectDedupedViolations(assistantMessages) {
   const allViolations = [];
 
   for (const msg of assistantMessages) {
     const msgId = msg.info?.id || "";
-
-    // Extract only assistant-authored text, excluding tool output.
-    // Tool results (Read, Bash, etc.) contain code the assistant *read*,
-    // not code it *wrote* — scanning those causes false positives.
     const text = extractTextFromParts(msg.parts, { excludeToolOutput: true });
     if (!text) continue;
 
     const violations = scanForViolations(text);
     for (const v of violations) {
       const ruleId = v.rule.id;
-
-      // Cross-turn dedup: skip if this rule already fired on this message
       const firedOn = _ttsrFiredState.get(ruleId);
       if (firedOn && firedOn.has(msgId)) continue;
-
-      // Deduplicate by rule id within this scan
       if (!allViolations.some((av) => av.rule.id === ruleId)) {
         allViolations.push({ ...v, msgId });
       }
     }
   }
 
-  if (allViolations.length === 0) return;
+  return allViolations;
+}
 
-  // Record that these rules fired on these messages (cross-turn dedup)
-  for (const v of allViolations) {
+/**
+ * Record violations in the cross-turn dedup state so they won't re-fire.
+ * @param {Array<{rule: object, msgId: string}>} violations
+ */
+function recordFiredViolations(violations) {
+  for (const v of violations) {
     if (!_ttsrFiredState.has(v.rule.id)) {
       _ttsrFiredState.set(v.rule.id, new Set());
     }
     _ttsrFiredState.get(v.rule.id).add(v.msgId);
   }
+}
 
-  // Build correction context
-  const corrections = allViolations.map((v) => {
+/**
+ * Build a synthetic correction message for TTSR violations.
+ * @param {Array<{rule: object}>} violations
+ * @param {string} sessionID
+ * @returns {object} Message object to push into output.messages
+ */
+function buildCorrectionMessage(violations, sessionID) {
+  const corrections = violations.map((v) => {
     const severity = v.rule.severity === "error" ? "ERROR" : "WARNING";
     return `[${severity}] ${v.rule.id}: ${v.rule.correction}`;
   });
@@ -1800,12 +1926,9 @@ async function messagesTransformHook(_input, output) {
     "Apply these corrections in your next response.",
   ].join("\n");
 
-  // Inject as a synthetic user message at the end of the history
-  // so the model sees the correction before generating its next response
   const correctionId = `ttsr-correction-${Date.now()}`;
-  const sessionID = output.messages[0]?.info?.sessionID || "";
 
-  output.messages.push({
+  return {
     info: {
       id: correctionId,
       sessionID,
@@ -1823,7 +1946,22 @@ async function messagesTransformHook(_input, output) {
         synthetic: true,
       },
     ],
-  });
+  };
+}
+
+async function messagesTransformHook(_input, output) {
+  if (!output.messages || output.messages.length === 0) return;
+
+  const assistantMessages = getRecentAssistantMessages(output.messages, 3);
+  if (assistantMessages.length === 0) return;
+
+  const allViolations = collectDedupedViolations(assistantMessages);
+  if (allViolations.length === 0) return;
+
+  recordFiredViolations(allViolations);
+
+  const sessionID = output.messages[0]?.info?.sessionID || "";
+  output.messages.push(buildCorrectionMessage(allViolations, sessionID));
 
   qualityLog(
     "INFO",
