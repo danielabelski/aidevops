@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.172.28] - 2026-03-14
+
+### Fixed
+
+- replace bash 4.0+ features with portable alternatives in 5 scripts (#4601)
+
 ## [2.172.27] - 2026-03-14
 
 ### Added
