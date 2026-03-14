@@ -25,24 +25,26 @@ Each plan includes:
 ### [2026-03-14] Restore OpenAI Codex and Enforce Model ID Conventions
 
 **Status:** Planning
-**Estimate:** ~2h
+**Estimate:** ~2.5h
 **TODO:** t1483
 **Logged:** 2026-03-14
 **Trigger:** User review of PR#4641 and PR#4647 — both made incorrect model ID changes based on false assumptions.
 
 #### Purpose
 
-Fix two classes of model ID mismanagement by pulse workers:
+Fix two classes of model ID mismanagement by pulse workers, and make the default model list work for all users regardless of which providers they have configured:
 
-1. **Codex removal (PR#4641):** A worker observed `ProviderModelNotFoundError` for `openai/gpt-5.3-codex` and assumed the model doesn't exist. It does — it's available via OpenAI OAuth subscription. The real issue is likely auth/provider config (the helper only checks `OPENAI_API_KEY`, not OAuth tokens). The fix replaced Codex with `gpt-4o`, losing coding specialisation and provider diversity.
+1. **Codex removal (PR#4641):** A worker observed `ProviderModelNotFoundError` for `openai/gpt-5.3-codex` and assumed the model doesn't exist. It does — it's available via OpenAI OAuth subscription. The real issue is auth/provider config (the helper only checks `OPENAI_API_KEY`, not OAuth tokens). The fix replaced Codex with `gpt-4o`, losing coding specialisation and provider diversity.
 
 2. **Haiku snapshot pinning (PR#4647/GH#3337):** A worker tried to pin `claude-haiku-4-5` to `claude-haiku-4-5-20251001` (a dated snapshot from Oct 2025). The codebase convention is to use unversioned latest aliases. PR closed.
 
+3. **Multi-user compatibility:** The default model list must work for users who don't have OpenAI OAuth configured. The current backoff system handles this reactively (fail → backoff → skip on retry), wasting a dispatch attempt. A proactive auth-availability pre-check in `choose_model()` is needed — skip providers with no auth silently, no error, no backoff noise.
+
 #### Phases
 
-- [ ] **Phase 1 — Revert and restore** (~30m): Revert PR#4641's model change in `headless-runtime-helper.sh` (lines 18, 817). Restore `openai/gpt-5.3-codex` in `DEFAULT_HEADLESS_MODELS`. Update tests.
+- [ ] **Phase 1 — Revert and add auth pre-check** (~1h): Revert PR#4641's model change in `headless-runtime-helper.sh` (lines 18, 817). Restore `openai/gpt-5.3-codex` in `DEFAULT_HEADLESS_MODELS`. Add `provider_auth_available()` function that checks whether a provider has auth configured (env var, OAuth token, or gateway). Wire it into `choose_model()` loop alongside `provider_backoff_active()` — if no auth, skip silently. Update tests for both auth-present and no-auth scenarios.
 
-- [ ] **Phase 2 — Fix OpenAI auth path** (~45m): Investigate `compute_auth_signature()` (line 161) — currently only checks `OPENAI_API_KEY`. Add support for OAuth-based auth. Add OpenAI provider entry to `model-routing-table.json`.
+- [ ] **Phase 2 — Fix OpenAI auth and provider config** (~45m): Update `compute_auth_signature()` (line 161) to handle OAuth token auth, not just `OPENAI_API_KEY`. Add OpenAI provider entry to `model-routing-table.json`. Evaluate whether `opencode/*` gateway model IDs should be supported as an alternative path for users routing through OpenCode Zen.
 
 - [ ] **Phase 3 — Audit and enforce conventions** (~45m): Scan all model ID references across scripts and configs for dated snapshots. Ensure all active routing uses unversioned latest aliases. Add a note to model-routing.md documenting the convention: latest aliases for routing, dated snapshots only in normalization/parsing paths.
 
