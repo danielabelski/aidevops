@@ -30,45 +30,54 @@ export function jsonToToon(data: unknown, options: ToonOptions = {}): string {
   return convertToToon(data, opts, 0)
 }
 
-function convertToToon(data: unknown, opts: ToonOptions, depth: number): string {
-  const indent = ' '.repeat(depth * opts.indent!)
-
+function convertPrimitive(data: unknown): string | null {
   if (data === null) return 'null'
   if (data === undefined) return 'undefined'
-
   if (typeof data === 'string') return data
   if (typeof data === 'number') return String(data)
   if (typeof data === 'boolean') return String(data)
+  return null
+}
+
+function convertArrayToToon(data: unknown[], opts: ToonOptions, depth: number): string {
+  const indent = ' '.repeat(depth * opts.indent!)
+
+  if (data.length > 0 && isTabularArray(data)) {
+    return convertTabularArray(data, opts, depth)
+  }
+  if (data.length === 0) return '[]'
+
+  const items = data.map(item => convertToToon(item, opts, depth + 1))
+  return `[\n${items.map(i => `${indent}  ${i}`).join('\n')}\n${indent}]`
+}
+
+function convertObjectToToon(obj: Record<string, unknown>, opts: ToonOptions, depth: number): string {
+  const indent = ' '.repeat(depth * opts.indent!)
+  const keys = Object.keys(obj)
+
+  if (keys.length === 0) return '{}'
+
+  const lines = keys.map(key => {
+    const value = convertToToon(obj[key], opts, depth + 1)
+    if (value.includes('\n')) {
+      return `${indent}${key}:\n${value}`
+    }
+    return `${indent}${key}: ${value}`
+  })
+
+  return lines.join('\n')
+}
+
+function convertToToon(data: unknown, opts: ToonOptions, depth: number): string {
+  const primitive = convertPrimitive(data)
+  if (primitive !== null) return primitive
 
   if (Array.isArray(data)) {
-    // Check if array of objects with same keys (tabular data)
-    if (data.length > 0 && isTabularArray(data)) {
-      return convertTabularArray(data, opts, depth)
-    }
-
-    // Regular array
-    if (data.length === 0) return '[]'
-    
-    const items = data.map(item => convertToToon(item, opts, depth + 1))
-    return `[\n${items.map(i => `${indent}  ${i}`).join('\n')}\n${indent}]`
+    return convertArrayToToon(data, opts, depth)
   }
 
   if (typeof data === 'object') {
-    const obj = data as Record<string, unknown>
-    const keys = Object.keys(obj)
-    
-    if (keys.length === 0) return '{}'
-
-    const lines = keys.map(key => {
-      const value = convertToToon(obj[key], opts, depth + 1)
-      // If value is multiline, put it on next line
-      if (value.includes('\n')) {
-        return `${indent}${key}:\n${value}`
-      }
-      return `${indent}${key}: ${value}`
-    })
-
-    return lines.join('\n')
+    return convertObjectToToon(data as Record<string, unknown>, opts, depth)
   }
 
   return String(data)
@@ -136,6 +145,53 @@ interface ParseResult {
   consumed: number
 }
 
+function parseLiteral(line: string): ParseResult | null {
+  if (line === 'null') return { value: null, consumed: 1 }
+  if (line === 'undefined') return { value: undefined, consumed: 1 }
+  if (line === 'true') return { value: true, consumed: 1 }
+  if (line === 'false') return { value: false, consumed: 1 }
+  if (/^-?\d+(\.\d+)?$/.test(line)) return { value: Number(line), consumed: 1 }
+  if (line === '[]') return { value: [], consumed: 1 }
+  if (line === '{}') return { value: {}, consumed: 1 }
+  return null
+}
+
+function parseTabularBlock(lines: string[], startIndex: number, match: RegExpMatchArray): ParseResult {
+  const count = parseInt(match[1], 10)
+  const keys = match[2].split(',')
+  const result: Record<string, unknown>[] = []
+
+  for (let i = 0; i < count && startIndex + 1 + i < lines.length; i++) {
+    const rowLine = lines[startIndex + 1 + i].trim()
+    const values = parseDelimitedRow(rowLine, ',')
+    const obj: Record<string, unknown> = {}
+    keys.forEach((key, idx) => {
+      obj[key] = parseValue(values[idx] || '')
+    })
+    result.push(obj)
+  }
+
+  return { value: result, consumed: count + 1 }
+}
+
+function parseKeyValuePair(lines: string[], startIndex: number, match: RegExpMatchArray): ParseResult {
+  const key = match[1].trim()
+  const valueStr = match[2].trim()
+
+  if (valueStr) {
+    return {
+      value: { [key]: parseValue(valueStr) },
+      consumed: 1,
+    }
+  }
+
+  const nested = parseToon(lines, startIndex + 1)
+  return {
+    value: { [key]: nested.value },
+    consumed: 1 + nested.consumed,
+  }
+}
+
 function parseToon(lines: string[], startIndex: number): ParseResult {
   if (startIndex >= lines.length) {
     return { value: null, consumed: 0 }
@@ -143,67 +199,19 @@ function parseToon(lines: string[], startIndex: number): ParseResult {
 
   const line = lines[startIndex].trim()
 
-  // Null/undefined
-  if (line === 'null') return { value: null, consumed: 1 }
-  if (line === 'undefined') return { value: undefined, consumed: 1 }
+  const literal = parseLiteral(line)
+  if (literal !== null) return literal
 
-  // Boolean
-  if (line === 'true') return { value: true, consumed: 1 }
-  if (line === 'false') return { value: false, consumed: 1 }
-
-  // Number
-  if (/^-?\d+(\.\d+)?$/.test(line)) {
-    return { value: Number(line), consumed: 1 }
-  }
-
-  // Empty array/object
-  if (line === '[]') return { value: [], consumed: 1 }
-  if (line === '{}') return { value: {}, consumed: 1 }
-
-  // Tabular array header: [count]{keys}:
   const tabularMatch = line.match(/^\[(\d+)\]\{([^}]+)\}:$/)
   if (tabularMatch) {
-    const count = parseInt(tabularMatch[1], 10)
-    const keys = tabularMatch[2].split(',')
-    const result: Record<string, unknown>[] = []
-
-    for (let i = 0; i < count && startIndex + 1 + i < lines.length; i++) {
-      const rowLine = lines[startIndex + 1 + i].trim()
-      const values = parseDelimitedRow(rowLine, ',')
-      const obj: Record<string, unknown> = {}
-      keys.forEach((key, idx) => {
-        obj[key] = parseValue(values[idx] || '')
-      })
-      result.push(obj)
-    }
-
-    return { value: result, consumed: count + 1 }
+    return parseTabularBlock(lines, startIndex, tabularMatch)
   }
 
-  // Key-value pair: key: value
   const kvMatch = line.match(/^([^:]+):\s*(.*)$/)
   if (kvMatch) {
-    const key = kvMatch[1].trim()
-    const valueStr = kvMatch[2].trim()
-
-    if (valueStr) {
-      // Value on same line
-      return {
-        value: { [key]: parseValue(valueStr) },
-        consumed: 1,
-      }
-    }
-
-    // Value on next lines - need to parse nested structure
-    // For simplicity, treat remaining as the value
-    const nested = parseToon(lines, startIndex + 1)
-    return {
-      value: { [key]: nested.value },
-      consumed: 1 + nested.consumed,
-    }
+    return parseKeyValuePair(lines, startIndex, kvMatch)
   }
 
-  // Plain string value
   return { value: line, consumed: 1 }
 }
 
@@ -231,20 +239,25 @@ function parseDelimitedRow(row: string, delimiter: string): string[] {
   return result
 }
 
+function detectKnownValue(trimmed: string): { known: true; value: unknown } | { known: false } {
+  if (trimmed === 'null') return { known: true, value: null }
+  if (trimmed === 'undefined') return { known: true, value: undefined }
+  if (trimmed === 'true') return { known: true, value: true }
+  if (trimmed === 'false') return { known: true, value: false }
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return { known: true, value: Number(trimmed) }
+  return { known: false }
+}
+
 function parseValue(str: string): unknown {
   const trimmed = str.trim()
-  
-  if (trimmed === 'null') return null
-  if (trimmed === 'undefined') return undefined
-  if (trimmed === 'true') return true
-  if (trimmed === 'false') return false
-  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return Number(trimmed)
-  
-  // Remove quotes if present
+
+  const detected = detectKnownValue(trimmed)
+  if (detected.known) return detected.value
+
   if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
     return trimmed.slice(1, -1)
   }
-  
+
   return trimmed
 }
 

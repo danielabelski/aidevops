@@ -17,6 +17,64 @@ import type {
 } from '../types'
 import { CHAT_API, SSE_TIMEOUT } from '../constants'
 
+interface StreamEventHandlers {
+  onModel: (model: string) => void
+  onDelta: (content: string) => void
+  onDone: (tokenCount: number, model: string) => void
+  onError: (message: string) => void
+}
+
+function dispatchStreamEvent(event: StreamEvent, handlers: StreamEventHandlers): void {
+  switch (event.type) {
+    case 'start':
+      handlers.onModel(event.model)
+      break
+    case 'delta':
+      handlers.onDelta(event.content)
+      break
+    case 'done':
+      handlers.onDone(event.tokenCount, event.model)
+      break
+    case 'error':
+      handlers.onError(event.message)
+      break
+  }
+}
+
+function parseSseLines(lines: string[], handlers: StreamEventHandlers): void {
+  let eventType = ''
+  for (const line of lines) {
+    if (line.startsWith('event: ')) {
+      eventType = line.slice(7).trim()
+    } else if (line.startsWith('data: ')) {
+      const data = line.slice(6)
+      try {
+        const event = JSON.parse(data) as StreamEvent
+        dispatchStreamEvent({ ...event, type: eventType as StreamEvent['type'] }, handlers)
+      } catch {
+        // Malformed JSON — skip
+      }
+    }
+  }
+}
+
+async function readSseStream(reader: ReadableStreamDefaultReader<Uint8Array>, handlers: StreamEventHandlers): Promise<void> {
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+
+    buffer += decoder.decode(value, { stream: true })
+
+    const lines = buffer.split('\n')
+    buffer = lines.pop() ?? ''
+
+    parseSseLines(lines, handlers)
+  }
+}
+
 /**
  * Hook for managing SSE streaming from the chat API.
  *
@@ -65,6 +123,13 @@ export function useStreaming(): UseStreamingReturn {
       setIsStreaming(false)
     }, SSE_TIMEOUT)
 
+    const handlers: StreamEventHandlers = {
+      onModel: (m) => setModel(m),
+      onDelta: (c) => setContent((prev) => prev + c),
+      onDone: (tc, m) => { setTokenCount(tc); setModel(m) },
+      onError: (msg) => { setError(msg); stopStream() },
+    }
+
     // Start SSE connection via fetch (EventSource doesn't support POST)
     fetch(CHAT_API.stream, {
       method: 'POST',
@@ -82,34 +147,7 @@ export function useStreaming(): UseStreamingReturn {
           throw new Error('No response body')
         }
 
-        const decoder = new TextDecoder()
-        let buffer = ''
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          buffer += decoder.decode(value, { stream: true })
-
-          // Parse SSE events from buffer
-          const lines = buffer.split('\n')
-          buffer = lines.pop() ?? '' // Keep incomplete line in buffer
-
-          let eventType = ''
-          for (const line of lines) {
-            if (line.startsWith('event: ')) {
-              eventType = line.slice(7).trim()
-            } else if (line.startsWith('data: ')) {
-              const data = line.slice(6)
-              try {
-                const event = JSON.parse(data) as StreamEvent
-                handleEvent({ ...event, type: eventType as StreamEvent['type'] })
-              } catch {
-                // Malformed JSON — skip
-              }
-            }
-          }
-        }
+        await readSseStream(reader, handlers)
       })
       .catch((err: Error) => {
         if (err.name !== 'AbortError') {
@@ -121,25 +159,6 @@ export function useStreaming(): UseStreamingReturn {
         setIsStreaming(false)
         abortRef.current = null
       })
-
-    function handleEvent(event: StreamEvent): void {
-      switch (event.type) {
-        case 'start':
-          setModel(event.model)
-          break
-        case 'delta':
-          setContent((prev) => prev + event.content)
-          break
-        case 'done':
-          setTokenCount(event.tokenCount)
-          setModel(event.model)
-          break
-        case 'error':
-          setError(event.message)
-          stopStream()
-          break
-      }
-    }
   }, [stopStream])
 
   return {

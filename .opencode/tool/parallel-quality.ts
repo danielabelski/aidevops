@@ -136,6 +136,63 @@ async function runSafeCheck(
   }
 }
 
+function resolveChecksToRun(requestedChecks: string[]): SafeCommand[] {
+  const runAll = requestedChecks.includes("all")
+  const rootDir = new URL('../..', import.meta.url).pathname
+  const scriptDir = new URL('../../.agents/scripts', import.meta.url).pathname
+  const allChecks = getSafeCommands(scriptDir, rootDir)
+
+  return runAll
+    ? allChecks
+    : allChecks.filter(c => requestedChecks.includes(c.key))
+}
+
+function buildResultSummary(results: QualityResult[], totalDuration: number): ParallelQualityResults['summary'] {
+  return {
+    total: results.length,
+    passed: results.filter(r => r.status === 'passed').length,
+    failed: results.filter(r => r.status === 'failed').length,
+    skipped: results.filter(r => r.status === 'skipped').length,
+    errors: results.filter(r => r.status === 'error').length,
+    totalDuration,
+  }
+}
+
+function statusIcon(status: QualityResult['status']): string {
+  if (status === 'passed') return '✅'
+  if (status === 'failed') return '❌'
+  if (status === 'skipped') return '⏭️'
+  return '⚠️'
+}
+
+function formatQualityResults(results: QualityResult[], totalDuration: number): string {
+  const summary = buildResultSummary(results, totalDuration)
+  const sequentialEstimate = results.reduce((a, r) => a + r.duration, 0)
+
+  const lines = [
+    `🚀 Parallel Quality Check Results`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `Total Duration: ${totalDuration}ms (parallel execution)`,
+    `Sequential estimate: ~${sequentialEstimate}ms`,
+    `Speedup: ~${(sequentialEstimate / totalDuration).toFixed(1)}x`,
+    ``,
+    `Summary: ${summary.passed}/${summary.total} passed`,
+    ``,
+  ]
+
+  for (const result of results) {
+    lines.push(`${statusIcon(result.status)} ${result.name} (${result.duration}ms)`)
+    if (result.issues !== undefined) {
+      lines.push(`   Issues: ${result.issues}`)
+    }
+    if (result.status !== 'passed' && result.output) {
+      lines.push(`   ${result.output.split('\n')[0]}`)
+    }
+  }
+
+  return lines.join('\n')
+}
+
 export default tool({
   description: "Run all quality checks in parallel for faster execution (~3.75x speedup)",
   args: {
@@ -154,74 +211,18 @@ export default tool({
   async execute(args) {
     const timeout = args.timeout || 60000
     const requestedChecks = args.checks || ["all"]
-    const runAll = requestedChecks.includes("all")
 
-    // Use resolved paths - no user input in paths
-    const rootDir = new URL('../..', import.meta.url).pathname
-    const scriptDir = new URL('../../.agents/scripts', import.meta.url).pathname
-
-    // Get predefined safe commands
-    const allChecks = getSafeCommands(scriptDir, rootDir)
-
-    // Filter checks based on request
-    const checksToRun = runAll
-      ? allChecks
-      : allChecks.filter(c => requestedChecks.includes(c.key))
-
+    const checksToRun = resolveChecksToRun(requestedChecks)
     if (checksToRun.length === 0) {
       return "No valid checks specified"
     }
 
     const startTime = performance.now()
-
-    // Run all checks in parallel using safe spawn
     const results = await Promise.all(
       checksToRun.map(check => runSafeCheck(check, timeout))
     )
-
     const totalDuration = Math.round(performance.now() - startTime)
 
-    // Calculate summary
-    const summary = {
-      total: results.length,
-      passed: results.filter(r => r.status === 'passed').length,
-      failed: results.filter(r => r.status === 'failed').length,
-      skipped: results.filter(r => r.status === 'skipped').length,
-      errors: results.filter(r => r.status === 'error').length,
-      totalDuration,
-    }
-
-    const output: ParallelQualityResults = {
-      summary,
-      results,
-      timestamp: new Date().toISOString(),
-    }
-
-    // Format output for display
-    const lines = [
-      `🚀 Parallel Quality Check Results`,
-      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-      `Total Duration: ${totalDuration}ms (parallel execution)`,
-      `Sequential estimate: ~${results.reduce((a, r) => a + r.duration, 0)}ms`,
-      `Speedup: ~${(results.reduce((a, r) => a + r.duration, 0) / totalDuration).toFixed(1)}x`,
-      ``,
-      `Summary: ${summary.passed}/${summary.total} passed`,
-      ``,
-    ]
-
-    for (const result of results) {
-      const icon = result.status === 'passed' ? '✅' : 
-                   result.status === 'failed' ? '❌' :
-                   result.status === 'skipped' ? '⏭️' : '⚠️'
-      lines.push(`${icon} ${result.name} (${result.duration}ms)`)
-      if (result.issues !== undefined) {
-        lines.push(`   Issues: ${result.issues}`)
-      }
-      if (result.status !== 'passed' && result.output) {
-        lines.push(`   ${result.output.split('\n')[0]}`)
-      }
-    }
-
-    return lines.join('\n')
+    return formatQualityResults(results, totalDuration)
   },
 })
