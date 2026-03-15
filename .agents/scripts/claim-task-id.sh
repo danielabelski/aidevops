@@ -477,6 +477,29 @@ allocate_offline() {
 	return 0
 }
 
+# Auto-assign a newly created issue to the current GitHub user.
+# Prevents duplicate dispatch when multiple machines/pulses are running.
+# Non-blocking — assignment failure doesn't fail issue creation.
+_auto_assign_issue() {
+	local issue_num="$1"
+	local repo_path="$2"
+
+	local current_user
+	current_user=$(gh api user --jq '.login' 2>/dev/null || echo "")
+	if [[ -z "$current_user" ]]; then
+		return 0
+	fi
+
+	local slug
+	slug=$(git -C "$repo_path" remote get-url origin 2>/dev/null | sed 's|.*github\.com[:/]||;s|\.git$||' || echo "")
+	if [[ -z "$slug" ]]; then
+		return 0
+	fi
+
+	gh issue edit "$issue_num" --repo "$slug" --add-assignee "$current_user" >/dev/null 2>&1 || true
+	return 0
+}
+
 # Create GitHub issue (post-allocation, non-blocking)
 # t1324: Delegates to issue-sync-helper.sh push when available for rich
 # issue bodies, proper labels (including auto-dispatch), and duplicate
@@ -510,6 +533,8 @@ create_github_issue() {
 
 		if [[ -n "$issue_num" ]]; then
 			log_info "Issue created via issue-sync-helper.sh: #$issue_num"
+			# Auto-assign to current user to prevent duplicate dispatch
+			_auto_assign_issue "$issue_num" "$repo_path"
 			echo "$issue_num"
 			return 0
 		fi
@@ -564,6 +589,9 @@ create_github_issue() {
 		log_warn "Failed to extract issue number from: $issue_url"
 		return 1
 	fi
+
+	# Auto-assign to current user to prevent duplicate dispatch
+	_auto_assign_issue "$issue_num" "$repo_path"
 
 	echo "$issue_num"
 	return 0
