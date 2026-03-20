@@ -456,26 +456,20 @@ setup_opencode_plugins() {
 	mkdir -p "$plugins_dir"
 
 	# Register plugin if needed; treat broken symlinks as unregistered.
-	if [[ -L "$aidevops_plugin_dst" && -e "$aidevops_plugin_dst" ]]; then
+	if [[ -L "$aidevops_plugin_dst" ]]; then
+		if [[ ! -e "$aidevops_plugin_dst" ]]; then
+			print_warning "Broken aidevops plugin symlink detected; recreating ~/.config/opencode/plugins/opencode-aidevops"
+			ln -sfn "$aidevops_plugin_src" "$aidevops_plugin_dst"
+		fi
 		print_success "aidevops plugin already registered at ~/.config/opencode/plugins/"
-		setup_track_configured "OpenCode plugins"
-		pool_plugin_registered="true"
-	elif [[ -L "$aidevops_plugin_dst" ]]; then
-		print_warning "Broken aidevops plugin symlink detected; recreating ~/.config/opencode/plugins/opencode-aidevops"
-		ln -sfn "$aidevops_plugin_src" "$aidevops_plugin_dst"
-		print_success "aidevops plugin registered at ~/.config/opencode/plugins/"
-		setup_track_configured "OpenCode plugins"
-		pool_plugin_registered="true"
 	elif [[ -d "$aidevops_plugin_dst" && -f "$aidevops_plugin_dst/index.mjs" ]]; then
 		print_success "aidevops plugin already registered at ~/.config/opencode/plugins/"
-		setup_track_configured "OpenCode plugins"
-		pool_plugin_registered="true"
 	else
 		ln -sfn "$aidevops_plugin_src" "$aidevops_plugin_dst"
 		print_success "aidevops plugin registered at ~/.config/opencode/plugins/"
-		setup_track_configured "OpenCode plugins"
-		pool_plugin_registered="true"
 	fi
+	setup_track_configured "OpenCode plugins"
+	pool_plugin_registered="true"
 
 	# Note: opencode-anthropic-auth is built into OpenCode v1.1.36+
 	# Adding it as an external plugin causes TypeError due to double-loading.
