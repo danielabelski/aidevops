@@ -6,8 +6,7 @@
  * (~/.aidevops/oauth-pool.json) to avoid conflicts with OpenCode's auth.json.
  *
  * Architecture:
- *   - auth hook: single "anthropic-pool" provider with both Anthropic and OpenAI
- *     OAuth methods (OpenCode 1.2.27 only supports one auth hook per plugin)
+ *   - auth hook: registers "anthropic-pool" and "openai-pool" providers with OAuth login flow
  *   - loader: returns a custom fetch wrapper that rotates credentials on 429
  *   - tool: /model-accounts-pool for listing/removing accounts
  *
@@ -26,7 +25,6 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { homedir } from "os";
 import { createHash, randomBytes } from "crypto";
-import { createServer } from "http";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -239,129 +237,6 @@ function generatePKCE() {
     .update(verifier)
     .digest("base64url");
   return { verifier, challenge };
-}
-
-// ---------------------------------------------------------------------------
-// OAuth callback server (t1548)
-// ---------------------------------------------------------------------------
-
-/** Port for the OpenAI OAuth callback server (matches OpenCode's built-in) */
-const OAUTH_CALLBACK_PORT = 1455;
-
-/** Timeout for the callback server (ms) — auto-closes if no callback received */
-const OAUTH_CALLBACK_TIMEOUT_MS = 300_000; // 5 minutes
-
-/**
- * Start a temporary HTTP server to catch the OpenAI OAuth callback.
- *
- * OpenAI's OAuth redirects to http://localhost:1455/auth/callback?code=XXX.
- * OpenCode's built-in auth spins up a server on that port, but our pool flow
- * runs through the plugin auth hook which doesn't. Without this server, the
- * browser shows "connection refused" and the user can't get the code.
- *
- * The server:
- *   1. Listens on port 1455
- *   2. Catches the /auth/callback redirect
- *   3. Extracts the `code` query parameter
- *   4. Shows a success page telling the user the code was captured
- *   5. Resolves the returned promise with the code
- *   6. Auto-closes after the first request or after timeout
- *
- * @returns {{ promise: Promise<string>, close: () => void }}
- *   - promise: resolves with the authorization code, rejects on timeout/error
- *   - close: manually close the server (cleanup)
- */
-function startOAuthCallbackServer() {
-  let resolveCode;
-  let rejectCode;
-  let server;
-  let timeoutId;
-
-  const promise = new Promise((resolve, reject) => {
-    resolveCode = resolve;
-    rejectCode = reject;
-  });
-
-  server = createServer((req, res) => {
-    // Parse the URL to extract query parameters
-    let reqUrl;
-    try {
-      reqUrl = new URL(req.url, `http://localhost:${OAUTH_CALLBACK_PORT}`);
-    } catch {
-      res.writeHead(400, { "Content-Type": "text/plain" });
-      res.end("Bad request");
-      return;
-    }
-
-    const code = reqUrl.searchParams.get("code");
-    const error = reqUrl.searchParams.get("error");
-
-    if (error) {
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(`<!DOCTYPE html><html><body>
-        <h2>Authorization Failed</h2>
-        <p>Error: ${error}</p>
-        <p>${reqUrl.searchParams.get("error_description") || ""}</p>
-        <p>You can close this tab.</p>
-      </body></html>`);
-      cleanup();
-      rejectCode(new Error(`OAuth error: ${error}`));
-      return;
-    }
-
-    if (code) {
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(`<!DOCTYPE html><html><body>
-        <h2>Authorization Successful</h2>
-        <p>The authorization code has been captured.</p>
-        <p>Return to OpenCode — the code will be submitted automatically.</p>
-        <p>You can close this tab.</p>
-      </body></html>`);
-      cleanup();
-      resolveCode(code);
-      return;
-    }
-
-    // No code or error — probably a favicon request or similar
-    res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("Waiting for OAuth callback...");
-  });
-
-  function cleanup() {
-    if (timeoutId) clearTimeout(timeoutId);
-    if (server) {
-      try { server.close(); } catch { /* ignore */ }
-    }
-  }
-
-  // Handle port-in-use (OpenCode's built-in auth may have it)
-  server.on("error", (err) => {
-    if (err.code === "EADDRINUSE") {
-      console.error(
-        `[aidevops] OAuth pool: port ${OAUTH_CALLBACK_PORT} in use — ` +
-        `OpenCode's built-in auth may be running. The user will need to ` +
-        `copy the code from the browser URL bar manually.`,
-      );
-      // Don't reject — let the user paste the code manually
-    } else {
-      console.error(`[aidevops] OAuth pool: callback server error: ${err.message}`);
-    }
-    cleanup();
-    rejectCode(err);
-  });
-
-  server.listen(OAUTH_CALLBACK_PORT, "127.0.0.1", () => {
-    console.error(`[aidevops] OAuth pool: callback server listening on port ${OAUTH_CALLBACK_PORT}`);
-  });
-
-  // Auto-close after timeout
-  timeoutId = setTimeout(() => {
-    console.error(`[aidevops] OAuth pool: callback server timed out after ${OAUTH_CALLBACK_TIMEOUT_MS / 1000}s`);
-    cleanup();
-    rejectCode(new Error("OAuth callback timeout"));
-  }, OAUTH_CALLBACK_TIMEOUT_MS);
-
-  return { promise, close: cleanup };
 }
 
 // ---------------------------------------------------------------------------
@@ -703,13 +578,13 @@ async function seedPoolAuthEntry(client, providerId) {
 
 /**
  * Inject pool tokens into built-in providers on session start.
- * Seeds the anthropic-pool auth entry (which hosts both Anthropic and OpenAI
- * OAuth methods — OpenCode 1.2.27 only supports one auth hook per plugin).
+ * Seeds auth entries for both anthropic-pool and openai-pool providers.
  * @param {any} client - OpenCode SDK client
  */
 export async function initPoolAuth(client) {
-  // Seed pool provider entry (hosts both Anthropic + OpenAI OAuth methods)
+  // Seed pool provider entries (for "Add Account" OAuth flows)
   await seedPoolAuthEntry(client, "anthropic-pool");
+  await seedPoolAuthEntry(client, "openai-pool");
 
   // Inject pool tokens into built-in providers
   await injectPoolToken(client);
@@ -840,20 +715,10 @@ export async function injectOpenAIPoolToken(client, skipEmail) {
 }
 
 /**
- * Create the unified auth hook for the pool provider (t1543, t1548).
- *
- * OpenCode 1.2.27 only supports a single auth hook object per plugin — arrays
- * crash with "Expected string, got undefined". This function returns one auth
- * hook with both Anthropic and OpenAI OAuth methods in its `methods` array.
- *
- * The `provider` field ("anthropic-pool") determines which provider entry the
- * auth dialog shows under. Both methods appear as selectable options. The actual
- * token injection targets the correct built-in providers ("anthropic" and
- * "openai") via client.auth.set() inside each method's callback.
- *
- * When OpenCode supports auth arrays (v1.2.30+), this can be split back into
- * separate hooks per provider if desired — but the merged approach is simpler.
- *
+ * Create the auth hook for the anthropic-pool provider.
+ * This provider exists solely for the "Add Account to Pool" OAuth flow.
+ * It has no models — users select models from the built-in "anthropic" provider,
+ * which uses pool tokens injected into auth.json by initPoolAuth/injectPoolToken.
  * @param {any} client - OpenCode SDK client
  * @returns {import('@opencode-ai/plugin').AuthHook}
  */
@@ -862,14 +727,13 @@ export function createPoolAuthHook(client) {
     provider: "anthropic-pool",
 
     methods: [
-      // --- Anthropic pool method (Claude Pro/Max) ---
       {
         get label() {
           const accounts = getAccounts("anthropic");
           if (accounts.length === 0) {
-            return "Add Anthropic Account (Claude Pro/Max)";
+            return "Add Account to Pool (Claude Pro/Max)";
           }
-          return `Add Anthropic Account (${accounts.length} account${accounts.length === 1 ? "" : "s"})`;
+          return `Add Account to Pool (${accounts.length} account${accounts.length === 1 ? "" : "s"})`;
         },
         type: "oauth",
         prompts: [
@@ -998,15 +862,35 @@ export function createPoolAuthHook(client) {
           };
         },
       },
+    ],
+  };
+}
 
-      // --- OpenAI pool method (ChatGPT Plus/Pro) (t1548) ---
+/**
+ * Create the auth hook for the openai-pool provider (t1548).
+ * This provider exists solely for the "Add Account to Pool" OAuth flow.
+ * It has no models — users select models from the built-in "openai" provider,
+ * which uses pool tokens injected into auth.json by injectOpenAIPoolToken.
+ *
+ * OpenAI OAuth uses form-encoded bodies and a local redirect server (port 1455)
+ * for its built-in flow. For the pool's add-account flow we use the same
+ * redirect URI with a code-paste UX (same as Anthropic pool).
+ *
+ * @param {any} client - OpenCode SDK client
+ * @returns {import('@opencode-ai/plugin').AuthHook}
+ */
+export function createOpenAIPoolAuthHook(client) {
+  return {
+    provider: "openai-pool",
+
+    methods: [
       {
         get label() {
           const accounts = getAccounts("openai");
           if (accounts.length === 0) {
-            return "Add OpenAI Account (ChatGPT Plus/Pro)";
+            return "Add Account to Pool (ChatGPT Plus/Pro)";
           }
-          return `Add OpenAI Account (${accounts.length} account${accounts.length === 1 ? "" : "s"})`;
+          return `Add Account to Pool (${accounts.length} account${accounts.length === 1 ? "" : "s"})`;
         },
         type: "oauth",
         prompts: [
@@ -1034,22 +918,6 @@ export function createPoolAuthHook(client) {
           const email = inputs?.email || "unknown";
           const pkce = generatePKCE();
 
-          // Start a local callback server to catch the OAuth redirect.
-          // OpenAI redirects to localhost:1455 — without this server the
-          // browser shows "connection refused" and the user can't get the code.
-          let callbackServer = null;
-          let serverCode = null;
-          try {
-            callbackServer = startOAuthCallbackServer();
-            // Store the code when the server catches it (non-blocking)
-            callbackServer.promise
-              .then((code) => { serverCode = code; })
-              .catch(() => { /* timeout or error — user can paste manually */ });
-          } catch {
-            // Server failed to start (port in use, etc.) — fall back to manual paste
-            console.error("[aidevops] OAuth pool: callback server failed to start — manual code paste required");
-          }
-
           const url = new URL(OPENAI_OAUTH_AUTHORIZE_URL);
           url.searchParams.set("client_id", OPENAI_CLIENT_ID);
           url.searchParams.set("response_type", "code");
@@ -1064,42 +932,14 @@ export function createPoolAuthHook(client) {
               `Adding OpenAI account: ${email}`,
               `1. A browser window will open to auth.openai.com`,
               `2. Sign in with your ChatGPT Plus/Pro account`,
-              `3. After authorizing, the code will be captured automatically`,
-              `4. Press Enter here to complete (or paste the code manually if needed): `,
+              `3. After authorizing, you will be redirected to http://localhost:1455/auth/callback`,
+              `4. Copy the "code" query parameter from the redirect URL`,
+              `5. Paste the authorization code here: `,
             ].join("\n"),
             method: "code",
             callback: async (code) => {
-              // Use server-captured code if available, otherwise use manual input
-              let authCode = code?.trim();
-              if ((!authCode || authCode.length < 5) && serverCode) {
-                authCode = serverCode;
-                console.error("[aidevops] OAuth pool: using auto-captured code from callback server");
-              } else if ((!authCode || authCode.length < 5) && callbackServer) {
-                // Server hasn't caught the code yet — wait briefly
-                try {
-                  authCode = await Promise.race([
-                    callbackServer.promise,
-                    new Promise((_, reject) =>
-                      setTimeout(() => reject(new Error("timeout")), 30_000),
-                    ),
-                  ]);
-                  console.error("[aidevops] OAuth pool: received code from callback server");
-                } catch {
-                  console.error("[aidevops] OAuth pool: no code received — authorization failed");
-                  if (callbackServer) callbackServer.close();
-                  return { type: "failed" };
-                }
-              }
-
-              // Clean up the callback server
-              if (callbackServer) callbackServer.close();
-
-              if (!authCode || authCode.length < 5) {
-                return { type: "failed" };
-              }
-
               // Strip any URL fragment or extra parameters
-              const cleanCode = authCode.split(/[&#?]/)[0];
+              const cleanCode = code.trim().split(/[&#?]/)[0];
 
               const params = new URLSearchParams({
                 grant_type: "authorization_code",
@@ -1197,18 +1037,12 @@ export function createPoolAuthHook(client) {
 }
 
 /**
- * Register the pool provider (auth-only, no real models).
- *
- * A single "anthropic-pool" provider hosts both Anthropic and OpenAI OAuth
- * methods (OpenCode 1.2.27 only supports one auth hook per plugin). The
- * provider name is "OAuth Account Pool" to reflect that it handles both.
- *
- * Models are served by the built-in providers ("anthropic", "openai"), which
- * use pool tokens injected into auth.json by initPoolAuth/injectPoolToken/
- * injectOpenAIPoolToken.
- *
+ * Register pool providers (auth-only, no models).
+ * These providers exist solely to provide the "Add Account to Pool" OAuth flows.
+ * Models are served by the built-in providers, which use pool tokens
+ * injected into auth.json by initPoolAuth/injectPoolToken/injectOpenAIPoolToken.
  * @param {any} config - OpenCode config object
- * @returns {number} number of providers newly registered (0 or 1)
+ * @returns {number} number of providers newly registered (0, 1, or 2)
  */
 export function registerPoolProvider(config) {
   if (!config.provider) config.provider = {};
@@ -1216,12 +1050,12 @@ export function registerPoolProvider(config) {
 
   if (!config.provider["anthropic-pool"]) {
     config.provider["anthropic-pool"] = {
-      name: "OAuth Account Pool (Anthropic + OpenAI)",
+      name: "Anthropic Pool (Account Management)",
       npm: "@ai-sdk/anthropic",
       api: "https://api.anthropic.com/v1",
       models: {
         "pool-account-management": {
-          name: "Add/Manage Accounts (select models from Anthropic or OpenAI provider)",
+          name: "Add/Manage Accounts (select models from Anthropic provider)",
           attachment: false, tool_call: false, temperature: false,
           modalities: { input: ["text"], output: ["text"] },
           cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
@@ -1231,16 +1065,26 @@ export function registerPoolProvider(config) {
       },
     };
     registered++;
-  } else {
-    // Update name from old "Anthropic Pool (Account Management)" to new unified name
-    config.provider["anthropic-pool"].name = "OAuth Account Pool (Anthropic + OpenAI)";
   }
 
-  // Clean up stale "openai-pool" provider from previous versions (t1548).
-  // It had no auth hook and showed a confusing API key input. Both OAuth
-  // methods are now in the single "anthropic-pool" auth hook above.
-  if (config.provider["openai-pool"]) {
-    delete config.provider["openai-pool"];
+  // Register OpenAI pool provider (t1548)
+  if (!config.provider["openai-pool"]) {
+    config.provider["openai-pool"] = {
+      name: "OpenAI Pool (Account Management)",
+      npm: "@ai-sdk/openai",
+      api: "https://api.openai.com/v1",
+      models: {
+        "pool-account-management": {
+          name: "Add/Manage Accounts (select models from OpenAI provider)",
+          attachment: false, tool_call: false, temperature: false,
+          modalities: { input: ["text"], output: ["text"] },
+          cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
+          limit: { context: 1000, output: 100 },
+          family: "pool",
+        },
+      },
+    };
+    registered++;
   }
 
   return registered;
@@ -1291,9 +1135,10 @@ export function createPoolTool(client) {
       const provider = args.provider || "anthropic";
       const accounts = getAccounts(provider);
 
-      // Add-account instructions (both providers use the same pool auth dialog)
-      const providerLabel = provider === "openai" ? "ChatGPT Plus/Pro" : "Claude Pro/Max";
-      const addAccountHint = `To add an account: run \`opencode auth login\` and select "OAuth Account Pool" → "${providerLabel}".`;
+      // Provider-specific add-account instructions
+      const addAccountHint = provider === "openai"
+        ? `To add an account: run \`opencode auth login\` and select "OpenAI Pool".`
+        : `To add an account: run \`opencode auth login\` and select "Anthropic Pool".`;
 
       // Provider-specific token endpoint cooldown
       const now = Date.now();
@@ -1404,7 +1249,8 @@ export function createPoolTool(client) {
 
         case "rotate": {
           if (accounts.length < 2) {
-            return `Cannot rotate: only ${accounts.length} account(s) in pool. Add more accounts via Ctrl+A → OAuth Account Pool.`;
+            const poolName = provider === "openai" ? "OpenAI Pool" : "Anthropic Pool";
+            return `Cannot rotate: only ${accounts.length} account(s) in pool. Add more accounts via Ctrl+A → ${poolName}.`;
           }
 
           // Find which account is currently injected (most recently used)
