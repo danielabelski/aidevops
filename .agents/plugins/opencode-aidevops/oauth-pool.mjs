@@ -25,6 +25,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { homedir } from "os";
 import { createHash, randomBytes } from "crypto";
+import { createServer } from "http";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -237,6 +238,155 @@ function generatePKCE() {
     .update(verifier)
     .digest("base64url");
   return { verifier, challenge };
+}
+
+// ---------------------------------------------------------------------------
+// OAuth callback server (t1548)
+// ---------------------------------------------------------------------------
+
+/** Port for the OpenAI OAuth callback server (matches OpenCode's built-in) */
+const OAUTH_CALLBACK_PORT = 1455;
+
+/** Timeout for the callback server (ms) — auto-closes if no callback received */
+const OAUTH_CALLBACK_TIMEOUT_MS = 300_000; // 5 minutes
+
+/**
+ * Start a temporary HTTP server to catch the OpenAI OAuth callback.
+ *
+ * OpenAI's OAuth redirects to http://localhost:1455/auth/callback?code=XXX.
+ * OpenCode's built-in auth spins up a server on that port, but our pool flow
+ * runs through the plugin auth hook which doesn't. Without this server, the
+ * browser shows "connection refused" and the user can't get the code.
+ *
+ * The server:
+ *   1. Listens on port 1455
+ *   2. Catches the /auth/callback redirect
+ *   3. Extracts the `code` query parameter
+ *   4. Shows a success page telling the user the code was captured
+ *   5. Resolves the returned promise with the code
+ *   6. Auto-closes after the first request or after timeout
+ *
+ * @returns {{ promise: Promise<string>, ready: Promise<boolean>, close: () => void }}
+ *   - promise: resolves with the authorization code, rejects on timeout/error
+ *   - ready: resolves true when listening, false on startup failure
+ *   - close: manually close the server (cleanup)
+ */
+function startOAuthCallbackServer() {
+  let resolveCode;
+  let rejectCode;
+  let server;
+  let timeoutId;
+  let resolveReady;
+
+  const promise = new Promise((resolve, reject) => {
+    resolveCode = resolve;
+    rejectCode = reject;
+  });
+
+  /** Resolves true when the server is listening, false on startup failure. */
+  const ready = new Promise((resolve) => {
+    resolveReady = resolve;
+  });
+
+  /** Escape HTML special characters to prevent injection in error pages. */
+  const escapeHtml = (value = "") => value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+  server = createServer((req, res) => {
+    // Parse the URL to extract query parameters
+    let reqUrl;
+    try {
+      reqUrl = new URL(req.url, `http://localhost:${OAUTH_CALLBACK_PORT}`);
+    } catch {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end("Bad request");
+      return;
+    }
+
+    // Only handle the OAuth callback path — reject everything else
+    if (reqUrl.pathname !== "/auth/callback") {
+      res.writeHead(404, { "Content-Type": "text/plain" });
+      res.end("Not found");
+      return;
+    }
+
+    const code = reqUrl.searchParams.get("code");
+    const error = reqUrl.searchParams.get("error");
+
+    if (error) {
+      const safeError = escapeHtml(error);
+      const safeDescription = escapeHtml(reqUrl.searchParams.get("error_description") || "");
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(`<!DOCTYPE html><html><body>
+        <h2>Authorization Failed</h2>
+        <p>Error: ${safeError}</p>
+        <p>${safeDescription}</p>
+        <p>You can close this tab.</p>
+      </body></html>`);
+      cleanup();
+      rejectCode(new Error(`OAuth error: ${error}`));
+      return;
+    }
+
+    if (code) {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(`<!DOCTYPE html><html><body>
+        <h2>Authorization Successful</h2>
+        <p>The authorization code has been captured.</p>
+        <p>Return to OpenCode — the code will be submitted automatically.</p>
+        <p>You can close this tab.</p>
+      </body></html>`);
+      cleanup();
+      resolveCode(code);
+      return;
+    }
+
+    // No code or error on the callback path
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("Waiting for OAuth callback...");
+  });
+
+  function cleanup() {
+    if (timeoutId) clearTimeout(timeoutId);
+    if (server) {
+      try { server.close(); } catch { /* ignore */ }
+    }
+  }
+
+  server.on("error", (err) => {
+    cleanup();
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        `[aidevops] OAuth pool: port ${OAUTH_CALLBACK_PORT} in use — ` +
+        `OpenCode's built-in auth may be running. The user will need to ` +
+        `copy the code from the browser URL bar manually.`,
+      );
+      resolveReady(false);
+      return;
+    } else {
+      console.error(`[aidevops] OAuth pool: callback server error: ${err.message}`);
+    }
+    resolveReady(false);
+    rejectCode(err);
+  });
+
+  server.listen(OAUTH_CALLBACK_PORT, "127.0.0.1", () => {
+    console.error(`[aidevops] OAuth pool: callback server listening on port ${OAUTH_CALLBACK_PORT}`);
+    resolveReady(true);
+  });
+
+  // Auto-close after timeout
+  timeoutId = setTimeout(() => {
+    console.error(`[aidevops] OAuth pool: callback server timed out after ${OAUTH_CALLBACK_TIMEOUT_MS / 1000}s`);
+    cleanup();
+    rejectCode(new Error("OAuth callback timeout"));
+  }, OAUTH_CALLBACK_TIMEOUT_MS);
+
+  return { promise, ready, close: cleanup };
 }
 
 // ---------------------------------------------------------------------------
@@ -918,6 +1068,31 @@ export function createOpenAIPoolAuthHook(client) {
           const email = inputs?.email || "unknown";
           const pkce = generatePKCE();
 
+          // Start a local callback server to catch the OAuth redirect.
+          // OpenAI redirects to localhost:1455 — without this server the
+          // browser shows "connection refused" and the user can't get the code.
+          let callbackServer = null;
+          let serverCode = null;
+          let autoCaptureReady = false;
+          try {
+            callbackServer = startOAuthCallbackServer();
+            autoCaptureReady = await callbackServer.ready.catch(() => false);
+            if (autoCaptureReady) {
+              // Store the code when the server catches it (non-blocking)
+              callbackServer.promise
+                .then((code) => { serverCode = code; })
+                .catch(() => { /* timeout or error — user can paste manually */ });
+            } else {
+              // Server failed to bind (EADDRINUSE etc.) — fall back to manual paste
+              console.error("[aidevops] OAuth pool: callback server failed to start — manual code paste required");
+              callbackServer = null;
+            }
+          } catch {
+            // Server construction failed — fall back to manual paste
+            console.error("[aidevops] OAuth pool: callback server failed to start — manual code paste required");
+            callbackServer = null;
+          }
+
           const url = new URL(OPENAI_OAUTH_AUTHORIZE_URL);
           url.searchParams.set("client_id", OPENAI_CLIENT_ID);
           url.searchParams.set("response_type", "code");
@@ -932,14 +1107,46 @@ export function createOpenAIPoolAuthHook(client) {
               `Adding OpenAI account: ${email}`,
               `1. A browser window will open to auth.openai.com`,
               `2. Sign in with your ChatGPT Plus/Pro account`,
-              `3. After authorizing, you will be redirected to http://localhost:1455/auth/callback`,
-              `4. Copy the "code" query parameter from the redirect URL`,
-              `5. Paste the authorization code here: `,
+              autoCaptureReady
+                ? `3. After authorizing, the code will be captured automatically`
+                : `3. After authorizing, copy the authorization code from the browser URL`,
+              autoCaptureReady
+                ? `4. Press Enter here to complete (or paste the code manually if needed): `
+                : `4. Paste the authorization code here: `,
             ].join("\n"),
             method: "code",
             callback: async (code) => {
+              // Use server-captured code if available, otherwise use manual input
+              let authCode = code?.trim();
+              if ((!authCode || authCode.length < 5) && serverCode) {
+                authCode = serverCode;
+                console.error("[aidevops] OAuth pool: using auto-captured code from callback server");
+              } else if ((!authCode || authCode.length < 5) && autoCaptureReady && callbackServer) {
+                // Server hasn't caught the code yet — wait briefly
+                try {
+                  authCode = await Promise.race([
+                    callbackServer.promise,
+                    new Promise((_, reject) =>
+                      setTimeout(() => reject(new Error("timeout")), 30_000),
+                    ),
+                  ]);
+                  console.error("[aidevops] OAuth pool: received code from callback server");
+                } catch {
+                  console.error("[aidevops] OAuth pool: no code received — authorization failed");
+                  if (callbackServer) callbackServer.close();
+                  return { type: "failed" };
+                }
+              }
+
+              // Clean up the callback server
+              if (callbackServer) callbackServer.close();
+
+              if (!authCode || authCode.length < 5) {
+                return { type: "failed" };
+              }
+
               // Strip any URL fragment or extra parameters
-              const cleanCode = code.trim().split(/[&#?]/)[0];
+              const cleanCode = authCode.split(/[&#?]/)[0];
 
               const params = new URLSearchParams({
                 grant_type: "authorization_code",
@@ -1037,57 +1244,59 @@ export function createOpenAIPoolAuthHook(client) {
 }
 
 /**
- * Register pool providers (auth-only, no models).
- * These providers exist solely to provide the "Add Account to Pool" OAuth flows.
- * Models are served by the built-in providers, which use pool tokens
- * injected into auth.json by initPoolAuth/injectPoolToken/injectOpenAIPoolToken.
+ * Register the pool provider for the auth dialog display name.
+ *
+ * The auth hook (provider: "anthropic-pool") automatically appears in the
+ * Ctrl+A auth dialog via OpenCode's resolvePluginProviders(). However, the
+ * display name comes from config.provider[id].name — without a config entry
+ * it shows the raw ID "anthropic-pool".
+ *
+ * We register a config entry with NO models so it provides the display name
+ * but doesn't appear in the model picker. Previous versions had dummy models
+ * which caused the provider to show up as a selectable (but broken) model.
+ *
+ * Models are served by the built-in providers ("anthropic", "openai"), which
+ * use pool tokens injected into auth.json by initPoolAuth/injectPoolToken/
+ * injectOpenAIPoolToken.
+ *
  * @param {any} config - OpenCode config object
- * @returns {number} number of providers newly registered (0, 1, or 2)
+ * @returns {number} number of changes made
  */
 export function registerPoolProvider(config) {
   if (!config.provider) config.provider = {};
-  let registered = 0;
+  let changes = 0;
 
-  if (!config.provider["anthropic-pool"]) {
-    config.provider["anthropic-pool"] = {
-      name: "Anthropic Pool (Account Management)",
-      npm: "@ai-sdk/anthropic",
-      api: "https://api.anthropic.com/v1",
-      models: {
-        "pool-account-management": {
-          name: "Add/Manage Accounts (select models from Anthropic provider)",
-          attachment: false, tool_call: false, temperature: false,
-          modalities: { input: ["text"], output: ["text"] },
-          cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
-          limit: { context: 1000, output: 100 },
-          family: "pool",
-        },
-      },
-    };
-    registered++;
+  // Register with display name but NO models — appears in auth dialog
+  // but not in model picker. Previous versions had dummy models that
+  // showed up as broken selectable models.
+  const desired = {
+    name: "OAuth Account Pool",
+    models: {},
+  };
+
+  const existing = config.provider["anthropic-pool"];
+  if (!existing) {
+    config.provider["anthropic-pool"] = desired;
+    changes++;
+  } else {
+    // Clean up: remove dummy models from previous versions, update name
+    if (existing.models && Object.keys(existing.models).length > 0) {
+      existing.models = {};
+      changes++;
+    }
+    if (existing.name !== desired.name) {
+      existing.name = desired.name;
+      changes++;
+    }
   }
 
-  // Register OpenAI pool provider (t1548)
-  if (!config.provider["openai-pool"]) {
-    config.provider["openai-pool"] = {
-      name: "OpenAI Pool (Account Management)",
-      npm: "@ai-sdk/openai",
-      api: "https://api.openai.com/v1",
-      models: {
-        "pool-account-management": {
-          name: "Add/Manage Accounts (select models from OpenAI provider)",
-          attachment: false, tool_call: false, temperature: false,
-          modalities: { input: ["text"], output: ["text"] },
-          cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
-          limit: { context: 1000, output: 100 },
-          family: "pool",
-        },
-      },
-    };
-    registered++;
+  // Clean up stale "openai-pool" provider from previous versions (t1548).
+  if (config.provider["openai-pool"]) {
+    delete config.provider["openai-pool"];
+    changes++;
   }
 
-  return registered;
+  return changes;
 }
 
 // ---------------------------------------------------------------------------
