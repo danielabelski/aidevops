@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.28] - 2026-03-20
+
+### Changed
+
+- Refactor: relocate browser-extension-dev and mobile-app-dev out of agents root (#5353)
+
 ## [3.1.27] - 2026-03-20
 
 ### Fixed
