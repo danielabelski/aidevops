@@ -1053,7 +1053,16 @@ export function registerPoolProvider(config) {
       name: "Anthropic Pool (Account Management)",
       npm: "@ai-sdk/anthropic",
       api: "https://api.anthropic.com/v1",
-      models: {},
+      models: {
+        "pool-account-management": {
+          name: "Add/Manage Accounts (select models from Anthropic provider)",
+          attachment: false, tool_call: false, temperature: false,
+          modalities: { input: ["text"], output: ["text"] },
+          cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
+          limit: { context: 1000, output: 100 },
+          family: "pool",
+        },
+      },
     };
     registered++;
   }
@@ -1064,7 +1073,16 @@ export function registerPoolProvider(config) {
       name: "OpenAI Pool (Account Management)",
       npm: "@ai-sdk/openai",
       api: "https://api.openai.com/v1",
-      models: {},
+      models: {
+        "pool-account-management": {
+          name: "Add/Manage Accounts (select models from OpenAI provider)",
+          attachment: false, tool_call: false, temperature: false,
+          modalities: { input: ["text"], output: ["text"] },
+          cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
+          limit: { context: 1000, output: 100 },
+          family: "pool",
+        },
+      },
     };
     registered++;
   }
