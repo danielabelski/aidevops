@@ -69,31 +69,96 @@ export function createProviderAuthHook(client) {
           // Refresh token if expired
           let accessToken = auth.access;
           if (!accessToken || auth.expires < Date.now()) {
-            const response = await fetch(TOKEN_ENDPOINT, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "User-Agent": "claude-cli/2.1.80 (external, cli)",
-              },
-              body: JSON.stringify({
-                grant_type: "refresh_token",
-                refresh_token: auth.refresh,
-                client_id: CLIENT_ID,
-              }),
-            });
-            if (!response.ok) {
-              throw new Error(`Token refresh failed: ${response.status}`);
+            // Try refreshing via the pool's ensureValidToken first (handles
+            // rotation across multiple accounts and cooldown logic)
+            const accounts = getAccounts("anthropic");
+            let refreshed = false;
+            for (const account of accounts) {
+              const token = await ensureValidToken("anthropic", account);
+              if (token) {
+                await client.auth.set({
+                  path: { id: "anthropic" },
+                  body: {
+                    type: "oauth",
+                    refresh: account.refresh,
+                    access: account.access,
+                    expires: account.expires,
+                  },
+                });
+                patchAccount("anthropic", account.email, {
+                  lastUsed: new Date().toISOString(),
+                  status: "active",
+                });
+                accessToken = token;
+                refreshed = true;
+                console.error(`[aidevops] provider-auth: refreshed via pool account ${account.email}`);
+                break;
+              }
             }
-            const json = await response.json();
-            await client.auth.set({
-              path: { id: "anthropic" },
-              body: {
-                type: "oauth",
-                refresh: json.refresh_token,
-                access: json.access_token,
-                expires: Date.now() + json.expires_in * 1000,
-              },
-            });
+
+            if (!refreshed) {
+              // Fallback: direct refresh with current token
+              const response = await fetch(TOKEN_ENDPOINT, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "User-Agent": "claude-cli/2.1.80 (external, cli)",
+                },
+                body: JSON.stringify({
+                  grant_type: "refresh_token",
+                  refresh_token: auth.refresh,
+                  client_id: CLIENT_ID,
+                }),
+              });
+              if (!response.ok) {
+                // On 429, wait and retry once
+                if (response.status === 429) {
+                  const retryAfter = parseInt(response.headers.get("retry-after") || "30", 10);
+                  console.error(`[aidevops] provider-auth: token refresh rate limited, waiting ${retryAfter}s`);
+                  await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+                  const retry = await fetch(TOKEN_ENDPOINT, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "User-Agent": "claude-cli/2.1.80 (external, cli)",
+                    },
+                    body: JSON.stringify({
+                      grant_type: "refresh_token",
+                      refresh_token: auth.refresh,
+                      client_id: CLIENT_ID,
+                    }),
+                  });
+                  if (!retry.ok) {
+                    throw new Error(`Token refresh failed after retry: ${retry.status}`);
+                  }
+                  const retryJson = await retry.json();
+                  await client.auth.set({
+                    path: { id: "anthropic" },
+                    body: {
+                      type: "oauth",
+                      refresh: retryJson.refresh_token,
+                      access: retryJson.access_token,
+                      expires: Date.now() + retryJson.expires_in * 1000,
+                    },
+                  });
+                  accessToken = retryJson.access_token;
+                } else {
+                  throw new Error(`Token refresh failed: ${response.status}`);
+                }
+              } else {
+                const json = await response.json();
+                await client.auth.set({
+                  path: { id: "anthropic" },
+                  body: {
+                    type: "oauth",
+                    refresh: json.refresh_token,
+                    access: json.access_token,
+                    expires: Date.now() + json.expires_in * 1000,
+                  },
+                });
+                accessToken = json.access_token;
+              }
+            }
             accessToken = json.access_token;
           }
 

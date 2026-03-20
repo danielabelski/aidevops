@@ -297,7 +297,7 @@ function savePool(data) {
  * @param {string} provider
  * @returns {PoolAccount[]}
  */
-function getAccounts(provider) {
+export function getAccounts(provider) {
   const pool = loadPool();
   return pool[provider] || [];
 }
@@ -350,7 +350,7 @@ function removeAccount(provider, email) {
  * @param {string} email
  * @param {Partial<PoolAccount>} patch
  */
-function patchAccount(provider, email, patch) {
+export function patchAccount(provider, email, patch) {
   const pool = loadPool();
   if (!pool[provider]) return;
   const account = pool[provider].find((a) => a.email === email);
@@ -434,7 +434,7 @@ async function refreshOpenAIAccessToken(account) {
  * @param {PoolAccount} account
  * @returns {Promise<string|null>} access token or null on failure
  */
-async function ensureValidToken(provider, account) {
+export async function ensureValidToken(provider, account) {
   if (account.access && account.expires > Date.now()) {
     return account.access;
   }

@@ -16,7 +16,7 @@ import { loadAgentIndex, applyAgentMcpTools } from "./agent-loader.mjs";
 import { validateReturnStatements, validatePositionalParams } from "./validators.mjs";
 import { runMarkdownQualityPipeline } from "./quality-pipeline.mjs";
 import { createTtsrHooks } from "./ttsr.mjs";
-import { createPoolAuthHook, createOpenAIPoolAuthHook, createPoolTool, initPoolAuth, registerPoolProvider } from "./oauth-pool.mjs";
+import { createPoolAuthHook, createPoolTool, initPoolAuth, registerPoolProvider } from "./oauth-pool.mjs";
 import { createProviderAuthHook } from "./provider-auth.mjs";
 
 const HOME = homedir();
@@ -1106,12 +1106,8 @@ export async function AidevopsPlugin({ directory, client }) {
     // Phase 6: LLM observability — capture assistant message metadata (t1308)
     event: async (input) => handleEvent(input),
 
-    // Phase 7: OAuth — built-in provider auth + pool account management (t1543, t1548)
-    auth: [
-      createProviderAuthHook(client),
-      createPoolAuthHook(client),
-      createOpenAIPoolAuthHook(client),
-    ],
+    // Phase 7: OAuth multi-account pool (t1543)
+    auth: createPoolAuthHook(client),
 
     // Compaction context (includes OMOC state when detected)
     "experimental.session.compacting": async (input, output) =>
