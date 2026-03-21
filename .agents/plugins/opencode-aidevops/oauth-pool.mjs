@@ -2285,63 +2285,66 @@ export function registerPoolProvider(config) {
     },
   };
 
-  if (!config.provider["anthropic-pool"] ||
-      !config.provider["anthropic-pool"].models ||
-      Object.keys(config.provider["anthropic-pool"].models).length === 0) {
-    config.provider["anthropic-pool"] = {
+  // Pool provider definitions — model names are always force-updated to fix
+  // stale names from prior versions (the condition previously only wrote when
+  // the provider was absent, leaving old "Add/Manage Accounts" names in place).
+  const poolProviders = [
+    {
+      id: "anthropic-pool",
       name: "Anthropic Pool (Account Management)",
       npm: "@ai-sdk/anthropic",
       api: "https://api.anthropic.com/v1",
-      models: poolAccountModel,
-    };
-    registered++;
-  }
-
-  const openaiPoolAccountModel = {
-    "pool-account-management": {
-      name: "[Account Setup Only] Use OpenAI provider for models",
-      attachment: false, tool_call: false, temperature: false,
-      modalities: { input: ["text"], output: ["text"] },
-      cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
-      limit: { context: 1000, output: 100 },
-      family: "pool",
+      modelName: "[Account Setup Only] Use Anthropic provider for models",
     },
-  };
-
-  if (!config.provider["openai-pool"] ||
-      !config.provider["openai-pool"].models ||
-      Object.keys(config.provider["openai-pool"].models).length === 0) {
-    config.provider["openai-pool"] = {
+    {
+      id: "openai-pool",
       name: "OpenAI Pool (Account Management)",
       npm: "@ai-sdk/openai",
       api: "https://api.openai.com/v1",
-      models: openaiPoolAccountModel,
-    };
-    registered++;
-  }
-
-  // Cursor pool provider (t1549)
-  const cursorPoolAccountModel = {
-    "pool-account-management": {
-      name: "[Account Setup Only] Use Cursor provider for models",
-      attachment: false, tool_call: false, temperature: false,
-      modalities: { input: ["text"], output: ["text"] },
-      cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
-      limit: { context: 1000, output: 100 },
-      family: "pool",
+      modelName: "[Account Setup Only] Use OpenAI provider for models",
     },
-  };
-
-  if (!config.provider["cursor-pool"] ||
-      !config.provider["cursor-pool"].models ||
-      Object.keys(config.provider["cursor-pool"].models).length === 0) {
-    config.provider["cursor-pool"] = {
+    {
+      id: "cursor-pool",
       name: "Cursor Pool (Account Management)",
       npm: "@ai-sdk/openai-compatible",
       api: CURSOR_PROXY_BASE_URL,
-      models: cursorPoolAccountModel,
+      modelName: "[Account Setup Only] Use Cursor provider for models",
+    },
+  ];
+
+  for (const def of poolProviders) {
+    const models = {
+      "pool-account-management": {
+        name: def.modelName,
+        attachment: false, tool_call: false, temperature: false,
+        modalities: { input: ["text"], output: ["text"] },
+        cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
+        limit: { context: 1000, output: 100 },
+        family: "pool",
+      },
     };
-    registered++;
+
+    if (!config.provider[def.id]) {
+      config.provider[def.id] = {
+        name: def.name,
+        npm: def.npm,
+        api: def.api,
+        models,
+      };
+      registered++;
+    } else {
+      // Compare full provider object — only update+increment when any field differs
+      const existing = config.provider[def.id];
+      const modelsChanged = JSON.stringify(existing.models) !== JSON.stringify(models);
+      if (existing.name !== def.name || existing.npm !== def.npm ||
+          existing.api !== def.api || modelsChanged) {
+        existing.name = def.name;
+        existing.npm = def.npm;
+        existing.api = def.api;
+        existing.models = models;
+        registered++;
+      }
+    }
   }
 
   return registered;
