@@ -1797,6 +1797,9 @@ export function createPoolAuthHook(client) {
               console.error(
                 `[aidevops] OAuth pool: added ${resolvedEmail} (${totalAccounts} account${totalAccounts === 1 ? "" : "s"} total)`,
               );
+              console.error(
+                `[aidevops] OAuth pool: Account added successfully. Now switch to the "Anthropic" provider and select a model (e.g. claude-sonnet) to start chatting. The "Anthropic Pool" provider is for account management only.`,
+              );
 
               // Inject the new token into the built-in anthropic provider
               await injectPoolToken(client);
@@ -2046,6 +2049,9 @@ export function createOpenAIPoolAuthHook(client) {
               console.error(
                 `[aidevops] OAuth pool: added OpenAI ${resolvedEmail} (${totalAccounts} account${totalAccounts === 1 ? "" : "s"} total)`,
               );
+              console.error(
+                `[aidevops] OAuth pool: Account added successfully. Now switch to the "OpenAI" provider and select a model (e.g. gpt-4o) to start chatting. The "OpenAI Pool" provider is for account management only.`,
+              );
 
               // Inject the new token into the built-in openai provider
               await injectOpenAIPoolToken(client);
@@ -2225,6 +2231,9 @@ export function createCursorPoolAuthHook(client) {
           console.error(
             `[aidevops] OAuth pool: added Cursor ${resolvedEmail} (${totalAccounts} account${totalAccounts === 1 ? "" : "s"} total)`,
           );
+          console.error(
+            `[aidevops] OAuth pool: Account added successfully. Now switch to the "Cursor" provider and select a model to start chatting. The "Cursor Pool" provider is for account management only.`,
+          );
 
           // Inject the new token and start proxy
           await injectCursorPoolToken(client);
@@ -2267,7 +2276,7 @@ export function registerPoolProvider(config) {
   // the dummy model (e.g. from a previous version that stored no models).
   const poolAccountModel = {
     "pool-account-management": {
-      name: "Add/Manage Accounts (select models from Anthropic provider)",
+      name: "[Account Setup Only] Use Anthropic provider for models",
       attachment: false, tool_call: false, temperature: false,
       modalities: { input: ["text"], output: ["text"] },
       cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
@@ -2290,7 +2299,7 @@ export function registerPoolProvider(config) {
 
   const openaiPoolAccountModel = {
     "pool-account-management": {
-      name: "Add/Manage Accounts (select models from OpenAI provider)",
+      name: "[Account Setup Only] Use OpenAI provider for models",
       attachment: false, tool_call: false, temperature: false,
       modalities: { input: ["text"], output: ["text"] },
       cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
@@ -2314,7 +2323,7 @@ export function registerPoolProvider(config) {
   // Cursor pool provider (t1549)
   const cursorPoolAccountModel = {
     "pool-account-management": {
-      name: "Add/Manage Accounts (select models from Cursor provider)",
+      name: "[Account Setup Only] Use Cursor provider for models",
       attachment: false, tool_call: false, temperature: false,
       modalities: { input: ["text"], output: ["text"] },
       cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
@@ -2355,6 +2364,7 @@ export function createPoolTool(client) {
       "'rotate' to switch to the next pool account, " +
       "'remove <email>' to remove an account, " +
       "'assign-pending <email>' to assign a pending unidentified token to an account, " +
+      "'check' to test token validity for all accounts, " +
       "'status' for rotation statistics. " +
       "Supports providers: anthropic (Claude Pro/Max), openai (ChatGPT Plus/Pro), " +
       "and cursor (Cursor Pro). " +
@@ -2365,9 +2375,9 @@ export function createPoolTool(client) {
       properties: {
         action: {
           type: "string",
-          enum: ["list", "remove", "status", "reset-cooldowns", "rotate", "assign-pending"],
+          enum: ["list", "remove", "status", "reset-cooldowns", "rotate", "assign-pending", "check"],
           description:
-            "Action to perform: list accounts, remove an account, show status, reset cooldowns, rotate to next account, or assign a pending token to an account",
+            "Action to perform: list accounts, remove an account, show status, reset cooldowns, rotate to next account, assign a pending token, or check token validity",
         },
         email: {
           type: "string",
@@ -2559,8 +2569,135 @@ export function createPoolTool(client) {
           return `Failed to assign: account ${args.email} not found in ${provider} pool. Available: ${accounts.map((a) => a.email).join(", ")}`;
         }
 
+        case "check": {
+          // Health check: test token validity for all accounts across all
+          // providers (or a specific provider if specified)
+          const providersToCheck = args.provider
+            ? [args.provider]
+            : ["anthropic", "openai", "cursor"];
+
+          const results = [];
+
+          for (const prov of providersToCheck) {
+            const provAccounts = getAccounts(prov);
+            if (provAccounts.length === 0) continue;
+
+            results.push(`\n## ${prov} (${provAccounts.length} account${provAccounts.length === 1 ? "" : "s"})`);
+
+            for (const account of provAccounts) {
+              const lines = [];
+              lines.push(`  ${account.email}:`);
+
+              // Token expiry
+              const expiresIn = account.expires - now;
+              if (expiresIn <= 0) {
+                lines.push(`    Token: EXPIRED (${new Date(account.expires).toLocaleString()})`);
+              } else {
+                const mins = Math.floor(expiresIn / 60000);
+                const hours = Math.floor(mins / 60);
+                const timeStr = hours > 0 ? `${hours}h ${mins % 60}m` : `${mins}m`;
+                lines.push(`    Token: expires in ${timeStr}`);
+              }
+
+              // Status and cooldown
+              lines.push(`    Status: ${account.status}`);
+              if (account.cooldownUntil && account.cooldownUntil > now) {
+                const cdMins = Math.ceil((account.cooldownUntil - now) / 60000);
+                lines.push(`    Cooldown: ${cdMins}m remaining`);
+              }
+
+              // Last used
+              if (account.lastUsed) {
+                const lastUsedAgo = now - new Date(account.lastUsed).getTime();
+                const lastMins = Math.floor(lastUsedAgo / 60000);
+                const lastHours = Math.floor(lastMins / 60);
+                const lastStr = lastHours > 0 ? `${lastHours}h ${lastMins % 60}m ago` : `${lastMins}m ago`;
+                lines.push(`    Last used: ${lastStr}`);
+              }
+
+              // Refresh token presence (not the value)
+              lines.push(`    Refresh token: ${account.refresh ? "present" : "MISSING"}`);
+
+              // Test token validity via a lightweight /v1/models GET request
+              if (account.access && expiresIn > 0) {
+                try {
+                  let testOk = false;
+                  if (prov === "anthropic") {
+                    const testResp = await fetch("https://api.anthropic.com/v1/models", {
+                      method: "GET",
+                      headers: {
+                        "Authorization": `Bearer ${account.access}`,
+                        "User-Agent": ANTHROPIC_USER_AGENT,
+                        "anthropic-version": "2023-06-01",
+                        "anthropic-beta": "oauth-2025-04-20",
+                      },
+                    });
+                    testOk = testResp.ok || testResp.status === 403;
+                    // 403 means token is valid but lacks scope — still proves auth works
+                    if (testResp.status === 401) {
+                      lines.push(`    Validity: INVALID (401 — needs refresh)`);
+                    } else if (testOk) {
+                      lines.push(`    Validity: OK`);
+                    } else {
+                      lines.push(`    Validity: HTTP ${testResp.status}`);
+                    }
+                  } else if (prov === "openai") {
+                    const testResp = await fetch("https://api.openai.com/v1/models", {
+                      headers: {
+                        "Authorization": `Bearer ${account.access}`,
+                        "User-Agent": OPENCODE_USER_AGENT,
+                      },
+                    });
+                    testOk = testResp.ok;
+                    if (testResp.status === 401) {
+                      lines.push(`    Validity: INVALID (401 — needs refresh)`);
+                    } else if (testOk) {
+                      lines.push(`    Validity: OK`);
+                    } else {
+                      lines.push(`    Validity: HTTP ${testResp.status}`);
+                    }
+                  } else {
+                    lines.push(`    Validity: (skipped — ${prov} uses proxy)`);
+                  }
+                } catch (err) {
+                  lines.push(`    Validity: ERROR (${err.code || err.message})`);
+                }
+              } else if (expiresIn <= 0) {
+                lines.push(`    Validity: EXPIRED — will auto-refresh on next use`);
+              } else {
+                lines.push(`    Validity: no access token`);
+              }
+
+              results.push(lines.join("\n"));
+            }
+
+            // Token endpoint status for this provider
+            const epCooldown = prov === "anthropic" ? tokenEndpointCooldownUntil
+              : prov === "openai" ? openaiTokenEndpointCooldownUntil
+              : cursorProxyCooldownUntil;
+            if (epCooldown > now) {
+              results.push(`  Token endpoint: RATE LIMITED (${Math.ceil((epCooldown - now) / 60000)}m remaining)`);
+            } else {
+              results.push(`  Token endpoint: OK`);
+            }
+
+            // Pending tokens
+            const pending = getPendingToken(prov);
+            if (pending) {
+              results.push(`  PENDING: Unassigned token (added: ${pending.added})`);
+            }
+          }
+
+          if (results.length === 0) {
+            const poolNames = { anthropic: "Anthropic Pool", openai: "OpenAI Pool", cursor: "Cursor Pool" };
+            return `No accounts in any pool.\n\nTo add an account:\n1. Run \`opencode auth login\` (or Ctrl+A)\n2. Select a pool provider (${Object.values(poolNames).join(", ")})\n3. Enter your account email and complete the OAuth flow\n4. After success, switch to the main provider and select a model`;
+          }
+
+          return `OAuth Pool Health Check${results.join("\n")}`;
+        }
+
         default:
-          return `Unknown action: ${args.action}. Available: list, rotate, remove, assign-pending, status, reset-cooldowns`;
+          return `Unknown action: ${args.action}. Available: list, rotate, remove, assign-pending, status, reset-cooldowns, check`;
       }
     },
   };

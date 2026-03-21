@@ -533,6 +533,8 @@ setup_opencode_plugins() {
 			print_info "  3. Enter your Claude account email"
 			print_info "  4. Complete the OAuth flow in your browser"
 			print_info "  5. Repeat to add more accounts for automatic rotation"
+			print_info "  6. Switch to 'Anthropic' provider and select a model to start chatting"
+			print_info "  Health check: /models-pool-check"
 			print_info "  Manage accounts: /model-accounts-pool list|status|remove"
 			print_info "  Docs: ~/.aidevops/agents/tools/opencode/opencode-anthropic-auth.md"
 		else
