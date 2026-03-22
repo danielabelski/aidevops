@@ -32,6 +32,10 @@ const SSE_HEADERS = {
 const activeBridges = new Map();
 const conversationStates = new Map();
 const CONVERSATION_TTL_MS = 30 * 60 * 1000; // 30 minutes
+// Tool loop guard (t1553) — prevent infinite tool call loops.
+// If a conversation exceeds this many tool call rounds, the proxy stops
+// forwarding tools and lets the model generate a text-only response.
+const MAX_TOOL_ROUNDS = 25;
 // Tool name alias map (t1553) — Cursor models may use variant names for tools.
 // Ported from Nomadcxx/opencode-cursor src/proxy/tool-loop.ts TOOL_NAME_ALIASES.
 // Keys are lowercased; values are the canonical OpenCode tool names.
@@ -276,6 +280,66 @@ export function stopProxy() {
     activeBridges.clear();
     conversationStates.clear();
 }
+/**
+ * Try to resume an active bridge with tool results.
+ * Returns a Response if the bridge was successfully resumed, or null if
+ * the caller should fall through to start a fresh bridge.
+ */
+function tryResumeBridge(bridgeKey, activeBridge, toolResults, modelId) {
+    activeBridges.delete(bridgeKey);
+    // Tool loop guard (t1553): increment round counter for resume path.
+    const resumeState = conversationStates.get(bridgeKey);
+    if (resumeState) {
+        resumeState.toolRounds = (resumeState.toolRounds || 0) + 1;
+    }
+    const loopGuardTripped = resumeState && resumeState.toolRounds >= MAX_TOOL_ROUNDS;
+    if (loopGuardTripped) {
+        console.error(`[proxy] Tool loop guard: conversation ${bridgeKey} exceeded ${MAX_TOOL_ROUNDS} tool rounds on resume, killing bridge`);
+    }
+    if (!loopGuardTripped && activeBridge.bridge.alive) {
+        return handleToolResultResume(activeBridge, toolResults, modelId, bridgeKey);
+    }
+    // Bridge died, or loop guard tripped — clean up and fall through.
+    clearInterval(activeBridge.heartbeatTimer);
+    activeBridge.bridge.end();
+    return null;
+}
+/** Clean up a stale bridge that has no pending tool results. */
+function cleanupStaleBridge(bridgeKey, activeBridge) {
+    if (activeBridge && activeBridges.has(bridgeKey)) {
+        clearInterval(activeBridge.heartbeatTimer);
+        activeBridge.bridge.end();
+        activeBridges.delete(bridgeKey);
+    }
+}
+/** Get or create conversation state for a bridge key. */
+function getOrCreateConversationState(bridgeKey) {
+    let stored = conversationStates.get(bridgeKey);
+    if (!stored) {
+        stored = {
+            conversationId: crypto.randomUUID(),
+            checkpoint: null,
+            blobStore: new Map(),
+            lastAccessMs: Date.now(),
+            toolRounds: 0,
+        };
+        conversationStates.set(bridgeKey, stored);
+    }
+    stored.lastAccessMs = Date.now();
+    return stored;
+}
+/**
+ * Update tool round counter for the loop guard (t1553).
+ * A new user message resets the counter. Tool results without an active
+ * bridge (dead bridge fallthrough) increment it.
+ */
+function updateToolRoundCounter(stored, toolResults, userText, hadActiveBridge) {
+    if (toolResults.length > 0 && !hadActiveBridge) {
+        stored.toolRounds = (stored.toolRounds || 0) + 1;
+    } else if (userText && toolResults.length === 0) {
+        stored.toolRounds = 0;
+    }
+}
 function handleChatCompletion(body, accessToken) {
     const { systemPrompt, userText, turns, toolResults } = parseMessages(body.messages);
     const modelId = body.model;
@@ -288,47 +352,24 @@ function handleChatCompletion(body, accessToken) {
             },
         }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
-    // Check for an active bridge waiting for tool results
     const bridgeKey = deriveBridgeKey(modelId, body.messages);
     const activeBridge = activeBridges.get(bridgeKey);
+    // Try to resume an active bridge waiting for tool results.
     if (activeBridge && toolResults.length > 0) {
-        activeBridges.delete(bridgeKey);
-        if (activeBridge.bridge.alive) {
-            // Resume the live bridge with tool results
-            return handleToolResultResume(activeBridge, toolResults, modelId, bridgeKey);
-        }
-        // Bridge died (timeout, server disconnect, etc.).
-        // Clean up and fall through to start a fresh bridge.
-        clearInterval(activeBridge.heartbeatTimer);
-        activeBridge.bridge.end();
+        const resumed = tryResumeBridge(bridgeKey, activeBridge, toolResults, modelId);
+        if (resumed) return resumed;
     }
-    // Clean up stale bridge if present
-    if (activeBridge && activeBridges.has(bridgeKey)) {
-        clearInterval(activeBridge.heartbeatTimer);
-        activeBridge.bridge.end();
-        activeBridges.delete(bridgeKey);
-    }
-    let stored = conversationStates.get(bridgeKey);
-    if (!stored) {
-        stored = {
-            conversationId: crypto.randomUUID(),
-            checkpoint: null,
-            blobStore: new Map(),
-            lastAccessMs: Date.now(),
-        };
-        conversationStates.set(bridgeKey, stored);
-    }
-    stored.lastAccessMs = Date.now();
+    cleanupStaleBridge(bridgeKey, activeBridge);
+    const stored = getOrCreateConversationState(bridgeKey);
     evictStaleConversations();
-    // Build the request. Forward OpenAI tools to Cursor as MCP tools (t1553).
-    // Cursor's gRPC protocol uses MCP tool definitions in the RequestContext.
-    // When the model wants to use a tool, Cursor sends an mcpArgs exec message
-    // which our proxy translates back to OpenAI tool_calls format. OpenCode
-    // then executes the tool and sends the result back, which we forward to
-    // Cursor as an mcpResult message. This enables the full tool loop:
-    //   OpenCode → proxy → Cursor (mcpArgs) → proxy (tool_calls) → OpenCode
-    //   OpenCode (tool result) → proxy (mcpResult) → Cursor → continues
-    const mcpTools = tools.length > 0 ? buildMcpToolDefinitions(tools) : [];
+    updateToolRoundCounter(stored, toolResults, userText, !!activeBridge);
+    // Tool loop guard (t1553): if rounds exceeded, disable tools so the
+    // model generates a text-only response.
+    const toolsExhausted = (stored.toolRounds || 0) >= MAX_TOOL_ROUNDS;
+    if (toolsExhausted) {
+        console.error(`[proxy] Tool loop guard: conversation ${bridgeKey} exceeded ${MAX_TOOL_ROUNDS} tool rounds, disabling tools`);
+    }
+    const mcpTools = (!toolsExhausted && tools.length > 0) ? buildMcpToolDefinitions(tools) : [];
     const effectiveUserText = userText || (toolResults.length > 0
         ? toolResults.map((r) => r.content).join("\n")
         : "");
@@ -672,140 +713,123 @@ function handleKvMessage(kvMsg, blobStore, sendFrame) {
         sendKvResponse(kvMsg, "setBlobResult", create(SetBlobResultSchema, {}), sendFrame);
     }
 }
-function handleExecMessage(execMsg, mcpTools, sendFrame, onMcpExec) {
-    const execCase = execMsg.message.case;
-    if (execCase === "requestContextArgs") {
-        const requestContext = create(RequestContextSchema, {
-            rules: [],
-            repositoryInfo: [],
-            tools: mcpTools,
-            gitRepos: [],
-            projectLayouts: [],
-            mcpInstructions: [],
-            fileContents: {},
-            customSubagents: [],
-        });
-        const result = create(RequestContextResultSchema, {
-            result: {
-                case: "success",
-                value: create(RequestContextSuccessSchema, { requestContext }),
-            },
-        });
-        sendExecResult(execMsg, "requestContextResult", result, sendFrame);
-        return;
-    }
-    if (execCase === "mcpArgs") {
-        const mcpArgs = execMsg.message.value;
-        const decoded = decodeMcpArgsMap(mcpArgs.args ?? {});
-        // Resolve tool name aliases (t1553) — Cursor models may use variant
-        // names like "runcommand" instead of "bash". The alias map normalises
-        // these back to the canonical OpenCode tool names that OpenCode's
-        // ai-sdk layer expects in the tool_calls response.
-        const rawToolName = mcpArgs.toolName || mcpArgs.name;
-        const resolvedToolName = resolveToolAlias(rawToolName);
-        onMcpExec({
-            execId: execMsg.execId,
-            execMsgId: execMsg.id,
-            toolCallId: mcpArgs.toolCallId || crypto.randomUUID(),
-            toolName: resolvedToolName,
-            decodedArgs: JSON.stringify(decoded),
-        });
-        return;
-    }
-    // --- Reject native Cursor tools ---
-    // The model tries these first. We must respond with rejection/error
-    // so it falls back to our MCP tools (registered via RequestContext).
+/** Handle requestContextArgs — provide MCP tools to Cursor. */
+function handleRequestContext(execMsg, mcpTools, sendFrame) {
+    const requestContext = create(RequestContextSchema, {
+        rules: [],
+        repositoryInfo: [],
+        tools: mcpTools,
+        gitRepos: [],
+        projectLayouts: [],
+        mcpInstructions: [],
+        fileContents: {},
+        customSubagents: [],
+    });
+    const result = create(RequestContextResultSchema, {
+        result: {
+            case: "success",
+            value: create(RequestContextSuccessSchema, { requestContext }),
+        },
+    });
+    sendExecResult(execMsg, "requestContextResult", result, sendFrame);
+}
+/** Handle mcpArgs — forward tool call to the caller via onMcpExec. */
+function handleMcpArgs(execMsg, onMcpExec) {
+    const mcpArgs = execMsg.message.value;
+    const decoded = decodeMcpArgsMap(mcpArgs.args ?? {});
+    // Resolve tool name aliases (t1553) — Cursor models may use variant
+    // names like "runcommand" instead of "bash". The alias map normalises
+    // these back to the canonical OpenCode tool names that OpenCode's
+    // ai-sdk layer expects in the tool_calls response.
+    const rawToolName = mcpArgs.toolName || mcpArgs.name;
+    const resolvedToolName = resolveToolAlias(rawToolName);
+    onMcpExec({
+        execId: execMsg.execId,
+        execMsgId: execMsg.id,
+        toolCallId: mcpArgs.toolCallId || crypto.randomUUID(),
+        toolName: resolvedToolName,
+        decodedArgs: JSON.stringify(decoded),
+    });
+}
+/**
+ * Reject a native Cursor tool with a "path"-based rejection message.
+ * Used for read, ls, write, delete exec types.
+ */
+function rejectPathTool(execMsg, resultCase, resultSchema, rejectedSchema, reason, sendFrame) {
+    const args = execMsg.message.value;
+    const result = create(resultSchema, {
+        result: { case: "rejected", value: create(rejectedSchema, { path: args.path, reason }) },
+    });
+    sendExecResult(execMsg, resultCase, result, sendFrame);
+}
+/** Reject a shell-type exec with command/workingDirectory fields. */
+function rejectShellTool(execMsg, resultCase, resultSchema, reason, sendFrame) {
+    const args = execMsg.message.value;
+    const result = create(resultSchema, {
+        result: {
+            case: "rejected",
+            value: create(ShellRejectedSchema, {
+                command: args.command ?? "",
+                workingDirectory: args.workingDirectory ?? "",
+                reason,
+                isReadonly: false,
+            }),
+        },
+    });
+    sendExecResult(execMsg, resultCase, result, sendFrame);
+}
+/** Reject an exec with an error-type result (grep, writeShellStdin, fetch). */
+function rejectErrorTool(execMsg, resultCase, resultSchema, errorSchema, errorFields, sendFrame) {
+    const result = create(resultSchema, {
+        result: { case: "error", value: create(errorSchema, errorFields) },
+    });
+    sendExecResult(execMsg, resultCase, result, sendFrame);
+}
+/**
+ * Reject native Cursor tools so the model falls back to MCP tools.
+ * Returns true if the exec was handled, false otherwise.
+ */
+function rejectNativeCursorTool(execCase, execMsg, sendFrame) {
     const REJECT_REASON = "Tool not available in this environment. Use the MCP tools provided instead.";
-    if (execCase === "readArgs") {
-        const args = execMsg.message.value;
-        const result = create(ReadResultSchema, {
-            result: { case: "rejected", value: create(ReadRejectedSchema, { path: args.path, reason: REJECT_REASON }) },
-        });
-        sendExecResult(execMsg, "readResult", result, sendFrame);
-        return;
+    // Path-based rejections (read, ls, write, delete)
+    const pathRejections = {
+        readArgs:   { resultCase: "readResult",   resultSchema: ReadResultSchema,   rejectedSchema: ReadRejectedSchema },
+        lsArgs:     { resultCase: "lsResult",     resultSchema: LsResultSchema,     rejectedSchema: LsRejectedSchema },
+        writeArgs:  { resultCase: "writeResult",  resultSchema: WriteResultSchema,  rejectedSchema: WriteRejectedSchema },
+        deleteArgs: { resultCase: "deleteResult", resultSchema: DeleteResultSchema, rejectedSchema: DeleteRejectedSchema },
+    };
+    const pathEntry = pathRejections[execCase];
+    if (pathEntry) {
+        rejectPathTool(execMsg, pathEntry.resultCase, pathEntry.resultSchema, pathEntry.rejectedSchema, REJECT_REASON, sendFrame);
+        return true;
     }
-    if (execCase === "lsArgs") {
-        const args = execMsg.message.value;
-        const result = create(LsResultSchema, {
-            result: { case: "rejected", value: create(LsRejectedSchema, { path: args.path, reason: REJECT_REASON }) },
-        });
-        sendExecResult(execMsg, "lsResult", result, sendFrame);
-        return;
-    }
-    if (execCase === "grepArgs") {
-        const result = create(GrepResultSchema, {
-            result: { case: "error", value: create(GrepErrorSchema, { error: REJECT_REASON }) },
-        });
-        sendExecResult(execMsg, "grepResult", result, sendFrame);
-        return;
-    }
-    if (execCase === "writeArgs") {
-        const args = execMsg.message.value;
-        const result = create(WriteResultSchema, {
-            result: { case: "rejected", value: create(WriteRejectedSchema, { path: args.path, reason: REJECT_REASON }) },
-        });
-        sendExecResult(execMsg, "writeResult", result, sendFrame);
-        return;
-    }
-    if (execCase === "deleteArgs") {
-        const args = execMsg.message.value;
-        const result = create(DeleteResultSchema, {
-            result: { case: "rejected", value: create(DeleteRejectedSchema, { path: args.path, reason: REJECT_REASON }) },
-        });
-        sendExecResult(execMsg, "deleteResult", result, sendFrame);
-        return;
-    }
+    // Shell-type rejections
     if (execCase === "shellArgs" || execCase === "shellStreamArgs") {
-        const args = execMsg.message.value;
-        const result = create(ShellResultSchema, {
-            result: {
-                case: "rejected",
-                value: create(ShellRejectedSchema, {
-                    command: args.command ?? "",
-                    workingDirectory: args.workingDirectory ?? "",
-                    reason: REJECT_REASON,
-                    isReadonly: false,
-                }),
-            },
-        });
-        sendExecResult(execMsg, "shellResult", result, sendFrame);
-        return;
+        rejectShellTool(execMsg, "shellResult", ShellResultSchema, REJECT_REASON, sendFrame);
+        return true;
     }
     if (execCase === "backgroundShellSpawnArgs") {
-        const args = execMsg.message.value;
-        const result = create(BackgroundShellSpawnResultSchema, {
-            result: {
-                case: "rejected",
-                value: create(ShellRejectedSchema, {
-                    command: args.command ?? "",
-                    workingDirectory: args.workingDirectory ?? "",
-                    reason: REJECT_REASON,
-                    isReadonly: false,
-                }),
-            },
-        });
-        sendExecResult(execMsg, "backgroundShellSpawnResult", result, sendFrame);
-        return;
+        rejectShellTool(execMsg, "backgroundShellSpawnResult", BackgroundShellSpawnResultSchema, REJECT_REASON, sendFrame);
+        return true;
+    }
+    // Error-type rejections
+    if (execCase === "grepArgs") {
+        rejectErrorTool(execMsg, "grepResult", GrepResultSchema, GrepErrorSchema, { error: REJECT_REASON }, sendFrame);
+        return true;
     }
     if (execCase === "writeShellStdinArgs") {
-        const result = create(WriteShellStdinResultSchema, {
-            result: { case: "error", value: create(WriteShellStdinErrorSchema, { error: REJECT_REASON }) },
-        });
-        sendExecResult(execMsg, "writeShellStdinResult", result, sendFrame);
-        return;
+        rejectErrorTool(execMsg, "writeShellStdinResult", WriteShellStdinResultSchema, WriteShellStdinErrorSchema, { error: REJECT_REASON }, sendFrame);
+        return true;
     }
     if (execCase === "fetchArgs") {
         const args = execMsg.message.value;
-        const result = create(FetchResultSchema, {
-            result: { case: "error", value: create(FetchErrorSchema, { url: args.url ?? "", error: REJECT_REASON }) },
-        });
-        sendExecResult(execMsg, "fetchResult", result, sendFrame);
-        return;
+        rejectErrorTool(execMsg, "fetchResult", FetchResultSchema, FetchErrorSchema, { url: args.url ?? "", error: REJECT_REASON }, sendFrame);
+        return true;
     }
+    // Diagnostics — return empty result (not a rejection)
     if (execCase === "diagnosticsArgs") {
-        const result = create(DiagnosticsResultSchema, {});
-        sendExecResult(execMsg, "diagnosticsResult", result, sendFrame);
-        return;
+        sendExecResult(execMsg, "diagnosticsResult", create(DiagnosticsResultSchema, {}), sendFrame);
+        return true;
     }
     // MCP resource/screen/computer exec types
     const miscCaseMap = {
@@ -817,6 +841,21 @@ function handleExecMessage(execMsg, mcpTools, sendFrame, onMcpExec) {
     const resultCase = miscCaseMap[execCase];
     if (resultCase) {
         sendExecResult(execMsg, resultCase, create(McpResultSchema, {}), sendFrame);
+        return true;
+    }
+    return false;
+}
+function handleExecMessage(execMsg, mcpTools, sendFrame, onMcpExec) {
+    const execCase = execMsg.message.case;
+    if (execCase === "requestContextArgs") {
+        handleRequestContext(execMsg, mcpTools, sendFrame);
+        return;
+    }
+    if (execCase === "mcpArgs") {
+        handleMcpArgs(execMsg, onMcpExec);
+        return;
+    }
+    if (rejectNativeCursorTool(execCase, execMsg, sendFrame)) {
         return;
     }
     // Unknown exec type — log and ignore
