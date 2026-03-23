@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.70] - 2026-03-23
+
+### Changed
+
+- Refactor: move auth troubleshooting to subagent, pointer in AGENTS.md (#5538)
+
 ## [3.1.69] - 2026-03-23
 
 ### Added
