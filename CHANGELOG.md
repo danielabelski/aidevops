@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.78] - 2026-03-23
+
+### Added
+
+- add aidevops opencode-sandbox command for isolated version testing (#5548)
+
 ## [3.1.77] - 2026-03-23
 
 ### Changed
