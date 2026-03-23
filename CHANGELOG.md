@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.69] - 2026-03-23
+
+### Added
+
+- add status/assign-pending commands and auth troubleshooting docs (#5537)
+
 ## [3.1.68] - 2026-03-23
 
 ### Added
