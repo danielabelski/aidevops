@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.73] - 2026-03-23
+
+### Changed
+
+- Maintenance: remove opencode-antigravity-auth plugin on update (#5542)
+
 ## [3.1.72] - 2026-03-23
 
 ### Fixed
