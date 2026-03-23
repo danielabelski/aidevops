@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.71] - 2026-03-23
+
+### Changed
+
+- Documentation: mention @auth-troubleshooting agent and free model fallback in README (#5539)
+
 ## [3.1.70] - 2026-03-23
 
 ### Changed
