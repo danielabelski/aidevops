@@ -191,10 +191,19 @@ cmd_recall() {
 	# binding) rather than string interpolation to prevent SQL injection.
 	# Quote each token individually to handle special chars (hyphens = NOT in FTS5)
 	# "foo-bar baz" → "\"foo-bar\" \"baz\"" (each token quoted, joined by implicit AND)
+	#
+	# Apostrophes and backslashes are replaced with spaces before tokenization.
+	# Apostrophes inside FTS5 double-quoted tokens cannot be SQL-escaped (doubling
+	# them to '' produces invalid FTS5 syntax). Backslashes are not valid FTS5 query
+	# syntax and cause a parse error. Replacing both with spaces splits e.g.
+	# "O'Reilly" into "O" and "Reilly", which still matches stored content because
+	# FTS5 tokenizes stored content the same way (GH#5678).
+	local query_clean="${query//"'"/" "}"
+	query_clean="${query_clean//\\/  }"
 	local tokenised_query=""
 	local token
 	set -f # Disable globbing during tokenization (SC2086)
-	for token in $query; do
+	for token in $query_clean; do
 		# Escape embedded double quotes within each token for FTS5 syntax
 		token="${token//\"/\"\"}"
 		if [[ -n "$tokenised_query" ]]; then
@@ -204,7 +213,20 @@ cmd_recall() {
 		fi
 	done
 	set +f # Re-enable globbing
-	local escaped_query="$tokenised_query"
+	# Build an SQL single-quoted literal for .param set, then escape it for the
+	# sqlite3 dot-command's outer double-quoted argument (GH#5678).
+	# tokenised_query contains no apostrophes or backslashes (stripped above), so
+	# the SQL literal needs no internal single-quote escaping. The FTS5 double-quote
+	# tokens are escaped as \" for the outer double-quoted dot-command argument.
+	#
+	# Security note: the heredoc uses <<EOF (not <<'EOF'), so ${param_query} is
+	# expanded by the shell. This is safe because shell variable expansion is NOT
+	# recursive — the content of param_query is substituted literally; any
+	# command-substitution syntax ($(…), `…`) or variable references inside the
+	# value are NOT re-evaluated. The :query parameter binding then isolates the
+	# value from SQL execution, preventing injection at the SQLite layer.
+	local param_query="'${tokenised_query}'"
+	param_query="${param_query//\"/\\\"}"
 
 	# Build filters with validation
 	local extra_filters=""
@@ -259,7 +281,7 @@ cmd_recall() {
 	local results
 	results=$(
 		db -json "$MEMORY_DB" <<EOF
-.param set :query "$escaped_query"
+.param set :query "${param_query}"
 SELECT 
     learnings.id,
     learnings.content,
@@ -316,6 +338,7 @@ EOF
 		if [[ -f "$global_db" ]]; then
 			shared_results=$(
 				db -json "$global_db" <<EOF
+.param set :query "${param_query}"
 SELECT 
     learnings.id,
     learnings.content,
@@ -325,10 +348,12 @@ SELECT
     learnings.created_at,
     COALESCE(learning_access.last_accessed_at, '') as last_accessed_at,
     COALESCE(learning_access.access_count, 0) as access_count,
+    COALESCE(learning_access.auto_captured, 0) as auto_captured,
     bm25(learnings) as score
 FROM learnings
 LEFT JOIN learning_access ON learnings.id = learning_access.id
-WHERE learnings MATCH '$escaped_query' $extra_filters
+$entity_fts_join
+WHERE learnings MATCH :query $extra_filters $auto_join_filter $entity_fts_where
 ORDER BY score
 LIMIT $limit;
 EOF
