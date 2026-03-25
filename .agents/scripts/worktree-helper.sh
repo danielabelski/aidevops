@@ -470,6 +470,43 @@ get_worktree_path_for_branch() {
 # COMMANDS
 # =============================================================================
 
+# Resolve a remove target (path or branch name) to an absolute worktree path.
+# Prints the resolved path on success. Returns 1 with an error message on failure.
+_remove_resolve_path() {
+	local target="$1"
+
+	if [[ -d "$target" ]]; then
+		echo "$target"
+		return 0
+	fi
+
+	if worktree_exists_for_branch "$target"; then
+		get_worktree_path_for_branch "$target"
+		return 0
+	fi
+
+	echo -e "${RED}Error: No worktree found for '$target'${NC}" >&2
+	return 1
+}
+
+# Print the ownership error block for cmd_remove when another session owns the worktree.
+# Args: $1=path_to_remove
+_remove_show_owner_error() {
+	local path_to_remove="$1"
+	local owner_info
+	owner_info=$(check_worktree_owner "$path_to_remove")
+	local owner_pid owner_session owner_batch owner_task _
+	IFS='|' read -r owner_pid owner_session owner_batch owner_task _ <<<"$owner_info"
+	echo -e "${RED}Error: Worktree is owned by another active session${NC}"
+	echo -e "  Owner PID:     $owner_pid"
+	[[ -n "$owner_session" ]] && echo -e "  Session:       $owner_session"
+	[[ -n "$owner_batch" ]] && echo -e "  Batch:         $owner_batch"
+	[[ -n "$owner_task" ]] && echo -e "  Task:          $owner_task"
+	echo ""
+	echo "Use --force to override, or wait for the owning session to finish."
+	return 0
+}
+
 cmd_add() {
 	local branch="${1:-}"
 	local path="${2:-}"
@@ -632,19 +669,10 @@ cmd_remove() {
 		export WORKTREE_FORCE_REMOVE="true"
 	fi
 
-	local path_to_remove=""
-
-	# Check if target is a path
-	if [[ -d "$target" ]]; then
-		path_to_remove="$target"
-	else
-		# Assume it's a branch name
-		if worktree_exists_for_branch "$target"; then
-			path_to_remove=$(get_worktree_path_for_branch "$target")
-		else
-			echo -e "${RED}Error: No worktree found for '$target'${NC}"
-			return 1
-		fi
+	# Resolve target to an absolute path
+	local path_to_remove
+	if ! path_to_remove=$(_remove_resolve_path "$target"); then
+		return 1
 	fi
 
 	# Don't allow removing main worktree
@@ -664,17 +692,7 @@ cmd_remove() {
 
 	# Ownership check (t189): refuse to remove worktrees owned by other sessions
 	if is_worktree_owned_by_others "$path_to_remove"; then
-		local owner_info
-		owner_info=$(check_worktree_owner "$path_to_remove")
-		local owner_pid owner_session owner_batch owner_task _
-		IFS='|' read -r owner_pid owner_session owner_batch owner_task _ <<<"$owner_info"
-		echo -e "${RED}Error: Worktree is owned by another active session${NC}"
-		echo -e "  Owner PID:     $owner_pid"
-		[[ -n "$owner_session" ]] && echo -e "  Session:       $owner_session"
-		[[ -n "$owner_batch" ]] && echo -e "  Batch:         $owner_batch"
-		[[ -n "$owner_task" ]] && echo -e "  Task:          $owner_task"
-		echo ""
-		echo "Use --force to override, or wait for the owning session to finish."
+		_remove_show_owner_error "$path_to_remove"
 		# Allow --force override
 		if [[ "${WORKTREE_FORCE_REMOVE:-}" != "true" ]]; then
 			return 1
@@ -935,6 +953,207 @@ should_skip_cleanup() {
 	return 1
 }
 
+# Fetch and prune all remotes. Sets remote_state_unknown=true in caller's scope on failure.
+# Prints warnings for failed remotes. Returns 0 always (failures are non-fatal).
+# Args: none. Modifies caller's remote_state_unknown variable via echo to a temp file.
+# Usage: remote_state_unknown=$(_clean_fetch_remotes)
+_clean_fetch_remotes() {
+	local state_unknown=false
+	local remote
+	for remote in $(git remote 2>/dev/null); do
+		if ! git fetch --prune "$remote" 2>/dev/null; then
+			echo -e "${YELLOW}Warning: failed to refresh $remote; skipping remote-deleted cleanup checks${NC}" >&2
+			state_unknown=true
+		fi
+	done
+	echo "$state_unknown"
+	return 0
+}
+
+# Build newline-delimited lists of merged and open PR branch names via gh CLI.
+# Outputs two lines: merged_branches and open_branches (each may be empty).
+# Caller splits on a delimiter. Returns 0 always.
+# Usage: _clean_build_pr_lists; merged_pr_branches=...; open_pr_branches=...
+_clean_build_merged_pr_branches() {
+	if command -v gh &>/dev/null; then
+		gh pr list --state merged --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+	fi
+	return 0
+}
+
+_clean_build_open_pr_branches() {
+	if command -v gh &>/dev/null; then
+		gh pr list --state open --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+	fi
+	return 0
+}
+
+# Determine if a worktree entry is merged, and print it if so.
+# Args: $1=wt_path, $2=wt_branch, $3=default_branch, $4=remote_state_unknown,
+#       $5=merged_pr_branches, $6=open_pr_branches, $7=force_merged
+# Outputs the merge_type to stdout if merged (caller checks non-empty).
+_clean_classify_worktree() {
+	local wt_path="$1"
+	local wt_branch="$2"
+	local default_br="$3"
+	local remote_unknown="$4"
+	local merged_prs="$5"
+	local open_prs="$6"
+	local force_merged="$7"
+
+	local is_merged=false
+	local merge_type=""
+
+	# Check 1: Traditional merge detection
+	if git branch --merged "$default_br" 2>/dev/null | grep -q "^\s*$wt_branch$"; then
+		is_merged=true
+		merge_type="merged"
+	# Check 2: Remote branch deleted (indicates squash merge or PR closed)
+	# ONLY check this if the branch was previously pushed - unpushed branches should NOT be flagged
+	# Check all remotes, not just origin (consistent with branch_was_pushed)
+	# Skip if fetch failed — stale refs could cause false-positive deletion
+	elif [[ "$remote_unknown" == "false" ]] && branch_was_pushed "$wt_branch" && ! _branch_exists_on_any_remote "$wt_branch"; then
+		is_merged=true
+		merge_type="remote deleted"
+	# Check 3: Squash-merge detection via GitHub PR state
+	# GitHub squash merges create a new commit — the original branch is NOT
+	# an ancestor of the target, so git branch --merged misses it. The remote
+	# branch may still exist if "auto-delete head branches" is off.
+	# grep -Fxq: exact fixed-string line match (no regex injection risk).
+	elif [[ -n "$merged_prs" ]] && echo "$merged_prs" | grep -Fxq "$wt_branch"; then
+		is_merged=true
+		merge_type="squash-merged PR"
+	fi
+
+	if [[ "$is_merged" == "false" ]]; then
+		return 0
+	fi
+
+	# Apply safety checks using shared helper
+	if should_skip_cleanup "$wt_path" "$wt_branch" "$default_br" "$open_prs" "$force_merged"; then
+		return 0
+	fi
+
+	if worktree_has_changes "$wt_path" && [[ "$force_merged" == "true" ]]; then
+		# PR is confirmed merged — dirty state is abandoned WIP, safe to force-remove
+		merge_type="$merge_type, dirty (force)"
+	fi
+
+	echo "$merge_type"
+	return 0
+}
+
+# Scan worktrees and print those eligible for cleanup. Returns 0 if any found, 1 if none.
+# Args: $1=default_branch, $2=main_worktree_path, $3=remote_state_unknown,
+#       $4=merged_pr_branches, $5=open_pr_branches, $6=force_merged
+_clean_scan_merged() {
+	local default_br="$1"
+	local main_wt_path="$2"
+	local remote_unknown="$3"
+	local merged_prs="$4"
+	local open_prs="$5"
+	local force_merged="$6"
+
+	local found_any=false
+	local worktree_path=""
+	local worktree_branch=""
+
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^worktree\ (.+)$ ]]; then
+			worktree_path="${BASH_REMATCH[1]}"
+		elif [[ "$line" =~ ^branch\ refs/heads/(.+)$ ]]; then
+			worktree_branch="${BASH_REMATCH[1]}"
+		elif [[ -z "$line" ]]; then
+			if [[ -n "$worktree_branch" ]] && [[ "$worktree_branch" != "$default_br" ]] && [[ "$worktree_path" != "$main_wt_path" ]]; then
+				local merge_type
+				merge_type=$(_clean_classify_worktree "$worktree_path" "$worktree_branch" "$default_br" "$remote_unknown" "$merged_prs" "$open_prs" "$force_merged")
+				if [[ -n "$merge_type" ]]; then
+					found_any=true
+					echo -e "  ${YELLOW}$worktree_branch${NC} ($merge_type)"
+					echo "    $worktree_path"
+					echo ""
+				fi
+			fi
+			worktree_path=""
+			worktree_branch=""
+		fi
+	done < <(
+		git worktree list --porcelain
+		echo ""
+	)
+
+	[[ "$found_any" == "true" ]] && return 0
+	return 1
+}
+
+# Remove worktrees that are eligible for cleanup (second pass after user confirmation).
+# Args: $1=default_branch, $2=main_worktree_path, $3=remote_state_unknown,
+#       $4=merged_pr_branches, $5=open_pr_branches, $6=force_merged
+_clean_remove_merged() {
+	local default_br="$1"
+	local main_wt_path="$2"
+	local remote_unknown="$3"
+	local merged_prs="$4"
+	local open_prs="$5"
+	local force_merged="$6"
+
+	local worktree_path=""
+	local worktree_branch=""
+
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^worktree\ (.+)$ ]]; then
+			worktree_path="${BASH_REMATCH[1]}"
+		elif [[ "$line" =~ ^branch\ refs/heads/(.+)$ ]]; then
+			worktree_branch="${BASH_REMATCH[1]}"
+		elif [[ -z "$line" ]]; then
+			if [[ -n "$worktree_branch" ]] && [[ "$worktree_branch" != "$default_br" ]] && [[ "$worktree_path" != "$main_wt_path" ]]; then
+				local merge_type
+				merge_type=$(_clean_classify_worktree "$worktree_path" "$worktree_branch" "$default_br" "$remote_unknown" "$merged_prs" "$open_prs" "$force_merged")
+				if [[ -n "$merge_type" ]]; then
+					local use_force=false
+					if worktree_has_changes "$worktree_path" && [[ "$force_merged" == "true" ]]; then
+						use_force=true
+					fi
+					echo -e "${BLUE}Removing $worktree_branch...${NC}"
+					# Clean up heavy directories first to speed up removal
+					# (node_modules, .next, .turbo can have 100k+ files)
+					rm -rf "$worktree_path/node_modules" 2>/dev/null || true
+					rm -rf "$worktree_path/.next" 2>/dev/null || true
+					rm -rf "$worktree_path/.turbo" 2>/dev/null || true
+					# Clean up aidevops runtime files
+					rm -rf "$worktree_path/.agents/loop-state" 2>/dev/null || true
+					rm -rf "$worktree_path/.agents/tmp" 2>/dev/null || true
+					rm -f "$worktree_path/.agents/.DS_Store" 2>/dev/null || true
+					rmdir "$worktree_path/.agent" 2>/dev/null || true
+
+					local remove_flag=""
+					if [[ "$use_force" == "true" ]]; then
+						remove_flag="--force"
+					fi
+					# shellcheck disable=SC2086
+					if ! git worktree remove $remove_flag "$worktree_path"; then
+						echo -e "${RED}Failed to remove $worktree_branch - may have uncommitted changes${NC}"
+					else
+						# Unregister ownership (t189)
+						unregister_worktree "$worktree_path"
+						# Localdev integration (t1224.8): auto-remove branch route
+						localdev_auto_branch_rm "$worktree_branch"
+						# Also delete the local branch
+						git branch -D "$worktree_branch" 2>/dev/null || true
+					fi
+				fi
+			fi
+			worktree_path=""
+			worktree_branch=""
+		fi
+	done < <(
+		git worktree list --porcelain
+		echo ""
+	)
+
+	return 0
+}
+
 # Clean up worktrees whose branches have been merged, remote-deleted, or squash-merged.
 # Supports --auto (non-interactive) and --force-merged (skip confirmation for merged).
 # Safety checks (GH#5694):
@@ -956,10 +1175,6 @@ cmd_clean() {
 	echo -e "${BOLD}Checking for worktrees with merged branches...${NC}"
 	echo ""
 
-	local found_any=false
-	local worktree_path=""
-	local worktree_branch=""
-
 	local default_branch
 	default_branch=$(get_default_branch)
 
@@ -970,88 +1185,19 @@ cmd_clean() {
 
 	# Fetch to get current remote branch state (detects deleted branches)
 	# Prune all remotes, not just origin (GH#3797)
-	# Track fetch failures to avoid false-positive "remote deleted" heuristics
-	local remote_state_unknown=false
-	local remote
-	for remote in $(git remote 2>/dev/null); do
-		if ! git fetch --prune "$remote"; then
-			echo -e "${YELLOW}Warning: failed to refresh $remote; skipping remote-deleted cleanup checks${NC}"
-			remote_state_unknown=true
-		fi
-	done
+	local remote_state_unknown
+	remote_state_unknown=$(_clean_fetch_remotes)
 
-	# Build a newline-delimited list of merged PR branches for squash-merge detection.
-	# gh pr list catches squash-merged PRs that git branch --merged misses.
-	# Uses grep -Fxq for exact-line matching (no regex injection risk).
+	# Build PR branch lists for squash-merge detection and open-PR safety check.
 	# NOTE: bash 3.2 (macOS default) lacks declare -A — do NOT use associative arrays.
-	local merged_pr_branches=""
-	if command -v gh &>/dev/null; then
-		merged_pr_branches=$(gh pr list --state merged --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || echo "")
-	fi
+	local merged_pr_branches
+	merged_pr_branches=$(_clean_build_merged_pr_branches)
 
-	# Build a newline-delimited list of open PR branches (GH#5694).
-	# Used to skip worktrees with active open PRs even when --force-merged is set.
-	local open_pr_branches=""
-	if command -v gh &>/dev/null; then
-		open_pr_branches=$(gh pr list --state open --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || echo "")
-	fi
+	local open_pr_branches
+	open_pr_branches=$(_clean_build_open_pr_branches)
 
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^worktree\ (.+)$ ]]; then
-			worktree_path="${BASH_REMATCH[1]}"
-		elif [[ "$line" =~ ^branch\ refs/heads/(.+)$ ]]; then
-			worktree_branch="${BASH_REMATCH[1]}"
-		elif [[ -z "$line" ]]; then
-			# End of entry, check if merged (skip default branch and main worktree)
-			if [[ -n "$worktree_branch" ]] && [[ "$worktree_branch" != "$default_branch" ]] && [[ "$worktree_path" != "$main_worktree_path" ]]; then
-				local is_merged=false
-				local merge_type=""
-
-				# Check 1: Traditional merge detection
-				if git branch --merged "$default_branch" 2>/dev/null | grep -q "^\s*$worktree_branch$"; then
-					is_merged=true
-					merge_type="merged"
-				# Check 2: Remote branch deleted (indicates squash merge or PR closed)
-				# ONLY check this if the branch was previously pushed - unpushed branches should NOT be flagged
-				# Check all remotes, not just origin (consistent with branch_was_pushed)
-				# Skip if fetch failed — stale refs could cause false-positive deletion
-				elif [[ "$remote_state_unknown" == "false" ]] && branch_was_pushed "$worktree_branch" && ! _branch_exists_on_any_remote "$worktree_branch"; then
-					is_merged=true
-					merge_type="remote deleted"
-				# Check 3: Squash-merge detection via GitHub PR state
-				# GitHub squash merges create a new commit — the original branch is NOT
-				# an ancestor of the target, so git branch --merged misses it. The remote
-				# branch may still exist if "auto-delete head branches" is off.
-				# grep -Fxq: exact fixed-string line match (no regex injection risk).
-				elif [[ -n "$merged_pr_branches" ]] && echo "$merged_pr_branches" | grep -Fxq "$worktree_branch"; then
-					is_merged=true
-					merge_type="squash-merged PR"
-				fi
-
-				# Apply safety checks using shared helper
-				if [[ "$is_merged" == "true" ]] && should_skip_cleanup "$worktree_path" "$worktree_branch" "$default_branch" "$open_pr_branches" "$force_merged"; then
-					is_merged=false
-				elif [[ "$is_merged" == "true" ]] && worktree_has_changes "$worktree_path" && [[ "$force_merged" == "true" ]]; then
-					# PR is confirmed merged — dirty state is abandoned WIP, safe to force-remove
-					merge_type="$merge_type, dirty (force)"
-				fi
-
-				if [[ "$is_merged" == "true" ]]; then
-					found_any=true
-					echo -e "  ${YELLOW}$worktree_branch${NC} ($merge_type)"
-					echo "    $worktree_path"
-					echo ""
-				fi
-			fi
-			worktree_path=""
-			worktree_branch=""
-		fi
-	done < <(
-		git worktree list --porcelain
-		echo ""
-	)
-
-	if [[ "$found_any" == "false" ]]; then
+	# First pass: scan and display merged worktrees
+	if ! _clean_scan_merged "$default_branch" "$main_worktree_path" "$remote_state_unknown" "$merged_pr_branches" "$open_pr_branches" "$force_merged"; then
 		echo -e "${GREEN}No merged worktrees to clean up${NC}"
 		return 0
 	fi
@@ -1066,75 +1212,8 @@ cmd_clean() {
 	fi
 
 	if [[ "$response" =~ ^[Yy]$ ]]; then
-		# Re-iterate and remove
-		while IFS= read -r line; do
-			if [[ "$line" =~ ^worktree\ (.+)$ ]]; then
-				worktree_path="${BASH_REMATCH[1]}"
-			elif [[ "$line" =~ ^branch\ refs/heads/(.+)$ ]]; then
-				worktree_branch="${BASH_REMATCH[1]}"
-			elif [[ -z "$line" ]]; then
-				if [[ -n "$worktree_branch" ]] && [[ "$worktree_branch" != "$default_branch" ]] && [[ "$worktree_path" != "$main_worktree_path" ]]; then
-					local should_remove=false
-					local use_force=false
-
-					# Check 1: Traditional merge
-					if git branch --merged "$default_branch" 2>/dev/null | grep -q "^\s*$worktree_branch$"; then
-						should_remove=true
-					# Check 2: Remote branch deleted - ONLY if branch was previously pushed
-					# Check all remotes, not just origin (consistent with branch_was_pushed)
-					# Skip if fetch failed — stale refs could cause false-positive deletion
-					elif [[ "$remote_state_unknown" == "false" ]] && branch_was_pushed "$worktree_branch" && ! _branch_exists_on_any_remote "$worktree_branch"; then
-						should_remove=true
-					# Check 3: Squash-merged PR — grep -Fxq exact-line match (no regex injection)
-					elif [[ -n "$merged_pr_branches" ]] && echo "$merged_pr_branches" | grep -Fxq "$worktree_branch"; then
-						should_remove=true
-					fi
-
-					# Apply safety checks using shared helper
-					if [[ "$should_remove" == "true" ]] && should_skip_cleanup "$worktree_path" "$worktree_branch" "$default_branch" "$open_pr_branches" "$force_merged"; then
-						should_remove=false
-					elif [[ "$should_remove" == "true" ]] && worktree_has_changes "$worktree_path" && [[ "$force_merged" == "true" ]]; then
-						use_force=true
-					fi
-
-					if [[ "$should_remove" == "true" ]]; then
-						echo -e "${BLUE}Removing $worktree_branch...${NC}"
-						# Clean up heavy directories first to speed up removal
-						# (node_modules, .next, .turbo can have 100k+ files)
-						rm -rf "$worktree_path/node_modules" 2>/dev/null || true
-						rm -rf "$worktree_path/.next" 2>/dev/null || true
-						rm -rf "$worktree_path/.turbo" 2>/dev/null || true
-						# Clean up aidevops runtime files
-						rm -rf "$worktree_path/.agents/loop-state" 2>/dev/null || true
-						rm -rf "$worktree_path/.agents/tmp" 2>/dev/null || true
-						rm -f "$worktree_path/.agents/.DS_Store" 2>/dev/null || true
-						rmdir "$worktree_path/.agent" 2>/dev/null || true
-
-						local remove_flag=""
-						if [[ "$use_force" == "true" ]]; then
-							remove_flag="--force"
-						fi
-						# shellcheck disable=SC2086
-						if ! git worktree remove $remove_flag "$worktree_path"; then
-							echo -e "${RED}Failed to remove $worktree_branch - may have uncommitted changes${NC}"
-						else
-							# Unregister ownership (t189)
-							unregister_worktree "$worktree_path"
-							# Localdev integration (t1224.8): auto-remove branch route
-							localdev_auto_branch_rm "$worktree_branch"
-							# Also delete the local branch
-							git branch -D "$worktree_branch" 2>/dev/null || true
-						fi
-					fi
-				fi
-				worktree_path=""
-				worktree_branch=""
-			fi
-		done < <(
-			git worktree list --porcelain
-			echo ""
-		)
-
+		# Second pass: remove merged worktrees
+		_clean_remove_merged "$default_branch" "$main_worktree_path" "$remote_state_unknown" "$merged_pr_branches" "$open_pr_branches" "$force_merged"
 		echo -e "${GREEN}Cleanup complete${NC}"
 	else
 		echo "Cancelled"
@@ -1214,8 +1293,8 @@ cmd_registry() {
 	return 0
 }
 
-# Display usage information and available commands.
-cmd_help() {
+# Print the overview and commands section of the help output.
+_help_print_overview_and_commands() {
 	cat <<'EOF'
 Git Worktree Helper - Parallel Branch Development
 
@@ -1229,18 +1308,18 @@ OVERVIEW
 COMMANDS
   add <branch> [path]    Create worktree for branch
                          Path auto-generated as ~/Git/{repo}-{branch-slug}
-  
+
   list                   List all worktrees with status
-  
+
   remove <path|branch> [--force]
                          Remove a worktree (keeps branch)
                          Refuses if owned by another active session (t189)
                          Use --force to override ownership check
-  
+
   status                 Show current worktree info
-  
+
   switch <branch>        Get/create worktree for branch (prints path)
-  
+
   clean [--auto] [--force-merged]
                          Remove worktrees for merged branches
                          --auto: skip confirmation prompt (for automated cleanup)
@@ -1248,14 +1327,14 @@ COMMANDS
                            confirmed merged (dirty state = abandoned WIP). Also
                            detects squash merges via gh pr list.
                          Skips worktrees owned by other active sessions (t189)
-  
+
   registry [list|prune]  View or prune the ownership registry (t189, t197)
                          list: Show all registered worktrees with ownership info
                          prune [-v|--verbose]: Clean dead/corrupted entries:
                            - Dead PIDs with missing directories
                            - Paths with ANSI escape codes
                            - Test artifacts in /tmp or /var/folders
-  
+
   help                   Show this help
 
 OWNERSHIP SAFETY (t189)
@@ -1265,18 +1344,25 @@ OWNERSHIP SAFETY (t189)
 
   Registry: ~/.aidevops/.agent-workspace/worktree-registry.db
 
+EOF
+	return 0
+}
+
+# Print the examples, directory structure, and notes sections of the help output.
+_help_print_examples_and_notes() {
+	cat <<'EOF'
 EXAMPLES
   # Start work on a feature (creates worktree)
   worktree-helper.sh add feature/user-auth
   cd ~/Git/myrepo-feature-user-auth || exit
-  
+
   # Open another terminal for a bugfix
   worktree-helper.sh add bugfix/login-timeout
   cd ~/Git/myrepo-bugfix-login-timeout || exit
-  
+
   # List all worktrees
   worktree-helper.sh list
-  
+
   # After merging, clean up
   worktree-helper.sh clean
 
@@ -1291,11 +1377,11 @@ DIRECTORY STRUCTURE
 STALE REMOTE DETECTION (t1060, GH#3797)
   When creating a new branch, the script checks for stale remote refs
   on all configured remotes (not just origin).
-  
+
   Interactive mode:
     - Merged stale: offers to delete (recommended) or continue
     - Unmerged stale: warns and defaults to abort (data safety)
-  
+
   Headless mode (no tty):
     - Merged stale: auto-deletes the remote ref and continues
     - Unmerged stale: warns but proceeds without deleting
@@ -1304,7 +1390,7 @@ LOCALDEV INTEGRATION (t1224.8)
   For projects registered with 'localdev add', worktree creation auto-runs
   'localdev branch <project> <branch>' to create a subdomain route
   (e.g., feature-auth.myapp.local). Worktree removal auto-cleans the route.
-  
+
   Detection: matches repo name against ~/.local-dev-proxy/ports.json
   Requires: localdev-helper.sh in the same scripts directory
 
@@ -1315,6 +1401,13 @@ NOTES
   - Main worktree cannot be removed
 
 EOF
+	return 0
+}
+
+# Display usage information and available commands.
+cmd_help() {
+	_help_print_overview_and_commands
+	_help_print_examples_and_notes
 	return 0
 }
 
