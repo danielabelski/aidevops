@@ -101,6 +101,7 @@ The result: an AI operations platform that manages projects across every busines
 - `aidevops update` - Update framework
 - `aidevops auto-update` - Automatic update polling (enable/disable/status)
 - `aidevops secret` - Manage secrets (gopass encrypted, AI-safe)
+- `aidevops security scan` - Secret hygiene & supply chain scan
 - `/onboarding` - Interactive setup wizard (in AI assistant)
 
 ### Agent Structure
@@ -122,6 +123,26 @@ The result: an AI operations platform that manages projects across every busines
 
 **Capabilities:** Execute commands, access credentials, modify infrastructure, interact with APIs
 **Your responsibility:** Use trusted AI providers, rotate credentials regularly, monitor activity
+
+### Security Commands
+
+```bash
+aidevops security              # Run ALL checks (posture + hygiene + supply chain)
+aidevops security posture      # Interactive security posture setup (gopass, gh auth, SSH)
+aidevops security status       # Combined posture + hygiene summary
+aidevops security scan         # Secret hygiene & supply chain scan only
+aidevops security scan-pth     # Python .pth file audit (supply chain attack vector)
+aidevops security scan-secrets # Plaintext credential locations only
+aidevops security scan-deps    # Unpinned dependency check
+aidevops security check        # Per-repo security posture assessment
+aidevops security dismiss <id> # Dismiss a security advisory after taking action
+```
+
+Running `aidevops security` with no arguments is the single command that covers everything — user security posture, plaintext secret detection, supply chain IoC scanning, and active advisories.
+
+**Security advisories** are delivered via `aidevops update` and shown in the session greeting until dismissed. The scanner never exposes secret values — only file locations and key names. All remediation commands should be run in a separate terminal, not inside AI chat sessions.
+
+**Supply chain hardening:** All Python dependencies are pinned to exact versions (`==`) to prevent malicious package upgrades. The `.pth` file auditor detects known supply chain attack indicators (e.g., the LiteLLM March 2026 PyPI compromise).
 
 ## **Quick Start**
 
