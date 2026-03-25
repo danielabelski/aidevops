@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.106] - 2026-03-25
+
+### Added
+
+- extend complexity scan to .md agent docs, daily interval, longest-first (#5693)
+
+### Fixed
+
+- clarify advisory output string concatenation (PR #5689 follow-up) (#5691)
+- key commands shows 'aidevops security' not 'aidevops security scan'
+
 ## [3.1.104] - 2026-03-25
 
 ### Changed
