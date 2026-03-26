@@ -66,6 +66,166 @@ log_worker_sandbox_event() {
 }
 
 #######################################
+# Set up git config (identity only, no credential helpers)
+#
+# Args:
+#   $1 = sandbox_dir
+#
+# Returns: 0 on success
+#######################################
+setup_sandbox_git_config() {
+	local sandbox_dir="$1"
+	local git_name git_email
+
+	git_name=$(git config --global user.name 2>/dev/null || echo "aidevops-worker")
+	git_email=$(git config --global user.email 2>/dev/null || echo "worker@aidevops.sh")
+
+	mkdir -p "$sandbox_dir" || return 1
+	cat >"$sandbox_dir/.gitconfig" <<-GITCONFIG || return 1
+		[user]
+		    name = ${git_name}
+		    email = ${git_email}
+		[init]
+		    defaultBranch = main
+		[core]
+		    autocrlf = input
+		[safe]
+		    directory = *
+	GITCONFIG
+
+	return 0
+}
+
+#######################################
+# Set up gh CLI config and agent prompts symlink
+#
+# Workers use GH_TOKEN env var (set by the dispatch script), not filesystem auth.
+# Creates a minimal gh config so gh doesn't complain about missing config.
+# Also symlinks agent prompts for /full-loop, /define, etc.
+#
+# Args:
+#   $1 = sandbox_dir
+#
+# Returns: 0 on success
+#######################################
+setup_sandbox_gh_config() {
+	local sandbox_dir="$1"
+	local gh_config_dir="$sandbox_dir/.config/gh"
+
+	mkdir -p "$gh_config_dir" || return 1
+	cat >"$gh_config_dir/config.yml" <<-GHCONFIG || return 1
+		version: 1
+		git_protocol: https
+		editor: ""
+		prompt: disabled
+	GHCONFIG
+
+	# Agent prompts (read-only symlink)
+	local agents_source="${REAL_HOME}/.aidevops"
+	if [[ -d "$agents_source" ]]; then
+		ln -sf "$agents_source" "$sandbox_dir/.aidevops"
+	fi
+
+	return 0
+}
+
+#######################################
+# Copy runtime config files into sandbox (t1665.5 — registry-driven)
+#
+# Workers need their tool configs. Copies only the specific config files
+# needed, not the entire .config directory (which may contain credentials).
+# Uses the runtime registry if available, otherwise falls back to hardcoded paths.
+#
+# Does NOT copy: credentials.json, .credentials, auth tokens
+#
+# Args:
+#   $1 = sandbox_dir
+#
+# Returns: 0 on success
+#######################################
+setup_sandbox_runtime_configs() {
+	local sandbox_dir="$1"
+	local config_dir="$sandbox_dir/.config"
+
+	mkdir -p "$config_dir" || return 1
+
+	# Copy MCP config files for all configured runtimes
+	if type rt_detect_configured >/dev/null 2>&1; then
+		local _sb_rt_id _sb_cfg_path _sb_cfg_dir _sb_cfg_file _sb_dst_dir
+		while IFS= read -r _sb_rt_id; do
+			_sb_cfg_path=$(rt_config_path "$_sb_rt_id") || continue
+			[[ -z "$_sb_cfg_path" || ! -f "$_sb_cfg_path" ]] && continue
+
+			# Reconstruct the path relative to HOME for the sandbox
+			_sb_cfg_dir=$(dirname "$_sb_cfg_path")
+			_sb_cfg_file=$(basename "$_sb_cfg_path")
+			# Strip REAL_HOME prefix to get relative path
+			local _sb_rel_dir="${_sb_cfg_dir#"${REAL_HOME}"/}"
+			if [[ "$_sb_rel_dir" == "$_sb_cfg_dir" ]]; then
+				# Path doesn't start with REAL_HOME — skip
+				continue
+			fi
+
+			# Handle paths under .config/ vs paths under ~/.<dir>/
+			if [[ "$_sb_rel_dir" == .config/* ]]; then
+				_sb_dst_dir="$config_dir/${_sb_rel_dir#.config/}"
+			else
+				_sb_dst_dir="$sandbox_dir/$_sb_rel_dir"
+			fi
+
+			mkdir -p "$_sb_dst_dir" || continue
+			cp "$_sb_cfg_path" "$_sb_dst_dir/$_sb_cfg_file" || continue
+		done < <(rt_detect_configured)
+	else
+		# Fallback: hardcoded paths (registry not loaded)
+		local opencode_src="${REAL_HOME}/.config/opencode"
+		if [[ -d "$opencode_src" ]]; then
+			mkdir -p "$config_dir/opencode" || return 1
+			[[ -f "$opencode_src/opencode.json" ]] && { cp "$opencode_src/opencode.json" "$config_dir/opencode/" || return 1; }
+		fi
+		local claude_dir_src="${REAL_HOME}/.claude"
+		if [[ -d "$claude_dir_src" ]]; then
+			local claude_dir_dst="$sandbox_dir/.claude"
+			mkdir -p "$claude_dir_dst" || return 1
+			[[ -f "$claude_dir_src/settings.json" ]] && { cp "$claude_dir_src/settings.json" "$claude_dir_dst/" || return 1; }
+		fi
+	fi
+
+	return 0
+}
+
+#######################################
+# Create XDG directories and sentinel file for sandbox detection
+#
+# Sets up writable cache/data dirs for tools (npm, bun, etc.) and
+# writes a sentinel file so workers and scripts can detect they're sandboxed.
+#
+# Args:
+#   $1 = sandbox_dir
+#   $2 = task_id
+#
+# Returns: 0 on success
+#######################################
+setup_sandbox_dirs_and_sentinel() {
+	local sandbox_dir="$1"
+	local task_id="$2"
+
+	# XDG directories for tool state
+	mkdir -p "$sandbox_dir/.local/share" || return 1
+	mkdir -p "$sandbox_dir/.cache" || return 1
+	mkdir -p "$sandbox_dir/.npm" || return 1
+
+	# Sentinel file for sandbox detection
+	cat >"$sandbox_dir/.aidevops-sandbox" <<-SENTINEL || return 1
+		task_id=${task_id}
+		created=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+		real_home=${REAL_HOME}
+	SENTINEL
+
+	return 0
+}
+
+#######################################
 # Create a sandboxed HOME directory for a worker
 #
 # Creates a temporary directory with minimal git config and
@@ -104,106 +264,22 @@ create_worker_sandbox() {
 		return 1
 	}
 
-	# --- Git config (identity only, no credential helpers) ---
-	local git_name git_email
-	git_name=$(git config --global user.name 2>/dev/null || echo "aidevops-worker")
-	git_email=$(git config --global user.email 2>/dev/null || echo "worker@aidevops.sh")
-
-	mkdir -p "$sandbox_dir"
-	cat >"$sandbox_dir/.gitconfig" <<-GITCONFIG
-		[user]
-		    name = ${git_name}
-		    email = ${git_email}
-		[init]
-		    defaultBranch = main
-		[core]
-		    autocrlf = input
-		[safe]
-		    directory = *
-	GITCONFIG
-
-	# --- gh CLI auth ---
-	# Workers use GH_TOKEN env var (set by the dispatch script), not filesystem auth.
-	# Create a minimal gh config directory so gh doesn't complain about missing config.
-	local gh_config_dir="$sandbox_dir/.config/gh"
-	mkdir -p "$gh_config_dir"
-	cat >"$gh_config_dir/config.yml" <<-GHCONFIG
-		version: 1
-		git_protocol: https
-		editor: ""
-		prompt: disabled
-	GHCONFIG
-
-	# --- Agent prompts (read-only symlink) ---
-	# Workers need access to agent prompts for /full-loop, /define, etc.
-	# Symlink to the deployed agents directory (read-only for the worker).
-	local agents_source="${REAL_HOME}/.aidevops"
-	if [[ -d "$agents_source" ]]; then
-		ln -sf "$agents_source" "$sandbox_dir/.aidevops"
-	fi
-
-	# --- Runtime config files (t1665.5 — registry-driven) ---
-	# Workers need their tool configs. Copy only the specific config files needed,
-	# not the entire .config directory (which may contain credentials).
-	local config_dir="$sandbox_dir/.config"
-	mkdir -p "$config_dir"
-
-	# Copy MCP config files for all configured runtimes
-	if type rt_detect_configured &>/dev/null; then
-		local _sb_rt_id _sb_cfg_path _sb_cfg_dir _sb_cfg_file _sb_dst_dir
-		while IFS= read -r _sb_rt_id; do
-			_sb_cfg_path=$(rt_config_path "$_sb_rt_id") || continue
-			[[ -z "$_sb_cfg_path" || ! -f "$_sb_cfg_path" ]] && continue
-
-			# Reconstruct the path relative to HOME for the sandbox
-			_sb_cfg_dir=$(dirname "$_sb_cfg_path")
-			_sb_cfg_file=$(basename "$_sb_cfg_path")
-			# Strip REAL_HOME prefix to get relative path
-			local _sb_rel_dir="${_sb_cfg_dir#"${REAL_HOME}"/}"
-			if [[ "$_sb_rel_dir" == "$_sb_cfg_dir" ]]; then
-				# Path doesn't start with REAL_HOME — skip
-				continue
-			fi
-
-			# Handle paths under .config/ vs paths under ~/.<dir>/
-			if [[ "$_sb_rel_dir" == .config/* ]]; then
-				_sb_dst_dir="$config_dir/${_sb_rel_dir#.config/}"
-			else
-				_sb_dst_dir="$sandbox_dir/$_sb_rel_dir"
-			fi
-
-			mkdir -p "$_sb_dst_dir"
-			cp "$_sb_cfg_path" "$_sb_dst_dir/$_sb_cfg_file"
-		done < <(rt_detect_configured)
-	else
-		# Fallback: hardcoded paths (registry not loaded)
-		local opencode_src="${REAL_HOME}/.config/opencode"
-		if [[ -d "$opencode_src" ]]; then
-			mkdir -p "$config_dir/opencode"
-			[[ -f "$opencode_src/opencode.json" ]] && cp "$opencode_src/opencode.json" "$config_dir/opencode/"
-		fi
-		local claude_dir_src="${REAL_HOME}/.claude"
-		if [[ -d "$claude_dir_src" ]]; then
-			local claude_dir_dst="$sandbox_dir/.claude"
-			mkdir -p "$claude_dir_dst"
-			[[ -f "$claude_dir_src/settings.json" ]] && cp "$claude_dir_src/settings.json" "$claude_dir_dst/"
-		fi
-	fi
-	# Do NOT copy: credentials.json, .credentials, auth tokens
-
-	# --- XDG directories for tool state ---
-	# Tools like npm, bun, etc. need writable cache/data dirs
-	mkdir -p "$sandbox_dir/.local/share"
-	mkdir -p "$sandbox_dir/.cache"
-	mkdir -p "$sandbox_dir/.npm"
-
-	# --- Sentinel file for sandbox detection ---
-	# Workers and scripts can check for this to know they're sandboxed
-	cat >"$sandbox_dir/.aidevops-sandbox" <<-SENTINEL
-		task_id=${task_id}
-		created=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-		real_home=${REAL_HOME}
-	SENTINEL
+	setup_sandbox_git_config "$sandbox_dir" || {
+		rm -rf "$sandbox_dir"
+		return 1
+	}
+	setup_sandbox_gh_config "$sandbox_dir" || {
+		rm -rf "$sandbox_dir"
+		return 1
+	}
+	setup_sandbox_runtime_configs "$sandbox_dir" || {
+		rm -rf "$sandbox_dir"
+		return 1
+	}
+	setup_sandbox_dirs_and_sentinel "$sandbox_dir" "$task_id" || {
+		rm -rf "$sandbox_dir"
+		return 1
+	}
 
 	log_worker_sandbox_event "created" "$task_id" "$sandbox_dir"
 
