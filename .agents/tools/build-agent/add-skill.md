@@ -5,7 +5,7 @@ mode: subagent
 
 # Add Skill - External Skill Import System
 
-Import skills from external sources (GitHub repos, ClawdHub registry) and convert them to aidevops format while preserving knowledge and handling conflicts intelligently.
+Ingest skills from external sources (GitHub repos, ClawdHub registry) and transpose them to aidevops format while preserving all knowledge and handling conflicts intelligently.
 
 ## Quick Reference
 
@@ -36,16 +36,83 @@ External Skill (GitHub or ClawdHub)
         ↓
     Present Merge Options (if conflicts)
         ↓
-    Convert to aidevops Format
+    Transpose to aidevops Format (see below)
+        ↓
+    Place in .agents/ using category detection
         ↓
     Register in skill-sources.json
-        ↓
-    setup.sh creates symlinks to:
-    - ~/.config/opencode/skills/
-    - ~/.codex/skills/
-    - ~/.claude/skills/
-    - ~/.config/amp/tools/
 ```
+
+Ingested skills live in `.agents/` alongside all other knowledge — same naming, same discovery, same progressive disclosure. No symlinks to external runtime skill directories. Runtimes that support `.agents/` (or AGENTS.md-based discovery) find ingested skills through the same mechanisms as native agents. The `.agents/` convention replaces the isolated `SKILL.md`-per-directory pattern used by other runtimes.
+
+## Transposition Rules
+
+Ingested skills retain the `-skill` suffix as a provenance marker — this enables `skill-update-helper.sh` to identify and check all ingested skills for upstream changes. The internal structure is flattened to match our `{name}.md` + `{name}/` convention with flat, descriptively-named files.
+
+### Entry Point Rename
+
+Upstream `SKILL.md` → `{name}-skill.md` (named entry point at the target category level).
+
+### Flatten Nested Directories
+
+Upstream nested structure is flattened using prefix-based naming:
+
+| Upstream path | Transposed path |
+|---------------|-----------------|
+| `SKILL.md` | `{name}-skill.md` |
+| `references/SCHEMA.md` | `{name}-skill/schema.md` |
+| `references/QUERIES.md` | `{name}-skill/queries.md` |
+| `references/CHEATSHEET/01-schema.md` | `{name}-skill/cheatsheet-schema.md` |
+| `references/CHEATSHEET/02-relations.md` | `{name}-skill/cheatsheet-relations.md` |
+| `rules/authentication.md` | `{name}-skill/rules-authentication.md` |
+| `rules/avatars.md` | `{name}-skill/rules-avatars.md` |
+
+### Example: Upstream vs Transposed
+
+```text
+# Upstream (postgres-drizzle skill)
+SKILL.md
+references/
+├── SCHEMA.md
+├── QUERIES.md
+├── MIGRATIONS.md
+├── PERFORMANCE.md
+├── RELATIONS.md
+├── POSTGRES.md
+├── CHEATSHEET.md
+└── CHEATSHEET/
+    ├── 01-schema.md
+    ├── 02-relations.md
+    ├── 03-queries.md
+    ├── 04-mutations.md
+    ├── 05-config.md
+    └── 06-reference.md
+
+# Transposed (aidevops format)
+postgres-drizzle-skill.md                    # Entry point (was SKILL.md)
+postgres-drizzle-skill/                      # Flat reference files
+├── schema.md
+├── queries.md
+├── migrations.md
+├── performance.md
+├── relations.md
+├── postgres.md
+├── cheatsheet.md
+├── cheatsheet-schema.md
+├── cheatsheet-relations.md
+├── cheatsheet-queries.md
+├── cheatsheet-mutations.md
+├── cheatsheet-config.md
+└── cheatsheet-reference.md
+```
+
+### Benefits
+
+- `ls {name}-skill/` shows all reference material at a glance
+- `ls {name}-skill/cheatsheet*` groups all cheatsheet files
+- Entry point is discoverable by filename alongside sibling agents
+- `-skill` suffix enables automated upstream update detection
+- Max depth is 2 levels from parent directory
 
 ## Supported Input Formats
 
@@ -75,19 +142,19 @@ Instructions for the AI agent...
 command examples
 ```
 
-**Conversion:** Preserve frontmatter, add `mode: subagent` and `imported_from: external`.
+**Transposition:** Preserve frontmatter, add `mode: subagent` and `imported_from: external`. Rename `SKILL.md` → `{name}-skill.md`. Flatten nested directories per transposition rules above.
 
 ### AGENTS.md (aidevops/Windsurf)
 
 Already in aidevops format.
 
-**Conversion:** Direct copy, ensure `mode: subagent` is set.
+**Transposition:** Direct copy, ensure `mode: subagent` is set.
 
 ### .cursorrules (Cursor)
 
 Plain markdown without frontmatter.
 
-**Conversion:** Wrap in markdown with generated frontmatter:
+**Transposition:** Wrap in Markdown with generated frontmatter:
 
 ```markdown
 ---
@@ -104,7 +171,7 @@ imported_from: cursorrules
 
 Any markdown file (README.md, etc.).
 
-**Conversion:** Copy as-is, add frontmatter if missing.
+**Transposition:** Copy as-is, add frontmatter if missing. Rename to `{name}-skill.md`.
 
 ## Conflict Resolution
 
@@ -215,35 +282,18 @@ Default: `tools/{skill-name}/`
 # Up to date: vercel-deploy
 ```
 
-## Integration with setup.sh
+## Why Not Symlinks to Runtime Skill Directories
 
-After importing skills, `setup.sh` creates symlinks:
+Other runtimes (Claude Code, Codex, Amp) have their own skill directories (`~/.claude/skills/`, `~/.codex/skills/`, etc.) using a `SKILL.md`-per-directory convention. We previously created symlinks from `.agents/` into these directories.
 
-```bash
-# In setup.sh
-create_skill_symlinks() {
-    local skill_sources="$AGENTS_DIR/configs/skill-sources.json"
-    
-    if [[ -f "$skill_sources" ]] && command -v jq &>/dev/null; then
-        # Create symlinks to various AI assistant skill directories
-        jq -r '.skills[] | .local_path' "$skill_sources" | while read -r path; do
-            local skill_name=$(basename "$path" .md)
-            
-            # OpenCode
-            ln -sf "$AGENTS_DIR/$path" "$HOME/.config/opencode/skills/$skill_name/SKILL.md"
-            
-            # Codex
-            ln -sf "$AGENTS_DIR/$path" "$HOME/.codex/skills/$skill_name/SKILL.md"
-            
-            # Claude Code
-            ln -sf "$AGENTS_DIR/$path" "$HOME/.claude/skills/$skill_name/SKILL.md"
-            
-            # Amp
-            ln -sf "$AGENTS_DIR/$path" "$HOME/.config/amp/tools/$skill_name.md"
-        done
-    fi
-}
-```
+**This is no longer the approach.** Reasons:
+
+- **Isolated discovery**: Each runtime's skill directory is a silo. Skills can't cross-reference each other or link to tools/services/workflows.
+- **Flat structure**: One `SKILL.md` per directory with no naming convention — doesn't scale, can't sort/group/search by prefix.
+- **Duplicate paths**: Symlinks create a parallel discovery path that diverges from `.agents/` — agents find different content depending on which path they follow.
+- **No progressive disclosure**: The `SKILL.md` pattern is all-or-nothing. Our `{name}-skill.md` + `{name}-skill/` convention loads the entry point first, extended knowledge on demand.
+
+Runtimes that support `.agents/` or `AGENTS.md`-based discovery find ingested skills through the same mechanisms as native agents. For runtimes that only support their own skill directories, the `generate-skills.sh` script can produce compatible output as a build step — but `.agents/` is the source of truth.
 
 ## Popular Skills to Import
 
@@ -308,5 +358,5 @@ It does NOT check for semantic duplicates. Use `/add-skill list` to review.
 - `scripts/add-skill-helper.sh` - Main implementation
 - `scripts/clawdhub-helper.sh` - ClawdHub browser-based fetcher
 - `scripts/skill-update-helper.sh` - Automated update checking
-- `scripts/generate-skills.sh` - SKILL.md generation for aidevops agents
-- `build-agent.md` - Agent design patterns
+- `scripts/generate-skills.sh` - Compatibility output for runtimes that only support SKILL.md directories
+- `build-agent.md` - Agent design patterns (see "Folder Organization" for naming conventions)
