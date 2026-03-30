@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.456] - 2026-03-30
+
+### Added
+
+- seed mission-control init and improve self-activity triage (#14126)
+
+### Changed
+
+- Documentation: tighten sales emails analysis language (#14139)
+- Documentation: tighten ahrefs.md (114→109 lines) — DRY auth headers, reorder by importance (#14140)
+- Documentation: tighten postgres-drizzle-skill.md (160→88 lines, 45% reduction) (#14113)
+- Maintenance: claim t1705
+
 ## [3.5.455] - 2026-03-30
 
 ### Changed
