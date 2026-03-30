@@ -1382,9 +1382,9 @@
       "pr": 13117
     },
     ".agents/tools/browser/stagehand-python.md": {
-      "hash": "b08490af463189a93ec652b087e8ac7238a018d0",
-      "at": "2026-03-28T19:42:04Z",
-      "pr": 12132
+      "hash": "2a7d864c02279238b1f773c390f7ffe011c6f9d6",
+      "at": "2026-03-30T01:16:55Z",
+      "pr": 13486
     },
     ".agents/tools/architecture/feature-slicing-skill/implementation.md": {
       "hash": "91baa20a0d8cea7599db1f40f700ec767b4ea44c",
@@ -1567,9 +1567,9 @@
       "pr": 12324
     },
     ".agents/scripts/commands/new-task.md": {
-      "hash": "efc169b2e604ea55058ffa7ebae2224cc5286699",
-      "at": "2026-03-28T23:05:58Z",
-      "pr": 12328
+      "hash": "5a3ec48ed47e180466403ef9011d5d26d44821e5",
+      "at": "2026-03-30T01:16:53Z",
+      "pr": 13489
     },
     ".agents/scripts/commands/runners.md": {
       "hash": "e15f89fc275c14393073efaa842849957733470c",
