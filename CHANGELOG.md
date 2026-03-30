@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.455] - 2026-03-30
+
+### Changed
+
+- Documentation: tighten voice-ai-models.md (154→147 lines) — compress Pick lines, collapse GPU table, remove formatting noise (#14038)
+- Documentation: tighten hexagonal.md 183→181 lines, zero information loss (GH#13970) (#13986)
+- Documentation: tighten pages-functions-patterns.md (173→171 lines) (#13990)
+- Documentation: tighten playwright-emulation.md prose and structure (#13987)
+- Documentation: tighten Higgsfield UI Automator agent doc (#13988)
+- Documentation: add star history chart to README
+- Maintenance: release v3.5.454
+- Documentation: tighten hexagonal.md 186→183 lines, zero information loss (GH#13933) (#13957)
+- Maintenance: tighten workerd-patterns.md, remove redundant prose (#13960)
+- Documentation: tighten playwright-emulation.md (GH#13935) (#13952)
+
+### Fixed
+
+- restore automatic OpenCode session title sync (#14074)
+
 ## [3.5.443] - 2026-03-30
 
 ### Changed
