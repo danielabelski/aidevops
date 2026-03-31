@@ -54,7 +54,7 @@ tools:
 
 ## aidevops Integration
 
-- **Import gate**: `add-skill-helper.sh` scans on import; `CRITICAL`/`HIGH` blocks unless `--force`
+- **Import gate**: `add-skill-helper.sh` scans on import; `CRITICAL`/`HIGH` blocks unless `--skip-security` (or an explicit interactive override)
 - **Batch scans**: `aidevops skill scan`, `security-helper.sh skill-scan all`
 - **Update path**: `setup.sh` scans all skills during `aidevops update` (non-blocking); `skill-update-helper.sh update` re-imports with `add-skill-helper.sh --force`
 - **Audit log**: `.agents/configs/configs/SKILL-SCAN-RESULTS.md`
@@ -90,7 +90,7 @@ Store required keys in `~/.config/aidevops/credentials.sh` (600 perms) or gopass
 | Severity | Action |
 |----------|--------|
 | CRITICAL | Do not import. Remove if already imported. |
-| HIGH | Block import. Review before allowing with `--force`. |
+| HIGH | Block import. Review before allowing with `--skip-security` (or an explicit interactive override). |
 | MEDIUM | Warn. Review findings and plan fixes. |
 | LOW | Informational. Address in future. |
 
