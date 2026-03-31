@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.537] - 2026-03-31
+
+### Changed
+
+- Documentation: tighten cro-chapter-24.md from 123 to 54 lines (#14712)
+
 ## [3.5.536] - 2026-03-31
 
 ### Added
