@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.502] - 2026-03-31
+
+### Changed
+
+- Maintenance: tighten jujutsu.md agent doc (125→90 lines) (#14665)
+
 ## [3.5.501] - 2026-03-31
 
 ### Changed
