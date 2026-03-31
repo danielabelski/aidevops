@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.527] - 2026-03-31
+
+### Changed
+
+- Documentation: tighten LeadsForge agent doc (105→83 lines) (#14920)
+- Maintenance: add chromium-debug-use follow-up planning
+
 ## [3.5.526] - 2026-03-31
 
 ### Changed
