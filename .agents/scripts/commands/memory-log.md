@@ -4,31 +4,29 @@ agent: Build+
 mode: subagent
 ---
 
-Show the auto-capture memory log - memories stored automatically by AI agents during sessions.
+Show recent auto-captured memories from AI sessions.
 
-Arguments: $ARGUMENTS
+Arguments: `$ARGUMENTS`
 
 ## Workflow
 
-### Step 1: Show Auto-Capture Log
-
-Run the log command:
+1. Run the log command:
 
 ```bash
 ~/.aidevops/agents/scripts/memory-helper.sh log
 ```
 
-### Step 2: Apply Filters (if requested)
+2. Apply requested filters:
 
 | Argument | Command |
 |----------|---------|
-| (none) | `memory-helper.sh log` (last 20 auto-captures) |
+| (none) | `memory-helper.sh log` — last 20 auto-captures |
 | `--limit N` | `memory-helper.sh log --limit N` |
 | `--json` | `memory-helper.sh log --json` |
 
-### Step 3: Present Results
+3. Present results.
 
-If results found:
+If entries exist:
 
 ```text
 Auto-Capture Log (last 20):
@@ -43,7 +41,7 @@ Auto-Capture Log (last 20):
 Total auto-captured: 15
 ```
 
-If no results:
+If empty:
 
 ```text
 No auto-captured memories yet.
@@ -54,13 +52,13 @@ Auto-capture stores memories when AI agents detect:
   - Architecture decisions
   - Tool configurations
 
-Trigger auto-capture by using the --auto flag:
+Trigger auto-capture with:
   memory-helper.sh store --auto --content "..."
 ```
 
-## How Auto-Capture Works
+## Auto-capture triggers
 
-AI agents automatically store memories using `--auto` flag when they detect:
+Agents store memories with `--auto` when they detect:
 
 | Trigger | Memory Type | Example |
 |---------|-------------|---------|
@@ -73,13 +71,13 @@ AI agents automatically store memories using `--auto` flag when they detect:
 
 ## Privacy
 
-Auto-captured memories are subject to privacy filters:
+Apply privacy filters before storage:
 
 - `<private>...</private>` tags are stripped before storage
 - Content matching secret patterns (API keys, tokens) is rejected
 - Use `privacy-filter-helper.sh scan` for comprehensive scanning
 
-## Related Commands
+## Related
 
 | Command | Purpose |
 |---------|---------|
