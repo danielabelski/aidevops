@@ -1,11 +1,11 @@
 # Founder Video Brief
 
-> For filming yourself or executives as the face of the brand.
+> For filming yourself or an executive as the face of the brand.
 
-## Video Objective
+## Objective
 
 - **Type:** Origin Story / Product Explainer / Direct Response / Myth-Buster / FAQ / Announcement
-- **Goal:** [Primary action you want viewers to take]
+- **Goal:** [Primary action viewers should take]
 
 ## Script
 
@@ -25,9 +25,9 @@
 ## Technical Setup
 
 - **Camera:** iPhone/tripod · Webcam · Mirrorless/DSLR · Professional
-- **Framing:** Medium shot (chest up) or close-up (head/shoulders). Eye line: at lens or slightly above.
+- **Framing:** Medium shot (chest up) or close-up (head/shoulders) · Eye line at lens or slightly above
 - **Audio:** Lav mic · Shotgun · AirPods · Built-in (backup only)
-- **Environment:** Quiet room, no echo
+- **Environment:** Quiet room · No echo
 - **Lighting:** Natural window (soft) · Ring light · Key+fill · Professional
 - **Lighting tip:** Light in front of you, not behind
 - **Background:** Home office · Company office · Neutral/branded wall · Blurred
@@ -36,19 +36,19 @@
 
 ## Outfit
 
-- **Do:** Solid colors, colors that pop against background, natural/put-together look
-- **Don't:** Thin stripes/small patterns (moiré), all white/black, busy logos, sloppy casual
+- **Do:** Solid colors · Colors that pop against the background · Natural, put-together look
+- **Don't:** Thin stripes/small patterns (moiré) · All white/black · Busy logos · Sloppy casual
 
 ## Delivery
 
 - **Tone:** Conversational · Energetic · Calm/authoritative · Passionate
-- **Pacing:** Slightly faster than normal conversation. Natural pauses OK. Not rushed, not slow.
+- **Pacing:** Slightly faster than normal conversation · Natural pauses OK · Not rushed, not slow
 - **Script method:** Teleprompter (sounds scripted) · Bullet points (more natural) · Memorized key lines + improv
-- **Tips:** Record a practice take first. Talk like you're telling a friend. Keep rolling through mistakes. Use hand gestures. Smile at least once.
+- **Tips:** Record a practice take first · Talk like you're telling a friend · Keep rolling through mistakes · Use hand gestures · Smile at least once
 
 ## Shot List
 
-- **Must capture:** Full talking head (multiple takes), key lines said 2-3 different ways, reaction shots
+- **Must capture:** Full talking head (multiple takes) · Key lines said 2-3 different ways · Reaction shots
 - **B-roll:** Product in use · Working at desk · Team interaction · Product close-ups · Logo/branding
 
 ## Format
