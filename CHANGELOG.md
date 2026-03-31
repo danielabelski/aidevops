@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.535] - 2026-03-31
+
+### Added
+
+- add chromium-debug-use skill and local CDP helper (#15007)
+
 ## [3.5.534] - 2026-03-31
 
 ### Changed
 
 - Version bump and maintenance updates
-
 
 ## [3.5.532] - 2026-03-31
 
