@@ -29,13 +29,11 @@ mcp:
 - **Parallel**: 5 contexts in 2.1s, 3 browsers in 1.9s, 10 pages in 1.8s
 - **Subagents**: `playwright-emulation.md` (device/viewport), `playwright-cli.md` (CLI agent)
 
-Underlying engine for dev-browser, agent-browser, and Stagehand. Supports proxy (HTTP/SOCKS5), session persistence (`storageState`/`userDataDir`), extensions via `launchPersistentContext`, network throttling, device emulation, ad blocking (Brave Shields or uBlock Origin), AI page understanding (`page.locator('body').ariaSnapshot()` ~0.01s, 50-200 tokens), Chrome DevTools MCP (`npx chrome-devtools-mcp@latest --browserUrl http://127.0.0.1:9222`).
-
-**When to use directly**: Maximum speed, full control, proxy support, parallel instances, extensions, custom browser engines, or when other wrappers add unnecessary overhead.
+Engine for dev-browser, agent-browser, and Stagehand. Supports proxy (HTTP/SOCKS5), session persistence (`storageState`/`userDataDir`), extensions via `launchPersistentContext`, throttling, device emulation, ad blocking (Brave Shields or uBlock Origin), AI page understanding (`page.locator('body').ariaSnapshot()` ~0.01s, 50-200 tokens), and Chrome DevTools MCP (`npx chrome-devtools-mcp@latest --browserUrl http://127.0.0.1:9222`). Use it directly for maximum speed, proxy support, parallel instances, extensions, custom browser engines, or when wrappers add overhead.
 
 <!-- AI-CONTEXT-END -->
 
-## Installation
+## Setup
 
 ```bash
 ./setup.sh --interactive           # Select: "Setup browser automation tools"
@@ -61,16 +59,12 @@ MCP configuration (Claude Code, OpenCode, etc.):
 
 Use `executablePath` to launch Brave, Edge, or Chrome instead of bundled Chromium.
 
-### Executable Paths
-
 | Browser | macOS | Linux | Windows |
 |---------|-------|-------|---------|
 | **Brave** | `/Applications/Brave Browser.app/Contents/MacOS/Brave Browser` | `/usr/bin/brave-browser` | `C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe` |
 | **Edge** | `/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge` | `/usr/bin/microsoft-edge` | `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe` |
 | **Chrome** | `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` | `/usr/bin/google-chrome` | `C:\Program Files\Google\Chrome\Application\chrome.exe` |
 | **Chromium** (bundled) | Auto-detected by Playwright | Auto-detected | Auto-detected |
-
-### Launch, Extensions, and Parallel Contexts
 
 Extensions require `headless: false` on older Chromium; `--headless=new` supports them. Brave Shields may make uBlock Origin redundant.
 
@@ -101,14 +95,11 @@ const contexts = await Promise.all(
 
 For device emulation (presets, viewport/HiDPI, geolocation, locale/timezone, permissions, color scheme, offline, responsive breakpoints), see `playwright-emulation.md`.
 
-**Cross-browser**: Iterate `['chromium', 'firefox', 'webkit']` and call `playwright[browserName].launch()`.
-
-**Mobile**: `browser.newContext({ ...devices['iPhone 12'] })`.
-
-**Performance**: `page.evaluate(() => performance.getEntriesByType('navigation')[0])` for Core Web Vitals. Use CDP `Network.emulateNetworkConditions` for throttling.
-
-**Visual regression**: `expect(page).toHaveScreenshot('name.png', { threshold: 0.2 })` across viewports `[1920, 1366, 375]`.
-
-**Security**: Inject XSS payloads via `page.fill()`, assert no alert dialogs fire. Test auth flows with valid/invalid credentials and assert redirect targets.
-
-**API interception**: `page.route('/api/**', route => route.fulfill({ json: mockData }))` or `page.waitForResponse(r => r.url().includes('/api/posts'))`.
+| Need | Pattern |
+|------|---------|
+| Cross-browser | Iterate `['chromium', 'firefox', 'webkit']` and call `playwright[browserName].launch()` |
+| Mobile | `browser.newContext({ ...devices['iPhone 12'] })` |
+| Performance | `page.evaluate(() => performance.getEntriesByType('navigation')[0])` for Core Web Vitals; use CDP `Network.emulateNetworkConditions` for throttling |
+| Visual regression | `expect(page).toHaveScreenshot('name.png', { threshold: 0.2 })` across `[1920, 1366, 375]` |
+| Security | Inject XSS payloads via `page.fill()`, assert no alert dialogs fire, and verify auth redirects for valid/invalid credentials |
+| API interception | `page.route('/api/**', route => route.fulfill({ json: mockData }))` or `page.waitForResponse(r => r.url().includes('/api/posts'))` |
