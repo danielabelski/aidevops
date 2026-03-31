@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.519] - 2026-03-31
+
+### Changed
+
+- Documentation: tighten worker-efficiency protocol prompt (GH#14810) (#14821)
+
 ## [3.5.518] - 2026-03-31
 
 ### Changed
