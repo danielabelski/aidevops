@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.545] - 2026-04-01
+
+### Added
+
+- deterministic merge pass — auto-merge ready PRs every cycle (#15080)
+
 ## [3.5.544] - 2026-04-01
 
 ### Changed
