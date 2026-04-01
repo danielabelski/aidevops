@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.539] - 2026-04-01
+
+### Changed
+
+- Maintenance: claim t1713
+- Documentation: tighten agent doc Git Worktree Workflow (#14816)
+- Maintenance: claim t1712
+- Documentation: tighten security-deps command doc (GH#14991)
+- Documentation: tighten memory-audit.md command doc (52→32 lines)
+- Documentation: tighten email-design-test.md (110 → 53 lines)
+- Documentation: tighten glm-ocr.md agent doc (GH#14181)
+- Maintenance: tighten Cloudflare Zaraz agent doc (110→102 lines)
+- Documentation: tighten xcodebuild-mcp.md agent doc
+- Documentation: tighten cold-outreach.md agent doc
+- Documentation: tighten feature.md agent doc (112->80 lines, 11% byte reduction)
+- Documentation: tighten self-improvement.md agent doc (GH#14450)
+- Documentation: tighten landing page structure framework (GH#14845)
+- Documentation: tighten GEO strategy guidance (GH#14842)
+- Documentation: clarify skill-scanner security override (GH#14833)
+- Documentation: tighten skill-scanner agent doc (GH#14833)
+- Documentation: tighten api-integrations.md — fix broken links, consolidate redundant columns
+- Documentation: tighten ddos-gotchas.md (116 -> 94 lines, 8% byte reduction)
+- Documentation: tighten dspyground.md agent doc (116 → 105 lines)
+- Documentation: tighten workers-ai.md (116 -> 15 lines, 87% reduction)
+- Documentation: tighten youtube-script.md command doc (61→49 lines)
+- Maintenance: record Playwright doc simplification state
+- Documentation: tighten playwright.md quick reference
+- Maintenance: track GH#14295 simplification state
+- Documentation: align email sequence pattern references
+- Documentation: tighten api-key-management.md (122 → 54 lines, 56% reduction)
+- Documentation: improve email sequence chapter navigation
+- Documentation: tighten bot-management-patterns guidance
+- Documentation: tighten and restructure Agents SDK gotchas (recheck)
+- Documentation: tighten ranking-opportunities.md (123→91 lines)
+- Documentation: tighten email-campaign.md (123→105 lines)
+- Maintenance: tighten instantly.md agent doc (71→61 lines) (#14678)
+
+### Fixed
+
+- resolve broken aidevops CLI symlink and add to non-interactive setup (#15057)
+- redirect _install_beads_node_tools() output to stderr
+
 ## [3.5.538] - 2026-03-31
 
 ### Changed
