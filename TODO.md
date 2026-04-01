@@ -58,6 +58,7 @@ Tasks with no open blockers - ready to work on. Use `/ready` to refresh this lis
 <!--TOON:ready[0]{id,desc,owner,tags,est,logged}:
 -->
 
+- [ ] t1729 simplification: tighten agent doc Model-Specific Subagents @marcusquinn #simplification-debt ~1h ref:GH#15020
 - [x] t1544 fix: setup script errors with Unknown MCP integration: context7 — setup script does not recognize context7 as a valid MCP integration despite documentation and subagent docs referencing it. Investigate mcp-setup.sh and migrations.sh for the integration registry and add context7. #bugfix #setup #mcp ~30m model:sonnet ref:GH#5248 logged:2026-03-19 pr:#5251 pr:#5251 completed:2026-03-19
 
 - [x] t1366 Add git-commit correlation to session miner for productivity analysis — cross-reference session activity with git commit outcomes in `session-miner-pulse.sh`. For each session with a project path, compute: commits produced, files changed, productivity ratio (commits/messages), and prompt-to-commit pairs by timestamp proximity. Adds `git_correlation` section to extraction output for LLM analysis phase. Inspired by [douglance/devsql](https://github.com/douglance/devsql) which joins Claude Code history with git data via SQL. #enhancement #session-miner #auto-dispatch ~3h model:sonnet ref:GH#2655 logged:2026-03-01 pr:#2658 completed:2026-03-01
@@ -108,6 +109,8 @@ Tasks with no open blockers - ready to work on. Use `/ready` to refresh this lis
 
 - [ ] t1727 simplification: tighten agent doc Ahrefs SEO Integration (.agents/seo/ahrefs.md, 106 lines) #simplification #seo #auto-dispatch ~1h model:sonnet ref:GH#15129 logged:2026-04-01
 - [ ] t15015 simplification: tighten agent doc Dev-Browser - Stateful Browser Automation (.agents/tools/browser/dev-browser.md, 186 lines) #simplification #browser #auto-dispatch ~1h model:sonnet ref:GH#15015 logged:2026-04-01
+- [ ] t1728 simplification: tighten agent doc Vercel Agent Skills (.agents/tools/deployment/agent-skills.md, 100 lines) #simplification #deployment #auto-dispatch ~1h model:sonnet ref:GH#15017 logged:2026-04-01
+- [ ] t1730 simplification: tighten agent doc Landing Page Structure (.agents/marketing-sales/direct-response-copy-frameworks-landing-page-structure.md, 66 lines) #simplification #marketing-sales #auto-dispatch ~1h model:sonnet ref:GH#15061 logged:2026-04-01
 
 ## Backlog
 
