@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.554] - 2026-04-01
+
+### Changed
+
+- Maintenance: claim t1732
+- Maintenance: claim t1731
+
+### Fixed
+
+- bypass broken select subprocess for model selection (#15181)
+
 ## [3.5.553] - 2026-04-01
 
 ### Changed
