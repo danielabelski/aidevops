@@ -1291,9 +1291,9 @@
       "pr": 15480
     },
     ".agents/scripts/commands/full-loop.md": {
-      "at": "2026-03-31T04:44:37Z",
-      "hash": "81145badabca1f37666ae6a996f6c06265a32749",
-      "passes": 2,
+      "at": "2026-04-02T14:41:00Z",
+      "hash": "bcf22ce3b332f521d77a911b696ec7375d0eabe8",
+      "passes": 3,
       "pr": 14590
     },
     ".agents/scripts/commands/ip-check.md": {
@@ -1345,9 +1345,9 @@
       "pr": 14942
     },
     ".agents/scripts/commands/pulse.md": {
-      "at": "2026-03-29T16:31:29Z",
-      "hash": "50e4c93df9d84fd8bba8e48671dccab53e6788bf",
-      "passes": 2,
+      "at": "2026-04-02T14:41:03Z",
+      "hash": "338273dcb0c9118b1c7cce9c5ddb236fd9d3b078",
+      "passes": 3,
       "pr": 13117
     },
     ".agents/scripts/commands/recall.md": {
@@ -1495,9 +1495,9 @@
       "pr": 15455
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "at": "2026-04-02T03:11:26Z",
-      "hash": "c9a51ef0241e34821d9240323b40bf24f19f8f4c",
-      "passes": 2,
+      "at": "2026-04-02T14:41:08Z",
+      "hash": "89769d3ef61d5620080a1785841aa3534fbee7ee",
+      "passes": 3,
       "pr": 15086
     },
     ".agents/scripts/stats-functions.sh": {
@@ -2059,9 +2059,9 @@
       "pr": 12162
     },
     ".agents/services/hosting/cloudflare-platform-skill/agents-sdk-gotchas.md": {
-      "at": "2026-04-02T13:00:00Z",
-      "hash": "51888c626750e86688e60390f33700e31e1432e7",
-      "passes": 3,
+      "at": "2026-04-02T14:41:30Z",
+      "hash": "1baef9315a8b2ef04fb8c54a9a13c9490104f568",
+      "passes": 4,
       "pr": 15053
     },
     ".agents/services/hosting/cloudflare-platform-skill/ai-gateway.md": {
@@ -3007,9 +3007,9 @@
       "pr": 12957
     },
     ".agents/tools/build-mcp/aidevops-plugin.md": {
-      "at": "2026-03-31T09:13:36Z",
-      "hash": "ca3a6834542e7578a2590795bdec0f6dd63b30f3",
-      "passes": 2,
+      "at": "2026-04-02T14:42:10Z",
+      "hash": "1663a5f374022feab8fbd51387acaf2f02d0f2c8",
+      "passes": 3,
       "pr": 14775
     },
     ".agents/tools/build-mcp/api-wrapper.md": {
@@ -4003,9 +4003,10 @@
       "pr": 13427
     },
     ".agents/tools/video/remotion-fonts.md": {
-      "at": "2026-04-02T10:00:00Z",
-      "hash": "61aaf8b92b22ba1e647c1d334dd9e80f",
-      "pr": 15615
+      "at": "2026-04-02T14:42:45Z",
+      "hash": "2e12fc37c6a4f8397a9444f522ea88ef9d10285f",
+      "pr": 15615,
+      "passes": 1
     },
     ".agents/tools/video/remotion-gifs.md": {
       "at": "2026-03-29T22:09:13Z",
@@ -4344,21 +4345,21 @@
       "pr": 13594
     },
     "TODO.md": {
-      "at": "2026-04-02T13:10:45Z",
-      "hash": "954ef380cb97da621ee5017dbeb9905d9ec7871f",
-      "passes": 2,
+      "at": "2026-04-02T14:42:57Z",
+      "hash": "bde841823911ca484310a9cecae4ce1c9c23421e",
+      "passes": 3,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-02T04:56:57Z",
-      "hash": "ae3d4982b4a026a2e5dea446fa85ffc14f3334b2",
-      "passes": 3,
+      "at": "2026-04-02T14:42:58Z",
+      "hash": "8ce36be4bf00889f6759998366350978384af48a",
+      "passes": 4,
       "pr": 15470
     },
     "setup.sh": {
-      "at": "2026-04-02T04:56:57Z",
-      "hash": "b9862bf771163b71201f60bbaac6a9d52e27fe2d",
-      "passes": 3,
+      "at": "2026-04-02T14:42:58Z",
+      "hash": "e8d6100de484897cbff3373eaf33207a83226c5c",
+      "passes": 4,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -4424,11 +4425,6 @@
   },
   ".agents/workflows/branch/experiment.md": {
     "hash": "3a37ba8edc24966b9bc8ee7dd979c7349d455abec0dd31d72cd78b30f4e58c6d",
-    "status": "simplified"
-  },
-  ".agents/seo/seo-audit-skill/aeo-geo-patterns/02-geo-patterns.md": {
-    "hash": "b4cf936475f4834fd541b14c6173969e",
-    "issue": "GH#15568",
     "status": "simplified"
   }
 }
