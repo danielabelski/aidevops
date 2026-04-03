@@ -48,7 +48,7 @@
     "issue": "GH#16443",
     "lines_after": 111,
     "lines_before": 113,
-    "note": "Pass 2: 113\u2192111 lines. Merged templates link into intro line, moved subject line guidance above table as compact note. Zero content loss.",
+    "note": "Pass 2: 113→111 lines. Merged templates link into intro line, moved subject line guidance above table as compact note. Zero content loss.",
     "passes": 2,
     "status": "simplified"
   },
@@ -1015,7 +1015,7 @@
       "at": "2026-04-02T21:19:54Z",
       "hash": "347272e46c7d04f05dd13a4683cf44bef0dd3da7",
       "issue": "GH#14286",
-      "note": "Reference corpus chapter tightened: 92 \u2192 90 lines. Removed decorative closing sentence with no information value. Zero content loss.",
+      "note": "Reference corpus chapter tightened: 92 → 90 lines. Removed decorative closing sentence with no information value. Zero content loss.",
       "passes": 2
     },
     ".agents/marketing-sales/cro-chapter-20.md": {
@@ -3677,9 +3677,9 @@
       "pr": 15176
     },
     ".agents/tools/browser/browser-profiles.md": {
-      "at": "2026-03-29T07:03:05Z",
-      "hash": "2a2c771f4ff870ad450a92a0f9ad950f3f16e3cb",
-      "passes": 1,
+      "at": "2026-04-03T12:15:23Z",
+      "hash": "f44c1308d6180eaecb534b715518b5f61f888635",
+      "passes": 2,
       "pr": 12501
     },
     ".agents/tools/browser/browser-qa.md": {
@@ -4964,9 +4964,9 @@
       "passes": 1
     },
     ".agents/tools/ui/nothing-design-skill/tokens.md": {
-      "at": "2026-04-03T12:09:48Z",
-      "hash": "ccc8c1ee510809c3112dff09d15efb9dd6c542c2",
-      "passes": 3,
+      "at": "2026-04-03T12:15:29Z",
+      "hash": "975c918e2fa0546f3635cee13a106dee523d47b4",
+      "passes": 4,
       "pr": 16561
     },
     ".agents/tools/ui/react-context.md": {
@@ -5432,15 +5432,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-03T11:54:11Z",
-      "hash": "ccd9e60fddcfeb10e9318812f24bfba24fbc2b8e",
-      "passes": 20,
+      "at": "2026-04-03T12:15:31Z",
+      "hash": "9ef0687df013dd8b24d17e119250c94fb18dc392",
+      "passes": 21,
       "pr": 15470
     },
     "setup.sh": {
-      "at": "2026-04-03T11:54:12Z",
-      "hash": "e2643b4c9540cadb77a124c9e4ac6ddabfb2f3b0",
-      "passes": 20,
+      "at": "2026-04-03T12:15:31Z",
+      "hash": "86c59ef38bfdcd3f839e33d18be019c92e63d384",
+      "passes": 21,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -5502,6 +5502,54 @@
       "hash": "c820f0bd721d4d8ff4fb35dff40ff98c6ba3b71f",
       "passes": 1,
       "pr": 15470
+    },
+    ".agents/tools/git/github-actions.md": {
+      "hash": "9315e263cad3848da2640a0392d82bd02c22b487",
+      "at": "2026-04-03T12:15:32Z",
+      "pr": 16558,
+      "passes": 1
+    },
+    ".agents/content/guidelines.md": {
+      "hash": "b424d0157dd601eef0ea21fbc10b57dd2eb572da",
+      "at": "2026-04-03T12:15:32Z",
+      "pr": 16557,
+      "passes": 1
+    },
+    ".agents/services/hosting/cloudflare-platform-skill/workers-gotchas.md": {
+      "hash": "d5df86bf28ef23dcadc6de62b8e086978aa68117",
+      "at": "2026-04-03T12:15:32Z",
+      "pr": 16556,
+      "passes": 1
+    },
+    ".agents/tools/ocr/glm-ocr.md": {
+      "hash": "2f69712b674fe089100c62ae6831cd3bbe329f27",
+      "at": "2026-04-03T12:15:32Z",
+      "pr": 16554,
+      "passes": 1
+    },
+    ".agents/tools/git/jujutsu.md": {
+      "hash": "ad5d89b33b790787ec44d8782eb0d3116e94d897",
+      "at": "2026-04-03T12:15:32Z",
+      "pr": 16553,
+      "passes": 1
+    },
+    ".agents/tools/productivity/notes.md": {
+      "hash": "8b8bbc3005076b5ccaff84b0a48254a7e2587078",
+      "at": "2026-04-03T12:15:32Z",
+      "pr": 16552,
+      "passes": 1
+    },
+    ".agents/tools/api/cloudflare-mcp.md": {
+      "hash": "1832e77768442f25fde63a70b822d38c0b7b5e13",
+      "at": "2026-04-03T12:15:33Z",
+      "pr": 16551,
+      "passes": 1
+    },
+    ".agents/scripts/anti-detect-helper.sh": {
+      "hash": "51caf0d510816996bb82f91e466b32d0760e790b",
+      "at": "2026-04-03T12:15:33Z",
+      "pr": 16548,
+      "passes": 1
     }
   }
 }
