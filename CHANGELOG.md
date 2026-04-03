@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.829] - 2026-04-03
+
+### Changed
+
+- Tightened hyperdrive-patterns.md agent doc (125→115 lines) — consolidated redundant SET examples in Connection Pooling section; zero information loss (#16441)
+
 ## [3.5.827] - 2026-04-03
 
 ### Changed
