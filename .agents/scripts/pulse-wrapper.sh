@@ -3812,7 +3812,7 @@ close_issues_with_merged_prs() {
 	local repos_json="$REPOS_JSON"
 	[[ -f "$repos_json" ]] || return 0
 
-	local dedup_helper="${HOME}/.aidevops/agents/scripts/dedup-helper.sh"
+	local dedup_helper="${HOME}/.aidevops/agents/scripts/dispatch-dedup-helper.sh"
 	[[ -x "$dedup_helper" ]] || return 0
 
 	local total_closed=0
