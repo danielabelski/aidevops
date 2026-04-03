@@ -4385,15 +4385,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-03T01:53:21Z",
-      "hash": "9e48fc14aabb9b2801d43dbbaa3a5f9c787cb7ca",
-      "passes": 16,
+      "at": "2026-04-03T02:09:24Z",
+      "hash": "0562e51f78407a765633920ee1d05218053856ad",
+      "passes": 17,
       "pr": 15470
     },
     "setup.sh": {
-      "at": "2026-04-03T01:53:21Z",
-      "hash": "e9961fbf685ef5878cacf2f2d4bd0ea83ad814f6",
-      "passes": 16,
+      "at": "2026-04-03T02:09:24Z",
+      "hash": "b2f66c702293d628a153902fdfba321b0530478c",
+      "passes": 17,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -4559,10 +4559,10 @@
       "passes": 1
     },
     ".agents/reference/secret-handling.md": {
-      "hash": "110d5344e0ea1856b8646e0d7099a5ed3efccbe2",
-      "at": "2026-04-02T21:58:18Z",
+      "hash": "2a6c72740cbc53ba42d8f562bde4af3073574974",
+      "at": "2026-04-03T02:08:59Z",
       "pr": 15664,
-      "passes": 1
+      "passes": 2
     },
     ".agents/services/hosting/cloudflare-platform-skill/durable-objects.md": {
       "hash": "7a4852a2f3e454c5962f11cefa855b6e4a1555b4",
