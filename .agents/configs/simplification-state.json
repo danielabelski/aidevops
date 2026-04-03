@@ -1784,9 +1784,9 @@
       "pr": 15455
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "hash": "638d5ab68965588d4584ffcdae3ba481d64f339d",
-      "at": "2026-04-03T19:14:20Z",
-      "passes": 8,
+      "hash": "8d2bfb896139cb73a0e7c457ca7b2af64db1038f",
+      "at": "2026-04-03T20:00:31Z",
+      "passes": 9,
       "pr": 15086
     },
     ".agents/scripts/schema-validator-helper.sh": {
@@ -5734,9 +5734,9 @@
       "pr": "pending"
     },
     ".agents/seo/geo-strategy.md": {
-      "hash": "708d31b27d95250f0a9a83f010e958744380fb7f",
-      "at": "2026-04-03T19:14:21Z",
-      "passes": 2,
+      "hash": "d37b624189859753aaaa37c3070821cf44636a67",
+      "at": "2026-04-03T20:00:32Z",
+      "passes": 3,
       "pr": "pending"
     },
     ".agents/seo/serper.md": {
@@ -5879,6 +5879,12 @@
       "hash": "a58d3cfb7a814b0067121a6d25beadc6ea4d241e",
       "at": "2026-04-03T19:14:47Z",
       "pr": 16730,
+      "passes": 1
+    },
+    ".agents/tools/ai-assistants/models-opus.md": {
+      "hash": "0b3ae2dacef095b9742f0bf5b5274a5884252f8e",
+      "at": "2026-04-03T20:00:54Z",
+      "pr": 16821,
       "passes": 1
     }
   }
