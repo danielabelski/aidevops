@@ -1271,6 +1271,37 @@ _build_run_cmd() {
 # prompt, OpenCode needs 60-120s to initialize before first model output.
 HEADLESS_ACTIVITY_TIMEOUT_SECONDS="${HEADLESS_ACTIVITY_TIMEOUT_SECONDS:-300}"
 
+#######################################
+# Merge worker's isolated SQLite DB back to the shared DB.
+# Called after worker exits — no contention risk.
+# Uses ATTACH DATABASE to copy session and message rows.
+# Non-fatal: merge failure doesn't block cleanup.
+#######################################
+_merge_worker_db() {
+	local isolated_dir="$1"
+	local worker_db="${isolated_dir}/opencode/opencode.db"
+	local shared_db="${HOME}/.local/share/opencode/opencode.db"
+
+	if [[ ! -f "$worker_db" ]]; then
+		return 0
+	fi
+	if [[ ! -f "$shared_db" ]]; then
+		return 0
+	fi
+
+	# Merge session and message tables. INSERT OR IGNORE avoids duplicates
+	# on the primary key (id). Timeout 5s — if shared DB is locked by
+	# interactive session, skip rather than block cleanup.
+	sqlite3 "$shared_db" <<-SQL 2>/dev/null || true
+		.timeout 5000
+		ATTACH DATABASE '${worker_db}' AS worker;
+		INSERT OR IGNORE INTO session SELECT * FROM worker.session;
+		INSERT OR IGNORE INTO message SELECT * FROM worker.message;
+		DETACH DATABASE worker;
+	SQL
+	return 0
+}
+
 _invoke_opencode() {
 	local output_file="$1"
 	local exit_code_file="$2"
@@ -1350,8 +1381,10 @@ _invoke_opencode() {
 	kill "$watchdog_pid" 2>/dev/null || true
 	wait "$watchdog_pid" 2>/dev/null || true
 
-	# Clean up isolated auth dir (worker is done, tokens no longer needed)
+	# Merge worker session data back to shared DB, then clean up.
+	# Worker is done — no contention, single-writer merge is safe.
 	if [[ -n "$isolated_data_dir" && -d "$isolated_data_dir" ]]; then
+		_merge_worker_db "$isolated_data_dir"
 		rm -rf "$isolated_data_dir" 2>/dev/null || true
 		unset XDG_DATA_HOME
 	fi
