@@ -26,7 +26,7 @@
 #   contributor-activity-helper.sh table <repo-path> [--format markdown|json]
 #   contributor-activity-helper.sh user <repo-path> <github-login>
 #   contributor-activity-helper.sh cross-repo-summary <repo-path1> [<repo-path2> ...] [--period month]
-#   contributor-activity-helper.sh session-time <repo-path> [--period month]
+#   contributor-activity-helper.sh session-time <repo-path> [--period month] [--all-dirs]
 #   contributor-activity-helper.sh cross-repo-session-time <path1> [path2 ...] [--period month]
 #   contributor-activity-helper.sh person-stats <repo-path> [--period month] [--logins a,b]
 #   contributor-activity-helper.sh cross-repo-person-stats <path1> [path2 ...] [--period month]
@@ -623,17 +623,18 @@ _session_time_all_periods() {
 	local format="$2"
 	local db_path="$3"
 
+	# Build base args before the loop. repo_path may be "--all-dirs" (flag),
+	# a real path, or empty. session_time() handles all three cases.
+	local -a base_args=("$repo_path")
+	[[ -n "$db_path" ]] && base_args+=(--db-path "$db_path")
+
 	local all_periods=("day" "week" "month" "quarter" "year")
 	local combined_json="["
 	local first_period=true
 	local p
 	for p in "${all_periods[@]}"; do
 		local p_json
-		local -a db_args=()
-		if [[ -n "$db_path" ]]; then
-			db_args+=(--db-path "$db_path")
-		fi
-		p_json=$(session_time "$repo_path" --period "$p" --format json "${db_args[@]}") || p_json="{}"
+		p_json=$(session_time "${base_args[@]}" --period "$p" --format json) || p_json="{}"
 		if [[ "$first_period" == "true" ]]; then
 			first_period=false
 		else
@@ -679,7 +680,7 @@ else:
 #
 # Arguments:
 #   $1 - db path
-#   $2 - abs repo path (for SQL filtering)
+#   $2 - abs repo path (for SQL filtering; empty string = all directories)
 #   $3 - since_ms (milliseconds threshold)
 # Output: JSON array of session rows to stdout
 #######################################
@@ -688,13 +689,20 @@ _session_time_query_db() {
 	local abs_repo_path="$2"
 	local since_ms="$3"
 
-	# Escape path for safe SQL embedding:
-	# - Single quotes doubled per SQL standard (prevents injection)
-	# - % and _ escaped for LIKE patterns (prevents wildcard matching)
-	# since_ms is always numeric (computed by Python above), no injection risk.
+	# Build directory filter clause.
+	# When abs_repo_path is empty (--all-dirs), dir_clause stays empty
+	# to aggregate sessions across all repos (profile-level stats).
+	# Uses parameter expansion to avoid an if/fi block (nesting budget).
+	local dir_clause=""
 	local safe_path="${abs_repo_path//\'/\'\'}"
 	local like_path="${safe_path//%/\\%}"
 	like_path="${like_path//_/\\_}"
+	# Only set dir_clause when a path was provided; empty abs_repo_path
+	# produces empty safe_path, so the :+ expansion yields nothing.
+	# shellcheck disable=SC2016,SC1003 # Single quotes are SQL delimiters, not bash
+	dir_clause="${safe_path:+AND (s.directory = '${safe_path}'
+			       OR s.directory LIKE '${like_path}.%' ESCAPE '\\\\'
+			       OR s.directory LIKE '${like_path}-%' ESCAPE '\\\\')}"
 
 	# Query per-session human vs machine time using window functions.
 	# LAG() compares each message with the previous one in the same session:
@@ -719,9 +727,7 @@ _session_time_query_db() {
 			JOIN message m ON m.session_id = s.id
 			WHERE s.parent_id IS NULL
 			  AND m.time_created > ${since_ms}
-			  AND (s.directory = '${safe_path}'
-			       OR s.directory LIKE '${like_path}.%' ESCAPE '\\'
-			       OR s.directory LIKE '${like_path}-%' ESCAPE '\\')
+			  ${dir_clause}
 		)
 		SELECT
 			session_id,
@@ -920,6 +926,7 @@ _session_time_process() {
 #   --period day|week|month|quarter|year|all (optional, default: month)
 #   --format markdown|json (optional, default: markdown)
 #   --db-path <path> (optional, default: auto-detect)
+#   --all-dirs (optional, skip directory filter — aggregate all sessions)
 # Output: markdown table or JSON. "all" shows every period in one table.
 #######################################
 session_time() {
@@ -927,6 +934,7 @@ session_time() {
 	local period="month"
 	local format="markdown"
 	local db_path=""
+	local all_dirs="false"
 
 	# Parse arguments
 	while [[ $# -gt 0 ]]; do
@@ -943,6 +951,10 @@ session_time() {
 			db_path="${2:-}"
 			shift 2
 			;;
+		--all-dirs)
+			all_dirs="true"
+			shift
+			;;
 		*)
 			if [[ -z "$repo_path" ]]; then
 				repo_path="$1"
@@ -952,7 +964,9 @@ session_time() {
 		esac
 	done
 
-	repo_path="${repo_path:-.}"
+	if [[ "$all_dirs" != "true" ]]; then
+		repo_path="${repo_path:-.}"
+	fi
 
 	# Auto-detect database path
 	if [[ -z "$db_path" ]]; then
@@ -979,7 +993,11 @@ session_time() {
 
 	# Handle --period all: collect JSON for each period and output combined table
 	if [[ "$period" == "all" ]]; then
-		_session_time_all_periods "$repo_path" "$format" "$db_path"
+		# Pass "--all-dirs" as repo_path when aggregating all directories;
+		# _session_time_all_periods passes it through to session_time().
+		local all_repo_arg="$repo_path"
+		[[ "$all_dirs" == "true" ]] && all_repo_arg="--all-dirs"
+		_session_time_all_periods "$all_repo_arg" "$format" "$db_path"
 		return 0
 	fi
 
@@ -997,8 +1015,11 @@ session_time() {
 	since_ms=$(python3 -c "import time; print(int((time.time() - ${seconds}) * 1000))")
 
 	# Resolve repo_path to absolute for matching against session.directory
-	local abs_repo_path
-	abs_repo_path=$(cd "$repo_path" 2>/dev/null && pwd) || abs_repo_path="$repo_path"
+	# When --all-dirs is set, pass empty string to skip directory filtering
+	local abs_repo_path=""
+	if [[ "$all_dirs" != "true" ]]; then
+		abs_repo_path=$(cd "$repo_path" 2>/dev/null && pwd) || abs_repo_path="$repo_path"
+	fi
 
 	local query_result
 	query_result=$(_session_time_query_db "$db_path" "$abs_repo_path" "$since_ms")
@@ -1793,7 +1814,7 @@ main() {
 		echo "  table   <repo-path> [--period day|week|month|year] [--format markdown|json]"
 		echo "  user    <repo-path> <github-login>"
 		echo "  cross-repo-summary <path1> [path2 ...] [--period month] [--format markdown]"
-		echo "  session-time <repo-path> [--period day|week|month|quarter|year|all] [--format markdown|json]"
+		echo "  session-time <repo-path> [--period day|week|month|quarter|year|all] [--format markdown|json] [--all-dirs]"
 		echo "  cross-repo-session-time <path1> [path2 ...] [--period month|all] [--format markdown|json]"
 		echo "  person-stats <repo-path> [--period day|week|month|quarter|year] [--format markdown|json] [--logins a,b]"
 		echo "  cross-repo-person-stats <path1> [path2 ...] [--period month] [--format markdown|json] [--logins a,b]"
