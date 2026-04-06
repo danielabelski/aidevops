@@ -10,6 +10,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.122] - 2026-04-06
+
+### Changed
+
+- Maintenance: bump opencode pin from 1.3.15 to 1.3.16 — bisect confirmed safe
+- parse OpenCode token aggregates via pipe-delimited stats (#17612)
+- Refactor: extract command defs and Python settings to reduce nesting depth (GH#17559) (#17620)
+- fix now_ms fallback and add WAL cleanup trap in opencode-db-archive (#17618)
+- propagate domain generator failures in orchestrator (#17614)
+- use DISPATCH_COMMENT_MAX_AGE as default for STALE_ASSIGNMENT_THRESHOLD_SECONDS (#17613)
+- deduplicate oauth endpoint constants in pool ops (#17617)
+- use github.paginate for full comment dedup in nmr-hold-comment (#17610)
+- harden tabby fix-shell YAML patching without PyYAML (#17615)
+- pin opencode-ai to 1.3.15 to prevent auto-upgrade to broken 1.3.17 (#17609)
+
+### Fixed
+
+- restore provider delegation for CLI helpers (GH#17600) (#17611)
+
 ## [3.6.119] - 2026-04-06
 
 ### Changed
