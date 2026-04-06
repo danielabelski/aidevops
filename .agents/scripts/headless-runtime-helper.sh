@@ -2098,15 +2098,16 @@ _run_canary_test() {
 	local canary_output
 	canary_output=$(mktemp "${TMPDIR:-/tmp}/aidevops-canary.XXXXXX")
 
-	# Use --pure to skip external plugins — we're testing the OpenCode core.
-	# Use the cheapest model available. The prompt is trivial.
-	local canary_model="anthropic/claude-haiku-4-20250414"
+	# Run WITH plugins (not --pure) so our oauth-pool auth is available.
+	# Use sonnet — verified working, and the trivial prompt costs ~100 tokens.
+	# Haiku model names vary across OpenCode versions; sonnet is stable.
+	local canary_model="anthropic/claude-sonnet-4-20250514"
 	local canary_exit=0
 
 	# perl alarm is the most portable macOS timeout mechanism
 	perl -e "alarm $CANARY_TIMEOUT_SECONDS; exec @ARGV" -- \
 		"$OPENCODE_BIN_DEFAULT" run "Reply with exactly: CANARY_OK" \
-		--pure -m "$canary_model" --dir "${HOME}" \
+		-m "$canary_model" --dir "${HOME}" \
 		>"$canary_output" 2>&1 || canary_exit=$?
 
 	if [[ "$canary_exit" -eq 0 ]] && grep -q "CANARY_OK" "$canary_output" 2>/dev/null; then
