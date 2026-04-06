@@ -963,7 +963,8 @@ has_dispatch_comment() {
 				(.body_start | test("Closes #"; "i")) or
 				(.body_start | test("gh pr merge"; "i")) or
 				(.body_start | test("MERGE_SUMMARY"; "i")) or
-				(.body_start | test("Stale assignment recovered"; "i"))
+				(.body_start | test("Stale assignment recovered"; "i")) or
+			(.body_start | test("CLAIM_RELEASED"; "i"))
 			)
 		)] | length
 	' 2>/dev/null) || has_completion=0

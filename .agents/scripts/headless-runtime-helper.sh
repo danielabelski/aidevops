@@ -1337,6 +1337,7 @@ _invoke_opencode() {
 		# silently kills streaming connections — workers stall at step_start
 		# with zero API errors. Session stats are sacrificed for reliability.
 		export XDG_DATA_HOME="$isolated_data_dir"
+		print_info "[lifecycle] db_isolated dir=$isolated_data_dir pid=$$"
 	fi
 
 	# Run in subshell to avoid fragile set +e/set -e toggling (GH#4225).
@@ -1371,7 +1372,7 @@ _invoke_opencode() {
 	# If no activity appears within the timeout, the provider is likely
 	# rate-limited and the worker will hang indefinitely. Kill it so the
 	# retry loop in cmd_run can rotate to the next provider.
-	_run_activity_watchdog "$output_file" "$worker_pid" "$exit_code_file" &
+	_run_activity_watchdog "$output_file" "$worker_pid" "$exit_code_file" "$_invoke_session_key" &
 	local watchdog_pid=$!
 
 	# Wait for the worker to finish (watchdog will kill it if stalled)
@@ -1384,9 +1385,14 @@ _invoke_opencode() {
 	# Merge worker session data back to shared DB, then clean up.
 	# Worker is done — no contention, single-writer merge is safe.
 	if [[ -n "$isolated_data_dir" && -d "$isolated_data_dir" ]]; then
-		_merge_worker_db "$isolated_data_dir"
+		if _merge_worker_db "$isolated_data_dir"; then
+			print_info "[lifecycle] db_merged dir=$isolated_data_dir pid=$$"
+		else
+			print_warning "[lifecycle] db_merge_failed dir=$isolated_data_dir pid=$$"
+		fi
 		rm -rf "$isolated_data_dir" 2>/dev/null || true
 		unset XDG_DATA_HOME
+		print_info "[lifecycle] db_cleanup dir=$isolated_data_dir pid=$$"
 	fi
 
 	return 0
@@ -1413,6 +1419,7 @@ _run_activity_watchdog() {
 	local output_file="$1"
 	local worker_pid="$2"
 	local exit_code_file="$3"
+	local session_key="${4:-}"
 	local stall_timeout="${HEADLESS_ACTIVITY_TIMEOUT_SECONDS:-300}"
 	[[ "$stall_timeout" =~ ^[0-9]+$ ]] || stall_timeout=300
 
@@ -1455,7 +1462,7 @@ _run_activity_watchdog() {
 				phase1_elapsed=$((phase1_elapsed + poll_interval))
 				if [[ "$phase1_elapsed" -ge "$phase1_timeout" ]]; then
 					_watchdog_kill "$worker_pid" "$exit_code_file" "$output_file" \
-						"phase1: zero output in ${phase1_timeout}s — runtime failed to start"
+						"phase1: zero output in ${phase1_timeout}s — runtime failed to start" "$session_key"
 					return 0
 				fi
 			fi
@@ -1475,7 +1482,7 @@ _run_activity_watchdog() {
 
 		if [[ "$stall_seconds" -ge "$stall_timeout" ]]; then
 			_watchdog_kill "$worker_pid" "$exit_code_file" "$output_file" \
-				"stall: no output growth for ${stall_timeout}s (stuck at ${current_size}b)"
+				"stall: no output growth for ${stall_timeout}s (stuck at ${current_size}b)" "$session_key"
 			return 0
 		fi
 
@@ -1498,6 +1505,7 @@ _watchdog_kill() {
 	local exit_code_file="$2"
 	local output_file="$3"
 	local reason="$4"
+	local session_key="${5:-}"
 
 	print_warning "Activity watchdog: ${reason} — killing worker (PID $worker_pid)"
 	# Write the marker BEFORE killing — the dying subshell may overwrite
@@ -1514,6 +1522,12 @@ _watchdog_kill() {
 	printf '124' >"$exit_code_file"
 	printf '\n[WATCHDOG_KILL] timestamp=%s worker_pid=%s reason="%s"\n' \
 		"$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$worker_pid" "$reason" >>"$output_file" 2>/dev/null || true
+
+	# Release the dispatch claim so the issue is immediately available
+	# for re-dispatch instead of waiting for the 30-min TTL.
+	if [[ -n "$session_key" ]]; then
+		_release_dispatch_claim "$session_key" "watchdog_kill:${reason}"
+	fi
 	return 0
 }
 
@@ -1851,6 +1865,8 @@ _execute_run_attempt() {
 		local _claim_repo_slug=""
 		# Extract repo slug from work_dir path (~/Git/<repo>/ pattern)
 		_claim_repo_slug=$(git -C "$work_dir" remote get-url origin 2>/dev/null | sed -E 's|.*github\.com[:/]||; s|\.git$||' || true)
+		# Export repo slug so _release_dispatch_claim can use it on failure
+		export DISPATCH_REPO_SLUG="${_claim_repo_slug}"
 		if [[ -n "$_claim_repo_slug" && -n "$_claim_issue_number" ]]; then
 			local _claim_helper="${SCRIPT_DIR}/dispatch-claim-helper.sh"
 			if [[ -x "$_claim_helper" ]]; then
@@ -1878,6 +1894,13 @@ _execute_run_attempt() {
 	output_file=$(mktemp)
 	exit_code_file=$(mktemp)
 	exit_code=0
+
+	# GH#17549: expose session_key to _invoke_opencode → watchdog → _watchdog_kill
+	# so claim release can identify the issue. Module-level var avoids changing
+	# _invoke_opencode's interface which is shared with _invoke_claude.
+	_invoke_session_key="$session_key"
+
+	print_info "[lifecycle] worker_start session=$session_key model=$selected_model runtime=$runtime pid=$$"
 
 	case "$runtime" in
 	claude) _invoke_claude "$output_file" "$exit_code_file" "${cmd[@]}" ;;
@@ -2107,9 +2130,55 @@ PY
 	return 0
 }
 
+#######################################
+# Release a dispatch claim by posting a CLAIM_RELEASED comment.
+# The dedup guard recognises this and allows immediate re-dispatch
+# instead of waiting for the 30-min TTL to expire.
+#
+# Args:
+#   $1 = session_key (contains issue number and repo slug)
+#   $2 = reason (logged in the comment for debugging)
+#######################################
+_release_dispatch_claim() {
+	local session_key="$1"
+	local reason="${2:-worker_failed}"
+
+	# Extract issue number and repo slug from session key
+	# Format: pulse-{login}-{repo}-{issue} or similar
+	local issue_number=""
+	local repo_slug=""
+	issue_number=$(printf '%s' "$session_key" | grep -oE '[0-9]+$' || true)
+	# Try to get repo slug from the dispatch ledger or env
+	repo_slug="${DISPATCH_REPO_SLUG:-}"
+
+	if [[ -z "$issue_number" || -z "$repo_slug" ]]; then
+		print_warning "Cannot release claim: missing issue=$issue_number repo=$repo_slug"
+		return 0
+	fi
+
+	local comment_body
+	comment_body="CLAIM_RELEASED reason=${reason} runner=$(whoami) ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+	gh api "repos/${repo_slug}/issues/${issue_number}/comments" \
+		--method POST \
+		--field body="$comment_body" \
+		>/dev/null 2>&1 || {
+		print_warning "Failed to post CLAIM_RELEASED on #${issue_number} (non-fatal)"
+	}
+	print_info "Released claim on #${issue_number} (reason: ${reason})"
+	return 0
+}
+
 _cmd_run_finish() {
 	local session_key="$1"
 	local ledger_status="$2"
+
+	# Release the dispatch claim on failure so the issue is immediately
+	# available for re-dispatch (next 2-min pulse cycle) instead of
+	# waiting for the 30-min TTL to expire.
+	if [[ "$ledger_status" == "fail" ]]; then
+		_release_dispatch_claim "$session_key" "worker_failed"
+	fi
 
 	_update_dispatch_ledger "$session_key" "$ledger_status"
 	_release_session_lock "$session_key"
