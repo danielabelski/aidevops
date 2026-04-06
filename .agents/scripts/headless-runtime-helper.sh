@@ -2080,8 +2080,44 @@ _cmd_run_finish() {
 CANARY_CACHE_TTL_SECONDS="${CANARY_CACHE_TTL_SECONDS:-1800}"
 CANARY_TIMEOUT_SECONDS="${CANARY_TIMEOUT_SECONDS:-20}"
 
+#######################################
+# Version guard — enforce OPENCODE_PINNED_VERSION before worker launch.
+#
+# Something outside our control (unknown process, worker side-effect)
+# periodically upgrades opencode to @latest. This guard runs on every
+# canary check and reinstalls the pinned version if it drifted.
+# Cheap: one `opencode --version` + optional npm install.
+#######################################
+_enforce_opencode_version_pin() {
+	local pin="${OPENCODE_PINNED_VERSION:-}"
+	# No pin or pin is "latest" → nothing to enforce
+	if [[ -z "$pin" || "$pin" == "latest" ]]; then
+		return 0
+	fi
+
+	local installed
+	installed=$("$OPENCODE_BIN_DEFAULT" --version 2>/dev/null || echo "unknown")
+	installed="${installed#v}"
+	installed="${installed%%[[:space:]]*}"
+
+	if [[ "$installed" == "$pin" ]]; then
+		return 0
+	fi
+
+	print_warning "OpenCode version drift: installed=$installed, pin=$pin — reinstalling"
+	if npm install -g "opencode-ai@${pin}" >/dev/null 2>&1; then
+		print_info "OpenCode restored to ${pin}"
+	else
+		print_warning "Failed to restore OpenCode to ${pin} — canary will catch if broken"
+	fi
+	return 0
+}
+
 _run_canary_test() {
 	local cache_file="${STATE_DIR}/canary-last-pass"
+
+	# Enforce version pin before canary test
+	_enforce_opencode_version_pin
 
 	# Check cache — skip if last canary passed recently
 	if [[ -f "$cache_file" ]]; then
