@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.129] - 2026-04-06
+
+### Fixed
+
+- pin opencode to 1.3.15 — 1.3.16 stalls mid-session with silent stream death
+
 ## [3.6.128] - 2026-04-06
 
 ### Fixed
