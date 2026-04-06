@@ -2128,9 +2128,6 @@ _enforce_opencode_version_pin() {
 _run_canary_test() {
 	local cache_file="${STATE_DIR}/canary-last-pass"
 
-	# Enforce version pin before canary test
-	_enforce_opencode_version_pin
-
 	# Check cache — skip if last canary passed recently
 	if [[ -f "$cache_file" ]]; then
 		local last_pass
@@ -2279,6 +2276,10 @@ cmd_run() {
 		_detach_worker "$session_key" "$@"
 		return 0
 	fi
+
+	# GH#17549: Version guard — runs on EVERY dispatch (not cached).
+	# Something keeps upgrading opencode to 1.3.17 between canary checks.
+	_enforce_opencode_version_pin
 
 	# GH#17549: Canary smoke test — verify OpenCode can start and complete
 	# an API call before committing to a full worker dispatch. Runs BEFORE
