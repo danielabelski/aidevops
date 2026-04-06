@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.124] - 2026-04-06
+
+### Changed
+
+- broaden signature gate regex to match all footer variable patterns (#17623)
+
+### Fixed
+
+- canary uses sonnet (verified working) — haiku model name not in 1.3.16 registry
+
 ## [3.6.123] - 2026-04-06
 
 ### Changed
