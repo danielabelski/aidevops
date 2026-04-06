@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.136] - 2026-04-07
+
+### Changed
+
+- register colormind-helper.sh in simplification state (depth already 4 ≤ 8) (#17634)
+
+### Fixed
+
+- pass gate immediately when review bot is rate-limited — feedback caught by daily sweeps
+- skip nesting-only violations in complexity scan issue creation (GH#17632) (#17633)
+
 ## [3.6.135] - 2026-04-07
 
 ### Fixed
