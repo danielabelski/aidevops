@@ -1371,62 +1371,74 @@ _run_activity_watchdog() {
 	local output_file="$1"
 	local worker_pid="$2"
 	local exit_code_file="$3"
-	local timeout="${HEADLESS_ACTIVITY_TIMEOUT_SECONDS:-300}"
-	[[ "$timeout" =~ ^[0-9]+$ ]] || timeout=300
+	local stall_timeout="${HEADLESS_ACTIVITY_TIMEOUT_SECONDS:-300}"
+	[[ "$stall_timeout" =~ ^[0-9]+$ ]] || stall_timeout=300
 
-	# GH#17549: Two-phase watchdog.
-	# Phase 1 (fast): any output at all within PHASE1_TIMEOUT. Zero bytes =
-	#   dead runtime (startup crash, provider init hang). Kill immediately.
-	# Phase 2 (slow): LLM activity events within full timeout. Catches rate
-	#   limiting, API hang, model not responding after startup completes.
+	# GH#17549: Continuous activity watchdog.
+	#
+	# Phase 1 (fast, 0-30s): any output at all. Zero bytes = dead runtime.
+	# Phase 2 (continuous): monitors file growth. If the output file stops
+	#   growing for stall_timeout seconds, the worker is stalled — kill it.
+	#
+	# Previous design (broken): returned 0 after first LLM activity event,
+	# never monitoring again. Workers that stalled mid-session were invisible.
 	local phase1_timeout="${HEADLESS_PHASE1_TIMEOUT_SECONDS:-30}"
 	[[ "$phase1_timeout" =~ ^[0-9]+$ ]] || phase1_timeout=30
 
-	local elapsed=0
-	local poll_interval=5
+	local poll_interval=10
 	local phase1_passed=0
+	local phase1_elapsed=0
+	local last_size=0
+	local stall_seconds=0
 
-	while [[ "$elapsed" -lt "$timeout" ]]; do
-		# Check if worker already exited (success or failure — watchdog not needed)
+	while true; do
+		# Worker exited on its own — watchdog not needed
 		if ! kill -0 "$worker_pid" 2>/dev/null; then
 			return 0
 		fi
 
+		local current_size=0
 		if [[ -f "$output_file" ]]; then
-			# Phase 1 gate: any output at all (startup banner, plugin logs, etc.)
-			if [[ "$phase1_passed" -eq 0 ]]; then
-				local file_size
-				file_size=$(wc -c <"$output_file" 2>/dev/null || echo "0")
-				file_size="${file_size##* }" # strip leading whitespace (macOS wc)
-				if [[ "$file_size" -gt 0 ]]; then
-					phase1_passed=1
-				fi
-			fi
-
-			# Phase 2: check for LLM activity (JSON events from opencode)
-			if grep -qE '"type"\s*:\s*"(text|tool|tool-invocation|tool-result|step_start|step_finish|reasoning)"' "$output_file" 2>/dev/null; then
-				# Real LLM activity detected — worker is alive
-				return 0
-			fi
+			current_size=$(wc -c <"$output_file" 2>/dev/null || echo "0")
+			current_size="${current_size##* }"
 		fi
 
-		# Phase 1 timeout: no output bytes at all → dead runtime
-		if [[ "$phase1_passed" -eq 0 && "$elapsed" -ge "$phase1_timeout" ]]; then
+		# Phase 1: any output at all
+		if [[ "$phase1_passed" -eq 0 ]]; then
+			if [[ "$current_size" -gt 0 ]]; then
+				phase1_passed=1
+				last_size="$current_size"
+				stall_seconds=0
+			else
+				phase1_elapsed=$((phase1_elapsed + poll_interval))
+				if [[ "$phase1_elapsed" -ge "$phase1_timeout" ]]; then
+					_watchdog_kill "$worker_pid" "$exit_code_file" "$output_file" \
+						"phase1: zero output in ${phase1_timeout}s — runtime failed to start"
+					return 0
+				fi
+			fi
+			sleep "$poll_interval"
+			continue
+		fi
+
+		# Phase 2: continuous growth monitoring
+		if [[ "$current_size" -gt "$last_size" ]]; then
+			# File is growing — worker is alive
+			last_size="$current_size"
+			stall_seconds=0
+		else
+			# No growth — increment stall counter
+			stall_seconds=$((stall_seconds + poll_interval))
+		fi
+
+		if [[ "$stall_seconds" -ge "$stall_timeout" ]]; then
 			_watchdog_kill "$worker_pid" "$exit_code_file" "$output_file" \
-				"phase1: zero output in ${phase1_timeout}s — runtime failed to start"
+				"stall: no output growth for ${stall_timeout}s (stuck at ${current_size}b)"
 			return 0
 		fi
 
 		sleep "$poll_interval"
-		elapsed=$((elapsed + poll_interval))
 	done
-
-	# Phase 2 timeout: output produced but no LLM activity
-	if kill -0 "$worker_pid" 2>/dev/null; then
-		_watchdog_kill "$worker_pid" "$exit_code_file" "$output_file" \
-			"phase2: no LLM activity in ${timeout}s — provider stalled"
-	fi
-	return 0
 }
 
 #######################################
