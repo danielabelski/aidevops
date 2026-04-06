@@ -67,9 +67,11 @@ SKIP_LABEL="skip-review-gate"
 
 # GH#3827: Grace period for rate-limited bots. If bots posted rate-limit
 # notices (proving they're configured) but the PR has been open longer than
-# this threshold, pass the gate with a warning. Default: 4 hours (14400s).
+# this threshold, pass the gate with a warning. Default: 30 min (1800s).
+# GH#17549: Reduced from 4h — workers produce PRs every 10 min and 4h
+# grace blocked the entire merge pipeline when Gemini was rate-limited.
 # Set RATE_LIMIT_GRACE_SECONDS=0 to disable (block indefinitely).
-RATE_LIMIT_GRACE_SECONDS="${RATE_LIMIT_GRACE_SECONDS:-14400}"
+RATE_LIMIT_GRACE_SECONDS="${RATE_LIMIT_GRACE_SECONDS:-1800}"
 
 # --- Functions ---
 
