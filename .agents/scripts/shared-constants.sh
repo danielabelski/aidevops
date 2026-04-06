@@ -23,9 +23,10 @@ _SHARED_CONSTANTS_LOADED=1
 # Set to "latest" to resume tracking upstream. Grep for the variable name to
 # find all consumers that need updating when unpinning.
 
-# OpenCode pinned to 1.3.15: v1.3.17 hangs on API calls in headless mode.
+# OpenCode pinned to 1.3.16: v1.3.17 hangs on API calls in headless mode.
+# Bisect: 1.3.16 works, 1.3.17 introduced unconditional dep.auth() in Cloudflare provider init.
 # Upstream: https://github.com/anomalyco/opencode/issues/21215
-readonly OPENCODE_PINNED_VERSION="1.3.15"
+readonly OPENCODE_PINNED_VERSION="1.3.16"
 
 # =============================================================================
 # HTTP and API Constants
