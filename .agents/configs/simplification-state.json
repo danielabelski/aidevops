@@ -1754,9 +1754,9 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "hash": "88bf457a2f7b0690d335c229ffa7e67e8e583c93",
-      "at": "2026-04-06T03:58:35Z",
-      "passes": 10,
+      "hash": "46ca0998f90f10575d64d463f3e04bcf8e7ea975",
+      "at": "2026-04-06T16:59:46Z",
+      "passes": 11,
       "pr": 15086
     },
     ".agents/scripts/issue-sync-lib.sh": {
@@ -1790,9 +1790,9 @@
       "pr": 15455
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "hash": "a817abcdcfd6bfa40ae79cdd86e8c71337a61a1a",
-      "at": "2026-04-06T03:58:35Z",
-      "passes": 28,
+      "hash": "a7f8b5f787d80cc54d2f752583df996cf22578b9",
+      "at": "2026-04-06T17:23:33Z",
+      "passes": 31,
       "pr": 15086
     },
     ".agents/scripts/schema-validator-helper.sh": {
@@ -5171,9 +5171,9 @@
       "pr": 11984
     },
     ".agents/workflows/plans.md": {
-      "hash": "81dbc20130bde0c22204988581b2d3833dabde44",
-      "at": "2026-03-28T21:58:58Z",
-      "passes": 1,
+      "hash": "3abaef28c0f03fa97774b22e8681b32f27350d24",
+      "at": "2026-04-06T16:19:21Z",
+      "passes": 2,
       "pr": 12235
     },
     ".agents/workflows/postflight.md": {
@@ -5267,15 +5267,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "hash": "09fcd8d4b43d41a1a7fb493c96c55a06ae28f20c",
-      "at": "2026-04-06T14:25:04Z",
-      "passes": 42,
+      "hash": "6696bd8947616ebf3f12b102d3b80548993af422",
+      "at": "2026-04-06T16:19:21Z",
+      "passes": 43,
       "pr": 15470
     },
     "setup.sh": {
-      "hash": "25a4211d9e907a3a72a3028eec09a874848b0186",
-      "at": "2026-04-06T14:25:04Z",
-      "passes": 41,
+      "hash": "e79bd93e152bd853d9e54b06dfe356ce3f0dfc13",
+      "at": "2026-04-06T16:19:21Z",
+      "passes": 42,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -5699,9 +5699,9 @@
       "pr": 16651
     },
     ".agents/scripts/dispatch-dedup-helper.sh": {
-      "hash": "2a31ca76faedae614d4f2aa371259a67095e69bc",
-      "at": "2026-04-06T03:24:30Z",
-      "passes": 4,
+      "hash": "25f1c4f7a85d217a055dd2d2de0cd3f95059569c",
+      "at": "2026-04-06T16:19:00Z",
+      "passes": 5,
       "pr": 16650
     },
     ".agents/tools/ocr/overview.md": {
@@ -6765,6 +6765,24 @@
       "at": "2026-04-06T14:25:05Z",
       "pr": 17530,
       "passes": 1
+    },
+    ".agents/scripts/tabby-helper.sh": {
+      "hash": "79d5b8474c7441b870822eec499ae5f4e1020e3b",
+      "at": "2026-04-06T16:19:22Z",
+      "pr": 17549,
+      "passes": 1
+    },
+    ".agents/scripts/generate-claude-commands.sh": {
+      "hash": "119848d7b7317316d6f18e71381bdbd62f53530c",
+      "at": "2026-04-06T17:00:18Z",
+      "pr": 17571,
+      "passes": 1
+    },
+    ".agents/scripts/generate-opencode-commands.sh": {
+      "hash": "19ac53376024c9ffaf4cd651816b2c5c889eca53",
+      "at": "2026-04-06T17:44:35Z",
+      "pr": 17583,
+      "passes": 2
     }
   },
   ".agents/tools/design/library/brands/clickhouse/DESIGN.md": {
