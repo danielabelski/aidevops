@@ -1754,9 +1754,9 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "hash": "09acca8dbd127ff833346557e398272159dd9f07",
-      "at": "2026-04-07T02:42:41Z",
-      "passes": 23,
+      "hash": "7c7a8a5eb93a5e7ff29dc1372a355422ca7d4ee9",
+      "at": "2026-04-07T03:38:34Z",
+      "passes": 24,
       "pr": 15086
     },
     ".agents/scripts/issue-sync-lib.sh": {
@@ -5267,15 +5267,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "hash": "e24a4a6d20c246485f600904b29c2b2783023f0d",
-      "at": "2026-04-07T02:43:07Z",
-      "passes": 60,
+      "hash": "88e8a6ee6c329e8d99d168c02c7cad57d1965055",
+      "at": "2026-04-07T03:38:56Z",
+      "passes": 61,
       "pr": 15470
     },
     "setup.sh": {
-      "hash": "ae8d37be37d20a8a35156c9c119c99a878686960",
-      "at": "2026-04-07T02:43:07Z",
-      "passes": 59,
+      "hash": "ee668c463b6d07c513786adce956a0e154ec9fe6",
+      "at": "2026-04-07T03:38:56Z",
+      "passes": 60,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -6810,16 +6810,16 @@
       "passes": 1
     },
     ".agents/workflows/brief.md": {
-      "hash": "43b48d6c285bd49f3ce0269a36aabe590849dc07",
-      "at": "2026-04-07T01:33:35Z",
+      "hash": "afa650ee65c536b86ac72d047c7643fbf2984253",
+      "at": "2026-04-07T03:38:55Z",
       "pr": 17647,
-      "passes": 1
+      "passes": 2
     },
     ".agents/workflows/brief/templates.md": {
-      "hash": "80b0919d38be14901d50674badd336378a7453e2",
-      "at": "2026-04-07T01:56:35Z",
+      "hash": "c166abe36a1995644cde568ec0472378cbba6ab7",
+      "at": "2026-04-07T03:38:55Z",
       "pr": 17658,
-      "passes": 1
+      "passes": 2
     },
     ".agents/reference/worker-diagnostics.md": {
       "hash": "8bd4181e68050e7109e6c69d66c06fd0ef7936f2",
