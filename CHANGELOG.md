@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.156] - 2026-04-07
+
+### Added
+
+- add 'diagnose' command to model-accounts-pool (GH#17746) (#17756)
+- add PageIndex vectorless RAG skill doc (#17753)
+
+### Changed
+
+- Maintenance: update simplification state registry
+
 ## [3.6.155] - 2026-04-07
 
 ### Added
