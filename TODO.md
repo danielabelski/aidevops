@@ -182,6 +182,8 @@ Tasks with no open blockers - ready to work on. Use `/ready` to refresh this lis
 
 ## Backlog
 
+- [ ] t1907 fix: gh-signature-helper.sh reads wrong model from OpenCode DB in non-OpenCode runtimes — unconditional OpenCode DB query picks stale session model (e.g. gpt-5.4-pro) when running in Claude Code; needs runtime guard and Claude Code model detection #bugfix #scripts #auto-dispatch ~2h ref:GH#17689 logged:2026-04-07
+
 - [ ] t1906 fix: claim-task-id.sh auto-read brief What section when no --description provided — eliminates stub "no description provided" issue body by falling back to todo/tasks/{id}-brief.md before the placeholder #enhancement #scripts #auto-dispatch ~30m ref:GH#17688 logged:2026-04-07
 
 - [ ] t1905 chore: add conversation-end loop scan rule to build.txt — scan for open threads (unfulfilled commitments, unnotified external parties, displaced requests) before declaring complete #enhancement #prompt #auto-dispatch ~6m ref:GH#17686 logged:2026-04-07
