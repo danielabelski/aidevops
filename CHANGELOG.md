@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.157] - 2026-04-07
+
+### Changed
+
+- add task for silent gh auth failure in approval-helper.sh (GH#17754)
+- add task for resolve_api_key subshell export bug
+- Maintenance: update simplification state registry
+- Refactor: decompose opencode-aidevops plugin into focused modules (t1914) (#17752)
+
+### Fixed
+
+- restrict Closes/Fixes keywords to code fix commits only
+
 ## [3.6.156] - 2026-04-07
 
 ### Added
