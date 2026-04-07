@@ -5267,15 +5267,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "hash": "75383b6ee285f0d8ee1bf45655a2040f31788c3a",
-      "at": "2026-04-07T18:08:43Z",
-      "passes": 67,
+      "hash": "1c84bd163a17aedcb2eba1ce3253b8e60240e487",
+      "at": "2026-04-07T19:26:29Z",
+      "passes": 68,
       "pr": 15470
     },
     "setup.sh": {
-      "hash": "091bf1a868e0e82b0fd564db30064e48d5c7afe6",
-      "at": "2026-04-07T18:08:43Z",
-      "passes": 66,
+      "hash": "c2fcc85dcce53a96f1670b6d9337603aa856b9cc",
+      "at": "2026-04-07T19:26:29Z",
+      "passes": 67,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -6719,10 +6719,10 @@
       "passes": 1
     },
     ".agents/scripts/worker-watchdog.sh": {
-      "hash": "c174f4f36ec38fc30f81546e32d46174d5a187e6",
-      "at": "2026-04-07T14:32:06Z",
+      "hash": "bff2986b8c469127e2fbd74f2a76a9411510b209",
+      "at": "2026-04-07T19:26:08Z",
       "pr": 17393,
-      "passes": 2
+      "passes": 3
     },
     ".agents/scripts/verify-issue-close-helper.sh": {
       "hash": "811b3aeb9a94e62bd483f7a13f27ded4e3cbf0ef",
