@@ -133,9 +133,9 @@
       "pr": 11982
     },
     ".agents/automate.md": {
-      "hash": "ed587a0088c6ea87874997f4a81f3d8efa54cd47",
-      "at": "2026-04-03T01:53:24Z",
-      "passes": 1,
+      "hash": "72121d37247f383cdb1fc16c185a8ca09c9a067c",
+      "at": "2026-04-07T23:25:38Z",
+      "passes": 2,
       "pr": 15804
     },
     ".agents/build-plus.md": {
@@ -3243,15 +3243,15 @@
       "pr": 12352
     },
     ".agents/tools/ai-assistants/models-README.md": {
-      "hash": "03ff1dc6a85129aa8d1dacb6798224fc4d9890b6",
-      "at": "2026-04-03T01:11:35Z",
-      "passes": 2,
+      "hash": "6947258e762f4acfe2690c4f0f56f1aeee01a915",
+      "at": "2026-04-07T23:25:53Z",
+      "passes": 3,
       "pr": 15227
     },
     ".agents/tools/ai-assistants/models-sonnet.md": {
-      "hash": "5df5bccfd578af714c3d0142606e20c3177c8a48",
-      "at": "2026-04-02T23:13:26Z",
-      "passes": 2,
+      "hash": "c510f62024ae172a790410d75e71d5a744d58384",
+      "at": "2026-04-07T23:25:53Z",
+      "passes": 3,
       "pr": 14913
     },
     ".agents/tools/ai-assistants/openclaw.md": {
@@ -5267,15 +5267,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "hash": "70abf901f7d9329d6038589b85b69b9746a81b76",
-      "at": "2026-04-07T22:35:23Z",
-      "passes": 71,
+      "hash": "598ade07a498a19956a748760415e0b13b4e6cee",
+      "at": "2026-04-07T23:26:07Z",
+      "passes": 72,
       "pr": 15470
     },
     "setup.sh": {
-      "hash": "64dde2e7fd82ec06d5e1d16ed1cd455c230a6b78",
-      "at": "2026-04-07T22:35:23Z",
-      "passes": 71,
+      "hash": "05e2606a0be877fbf50223a3b33df8c039afffd2",
+      "at": "2026-04-07T23:26:07Z",
+      "passes": 72,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -5531,9 +5531,9 @@
       "pr": 16714
     },
     ".agents/reference/task-taxonomy.md": {
-      "hash": "6bffd43b4ca87443836c1a7e3e6fea26c12a608a",
-      "at": "2026-04-07T01:11:03Z",
-      "passes": 3,
+      "hash": "b86ccfe91e73248ff29e510caf7b9554d60bb54b",
+      "at": "2026-04-07T23:25:44Z",
+      "passes": 4,
       "pr": "pending"
     },
     ".agents/seo/ranking-opportunities.md": {
@@ -5888,10 +5888,10 @@
       "passes": 1
     },
     ".agents/tools/ai-assistants/models-opus.md": {
-      "hash": "1594303319230800e8af3bdf93a94a6051a6b038",
-      "at": "2026-04-03T20:00:54Z",
+      "hash": "ee1756a67a7cd19619f09e18438e349f48343584",
+      "at": "2026-04-07T23:25:53Z",
       "pr": 16821,
-      "passes": 1
+      "passes": 2
     },
     ".agents/tools/opencode/opencode-openai-auth.md": {
       "hash": "954661f8ba7b46b129a1a1e2f2a25e1d41a91545",
