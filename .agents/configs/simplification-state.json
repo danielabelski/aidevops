@@ -1790,9 +1790,9 @@
       "pr": 15455
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "hash": "d051c2ef2dbb9208bddea5c597903480c8fd1fed",
-      "at": "2026-04-07T20:16:03Z",
-      "passes": 47,
+      "hash": "f3ef78f1adf30a857d063b710f7489febb9c33ad",
+      "at": "2026-04-07T22:02:27Z",
+      "passes": 48,
       "pr": 15086
     },
     ".agents/scripts/schema-validator-helper.sh": {
@@ -5267,15 +5267,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "hash": "1c84bd163a17aedcb2eba1ce3253b8e60240e487",
-      "at": "2026-04-07T19:26:29Z",
-      "passes": 68,
+      "hash": "bf4bd4aa941359267b555cdbf1b006c47f09dd0e",
+      "at": "2026-04-07T22:02:49Z",
+      "passes": 69,
       "pr": 15470
     },
     "setup.sh": {
-      "hash": "887c05c2d1825c41363abc1338ba1c26014b15aa",
-      "at": "2026-04-07T19:51:14Z",
-      "passes": 68,
+      "hash": "3166f1553e98a590b099c7c4ae8a458563108504",
+      "at": "2026-04-07T22:02:49Z",
+      "passes": 69,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -5699,9 +5699,9 @@
       "pr": 16651
     },
     ".agents/scripts/dispatch-dedup-helper.sh": {
-      "hash": "54ea9a49877231f6a8ad177e3b3b0e7abdfd6e63",
-      "at": "2026-04-07T17:44:50Z",
-      "passes": 9,
+      "hash": "7cd52ed4f27bf91acdb2fc6588b2ffe1d2b95e91",
+      "at": "2026-04-07T22:02:26Z",
+      "passes": 10,
       "pr": 16650
     },
     ".agents/tools/ocr/overview.md": {
