@@ -1754,9 +1754,9 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "hash": "7c7a8a5eb93a5e7ff29dc1372a355422ca7d4ee9",
-      "at": "2026-04-07T03:38:34Z",
-      "passes": 24,
+      "hash": "bf0328456807edef3b4d0c1fb7fd94217596fbfa",
+      "at": "2026-04-07T23:52:06Z",
+      "passes": 25,
       "pr": 15086
     },
     ".agents/scripts/issue-sync-lib.sh": {
@@ -1790,9 +1790,9 @@
       "pr": 15455
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "hash": "f3ef78f1adf30a857d063b710f7489febb9c33ad",
-      "at": "2026-04-07T22:02:27Z",
-      "passes": 48,
+      "hash": "4b820da0fa16b8201d59c33ef483870bf3425f79",
+      "at": "2026-04-07T23:52:07Z",
+      "passes": 49,
       "pr": 15086
     },
     ".agents/scripts/schema-validator-helper.sh": {
@@ -6731,10 +6731,10 @@
       "passes": 1
     },
     ".agents/scripts/approval-helper.sh": {
-      "hash": "a3f79ddc50e2c0db31641ce41b36be0f17c75e15",
-      "at": "2026-04-05T22:20:52Z",
+      "hash": "1487b15bc146be40aaefa29e020ba693fe2f7ef2",
+      "at": "2026-04-07T23:52:04Z",
       "pr": 17454,
-      "passes": 2
+      "passes": 3
     },
     ".agents/reference/customization.md": {
       "hash": "f0eacffbaf909a5f1849f7bf5668c92a81ba252d",
