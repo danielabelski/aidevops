@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.205] - 2026-04-09
+
+### Fixed
+
+- tighten consolidation filter to exclude operational comments + auto-clear stale labels (#17962)
+
 ## [3.6.204] - 2026-04-09
 
 ### Added
