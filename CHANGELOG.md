@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.189] - 2026-04-08
+
+### Changed
+
+- Maintenance: add rule #8a to skip signature footers when reading GH threads (#17932)
+
 ## [3.6.187] - 2026-04-08
 
 ### Changed
