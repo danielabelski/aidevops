@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.184] - 2026-04-08
+
+### Added
+
+- crash-type-aware tier escalation, issue consolidation, and large-file simplification gate (#17918)
+
 ## [3.6.182] - 2026-04-08
 
 ### Changed
