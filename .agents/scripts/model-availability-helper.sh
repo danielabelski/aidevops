@@ -121,7 +121,8 @@ get_tier_models() {
 	local tier="$1"
 
 	# Read from model-routing-table.json (single source of truth).
-	# Falls back to hardcoded defaults only if the JSON file is missing.
+	# Anthropic-only — other providers not tested for headless workers.
+	# To add providers: edit model-routing-table.json and test headless dispatch.
 	local routing_table="${SCRIPT_DIR}/../configs/model-routing-table.json"
 	if [[ -f "$routing_table" ]]; then
 		local models_json
