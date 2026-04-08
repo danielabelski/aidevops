@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.182] - 2026-04-08
+
+### Changed
+
+- auto-set assignee on crypto approval (#17888)
+- harden _detect_opencode_server curl logic and plugin symlink cleanup (#17884)
+
+### Fixed
+
+- Bash 3.2 compat — replace ${var^} with tr in oauth-pool-helper.sh (#17885)
+
 ## [3.6.180] - 2026-04-08
 
 ### Security
