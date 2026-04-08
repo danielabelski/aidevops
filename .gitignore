@@ -234,3 +234,4 @@ bv
 .agents
 # Re-negate .agents/ directory (the binary ignore above overrides the earlier !.agents/)
 !.agents/
+aidevops-bugfix-upgrade-planning-subsections
