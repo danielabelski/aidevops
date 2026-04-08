@@ -71,6 +71,8 @@ Tasks with no open blockers - ready to work on. Use `/ready` to refresh this lis
 
 - [ ] t1916 fix: remove approval gate from pulse triage dispatch — restore pre-approval triage comments on needs-maintainer-review issues. Triage (read + comment) should run before cryptographic approval to help maintainer decide. Gate stays on implementation dispatch. #bug #pulse #auto-dispatch ~25m (ai:15m test:10m) ref:GH#17705 logged:2026-04-07 -> [todo/tasks/t1916-brief.md]
 
+- [ ] t1923 feat: TODO format — repeat:, run:, agent: fields for recurring routines — extend TODO.md format to support recurring routine definitions. repeat: for schedule, run: for script-only (no LLM), agent: for LLM-requiring. [x]/[ ] = enabled/disabled. r-prefix IDs for routines. #enhancement #routines #auto-dispatch ~3h (ai:2h test:30m read:30m) ref:GH#17772 logged:2026-04-08
+
 - [ ] t1917 fix: Linux scheduler dual-execution and systemd migration completion — fix cron/systemd dual-execution bug in schedulers.sh, fix uninstall elif chain, update 3 helper scripts to use platform-detect.sh, extend non-interactive scheduler setup, add cron-to-systemd migration. Linux-only, macOS (launchd) unaffected. Upstream: GH#17695. #bug #enhancement #auto-dispatch ~3h (ai:2.5h test:30m) ref:GH#17706 logged:2026-04-07 -> [todo/tasks/t1917-brief.md]
 
 - [ ] t1918 fix: silent gh auth failure in approval-helper.sh under sudo on Linux — `_approve_target()` swallows `gh` auth errors via `>/dev/null 2>&1`, prints false `[OK]` when no approval comment is posted. Add `_require_gh_auth()` pre-check with `GH_TOKEN` workaround message, check `gh comment` exit codes, document `[owner/repo]` positional arg in AGENTS.md. Linux-only (gnome-keyring inaccessible under sudo), macOS unaffected. #bug #security #auto-dispatch ~1h (ai:30m test:15m read:10m) ref:GH#17754 logged:2026-04-07 -> [todo/tasks/t1918-brief.md]
@@ -199,6 +201,10 @@ Tasks with no open blockers - ready to work on. Use `/ready` to refresh this lis
 - [x] t1863 simplification: deduplicate shared code in email-summary.py and entity-extraction.py — 15 similar lines flagged, plus email-summary.py has 3 high-complexity functions (total 156). Extract shared email_shared.py module, decompose hot functions. #simplification #code-quality #auto-dispatch ~2h model:sonnet ref:GH#16059 logged:2026-04-03 -> [todo/tasks/t1863-brief.md] completed:2026-04-03
 
 ## Backlog
+
+- [ ] t1924 feat: aidevops init-routines — scaffold private routines repo with TODO.md, routines/ dir, issue template. Always private. Registers in repos.json. Supports --org and --local flags. #enhancement #routines #auto-dispatch ~2h (ai:1.5h test:30m) blocked-by:t1923 ref:GH#17773 logged:2026-04-08
+- [ ] t1925 feat: pulse routine evaluation — teach pulse to parse repeat: fields, dispatch due routines (run: = script-only, agent: = LLM). Track last-run in routine-state.json. New routine-schedule-helper.sh for schedule parsing. Comment handling via existing infrastructure. #enhancement #routines #auto-dispatch ~4h (ai:3h test:1h) blocked-by:t1923,t1924 ref:GH#17774 logged:2026-04-08
+- [ ] t1926 feat: routine-log-helper.sh — update routine tracking issue descriptions with living summary metrics after execution. Notable events as comments. Script-only shows $0 cost. Detailed logs stay local. #enhancement #routines #auto-dispatch ~2h (ai:1.5h test:30m) blocked-by:t1924,t1925 ref:GH#17775 logged:2026-04-08
 
 - [ ] t1907 fix: gh-signature-helper.sh reads wrong model from OpenCode DB in non-OpenCode runtimes — unconditional OpenCode DB query picks stale session model (e.g. gpt-5.4-pro) when running in Claude Code; needs runtime guard and Claude Code model detection #bugfix #scripts #auto-dispatch ~2h ref:GH#17689 logged:2026-04-07
 
