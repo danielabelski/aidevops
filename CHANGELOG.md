@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.185] - 2026-04-08
+
+### Fixed
+
+- improve pulse throughput — reduce dedup TTL, clear dedup on crash, dispatch-first ordering (#17921)
+- restore anti-pattern detail and fix routine_id fallback in AGENTS.md (#17919)
+
 ## [3.6.184] - 2026-04-08
 
 ### Added
