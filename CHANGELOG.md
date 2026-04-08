@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.204] - 2026-04-09
+
+### Added
+
+- run routines repo setup in non-interactive mode (aidevops update) (#17960)
+
+### Changed
+
+- convert if/else to && || chain in run-tests.sh (#17951)
+
+### Fixed
+
+- update dispatch comment jq patterns for ops marker compatibility (#17961)
+- redirect progress echo to stderr in _check_ext_files (#17925)
+- verify mergedAt before closing issues against PRs (GH#17871) (#17931)
+
 ## [3.6.202] - 2026-04-08
 
 ### Changed
