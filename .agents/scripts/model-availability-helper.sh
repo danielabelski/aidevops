@@ -136,18 +136,19 @@ get_tier_models() {
 
 	# Hardcoded fallback — kept in sync with model-routing-table.json.
 	# If you're editing these, update the JSON file instead.
-	# Claude models are primary for all tiers (t1927). Non-Anthropic
-	# providers are opt-in fallbacks configured in model-routing-table.json.
+	# Anthropic-only for all tiers. Other providers excluded — not
+	# producing results in headless workers. Re-add via the JSON
+	# config when provider-specific prompting is tuned.
 	case "$tier" in
-	local) echo "local/llama.cpp|anthropic/claude-haiku-4-5" ;;
-	haiku) echo "anthropic/claude-haiku-4-5|openai/gpt-5.4-mini" ;;
-	flash) echo "openai/gpt-5.4-mini|openai/gpt-4.1-mini" ;;
-	sonnet) echo "anthropic/claude-sonnet-4-6|openai/gpt-5.4" ;;
-	pro) echo "anthropic/claude-sonnet-4-6|google/gemini-2.5-pro" ;;
-	opus) echo "anthropic/claude-opus-4-6|openai/gpt-5.4" ;;
-	health) echo "anthropic/claude-sonnet-4-6|openai/gpt-5.4-mini" ;;
-	eval) echo "anthropic/claude-sonnet-4-6|openai/gpt-5.4-mini" ;;
-	coding) echo "anthropic/claude-opus-4-6|openai/gpt-5.4" ;;
+	local) echo "anthropic/claude-haiku-4-5" ;;
+	haiku) echo "anthropic/claude-haiku-4-5" ;;
+	flash) echo "anthropic/claude-haiku-4-5" ;;
+	sonnet) echo "anthropic/claude-sonnet-4-6" ;;
+	pro) echo "anthropic/claude-sonnet-4-6" ;;
+	opus) echo "anthropic/claude-opus-4-6" ;;
+	health) echo "anthropic/claude-sonnet-4-6" ;;
+	eval) echo "anthropic/claude-sonnet-4-6" ;;
+	coding) echo "anthropic/claude-opus-4-6" ;;
 	*) return 1 ;;
 	esac
 	return 0

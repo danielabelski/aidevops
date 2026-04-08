@@ -5,15 +5,15 @@
   "_defaults": "Claude models are the default primary for all tiers. Non-Anthropic providers are opt-in fallbacks — edit this file to change the order or add providers. The first model in each tier's array is the primary; subsequent entries are tried in order when the primary is unavailable.",
 
   "tiers": {
-    "local":  { "models": ["local/llama.cpp"], "fallback": "haiku", "cost": 0 },
-    "haiku":  { "models": ["anthropic/claude-haiku-4-5", "openai/gpt-5.4-mini"] },
-    "flash":  { "models": ["openai/gpt-5.4-mini", "openai/gpt-4.1-mini"] },
-    "sonnet": { "models": ["anthropic/claude-sonnet-4-6", "openai/gpt-5.4"] },
-    "pro":    { "models": ["anthropic/claude-sonnet-4-6", "google/gemini-2.5-pro"] },
-    "opus":   { "models": ["anthropic/claude-opus-4-6", "openai/gpt-5.4"] },
-    "coding": { "models": ["anthropic/claude-opus-4-6", "openai/gpt-5.4"] },
-    "eval":   { "models": ["anthropic/claude-sonnet-4-6", "openai/gpt-5.4-mini"] },
-    "health": { "models": ["anthropic/claude-sonnet-4-6", "openai/gpt-5.4-mini"] }
+    "local":  { "models": ["anthropic/claude-haiku-4-5"], "cost": 0 },
+    "haiku":  { "models": ["anthropic/claude-haiku-4-5"] },
+    "flash":  { "models": ["anthropic/claude-haiku-4-5"] },
+    "sonnet": { "models": ["anthropic/claude-sonnet-4-6"] },
+    "pro":    { "models": ["anthropic/claude-sonnet-4-6"] },
+    "opus":   { "models": ["anthropic/claude-opus-4-6"] },
+    "coding": { "models": ["anthropic/claude-opus-4-6"] },
+    "eval":   { "models": ["anthropic/claude-sonnet-4-6"] },
+    "health": { "models": ["anthropic/claude-sonnet-4-6"] }
   },
 
   "providers": {
