@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.197] - 2026-04-08
+
+### Added
+
+- deterministic blocked-by resolution via cached dependency graph (t1935) (#17953)
+
+### Changed
+
+- fix: remove 2>/dev/null from framework-routing-helper call in cch-canary.sh (#17949)
+
+### Fixed
+
+- check-generator-rules.py argument validation and regex robustness (#17950)
+
 ## [3.6.193] - 2026-04-08
 
 ### Changed
