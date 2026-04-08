@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.199] - 2026-04-08
+
+### Fixed
+
+- quote script_path and log paths in systemd unit generation (#17948)
+
 ## [3.6.197] - 2026-04-08
 
 ### Added
