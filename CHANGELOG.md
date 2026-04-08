@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.209] - 2026-04-09
+
+### Added
+
+- seed core routine descriptions and tracking issues into routines repo (#17967)
+
+### Fixed
+
+- exclude pulse gate comments from consolidation filter (self-referential loop) (#17968)
+
 ## [3.6.207] - 2026-04-09
 
 ### Added
