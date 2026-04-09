@@ -25,6 +25,73 @@ Each plan includes:
 
 ## Active Plans
 
+### [2026-04-10] Qlty Maintainability Recovery Phase 2 (C→A)
+
+**Status:** In Progress (Phase 1/4)
+**Estimate:** ~28h across 18 tasks (6 existing + 12 new)
+**TODOs:** t1860, t1910, t1911, t1912, t1913, t1914, t1915, t1941, t1942, t1943, t1944, t1945, t1946, t1947, t1948, t1949, t1950, t1951, t1952
+**Logged:** 2026-04-10
+**Trigger:** Qlty maintainability badge at C rating. 112 smell findings across 49 files. Phase 1 (t1858-t1863, April 2026) addressed 5 files but smells persist in 49 files. Systematic sweep needed to reach and maintain A.
+
+#### Purpose
+
+Eliminate all Qlty code smell findings to restore the maintainability badge to A and prevent regression. Four phases:
+
+1. **Quick wins** (t1950, t1948) — fix function-level smells (many returns, duplication) in small files. ~1.25h.
+2. **Core refactors** (t1941-t1947, t1949, t1951) — reduce total complexity in standalone scripts and utilities. ~21h.
+3. **Plugin decomposition** (t1860, t1914) — decompose the opencode-aidevops plugin directory. ~12.5h. Blocked by phase 2 for oauth-pool.mjs.
+4. **Regression prevention** (t1910, t1911, t1912, t1913, t1915) — CI gates, scanner extensions, ratchets. ~8.5h.
+
+The higgsfield cluster (t1952, 1017 combined complexity) is the single largest contributor (~25% of all findings). t1862 was marked completed but smells persist — this is the follow-up.
+
+#### Development Environment
+
+| Item | Value |
+|------|-------|
+| Language/runtime | Python 3.11+, Node.js (ESM), TypeScript, Shell |
+| Tests | `qlty smells --all --no-snippets` (zero findings target), shellcheck, existing test suites |
+| Constraints | All refactors must preserve existing functionality. No API changes. Decomposition only — no feature changes. |
+
+#### Progress
+
+**Phase 1 — Quick wins:**
+- [ ] (2026-04-10) t1950: Fix many-returns in git_safety_guard.py + extract-urls.py ~45m
+- [ ] (2026-04-10) t1948: Deduplicate linkedin/local-browser automation ~30m
+
+**Phase 2 — Core refactors (ordered by complexity, highest first):**
+- [ ] (2026-04-10) t1952: Higgsfield stack (1017 combined) ~5h
+- [ ] (2026-04-10) t1943: Email stack (502 combined) ~4h
+- [ ] (2026-04-10) t1946: cross-document-linking + extraction_pipeline + voice-bridge (335 combined) ~3h
+- [ ] (2026-04-10) t1947: tabby-profile-sync + add-related-docs + generate-manifest + pageindex-generator (327 combined) ~3h
+- [ ] (2026-04-10) t1945: playwright-contrast + browser-qa (217 combined) ~2.5h
+- [ ] (2026-04-10) t1944: session-miner extract + compress (225 combined) ~2h
+- [ ] (2026-04-10) t1942: agent-discovery + opencode-agent-discovery (329 combined + dedup) ~2.5h
+- [ ] (2026-04-10) t1941: chromium-debug-use (211) ~2h
+- [ ] (2026-04-10) t1949: .opencode/ toon.ts + api-gateway.ts + ai-research.ts (145 combined) ~1.5h
+- [ ] (2026-04-10) t1951: simplex-bot commands.ts + index.ts (119 combined) ~1.5h
+
+**Phase 3 — Plugin decomposition:**
+- [ ] t1860: oauth-pool.mjs (117) ~5.5h
+- [ ] t1914: Full opencode-aidevops plugin directory (~1300 combined) ~7h (blocked-by:t1860)
+
+**Phase 4 — Regression prevention:**
+- [ ] t1910: Extend complexity scanner to .py/.mjs/.js/.ts ~2h
+- [ ] t1911: Qlty smells CI gate ~1.5h
+- [ ] t1912: Post-merge re-queue (blocked-by:t1910) ~2.5h
+- [ ] t1913: Automate ratchet-down thresholds ~2h
+- [ ] t1915: Qlty verification in simplification briefs ~40m
+
+#### Decision Log
+
+| Date | Decision | Rationale |
+|------|----------|-----------|
+| 2026-04-10 | All code is authored and maintained by us — no qltyignore exclusions | User confirmed all files are our creation. Apply simplification to everything rather than excluding. |
+| 2026-04-10 | Order by complexity (highest first) | Highest-complexity files contribute most to the grade. Fixing them first gives the fastest badge improvement. |
+| 2026-04-10 | Quick wins first (returns, dedup) | These are tier:simple tasks that can be dispatched immediately and completed in <1h each. |
+| 2026-04-10 | Higgsfield follow-up (t1952) despite t1862 completed | t1862 reduced complexity but qlty smells still reports 1017 combined. The previous refactor was insufficient. |
+
+---
+
 ### [2026-04-07] Pulse Triage Restoration and Linux Scheduler Fixes
 
 **Status:** In Progress (Phase 1/2)
