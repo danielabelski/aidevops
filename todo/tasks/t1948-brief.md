@@ -30,9 +30,9 @@ Part of Qlty maintainability recovery (C to A). Duplication finding from qlty sm
 - [x] **Estimate 1h or less?**
 - [x] **4 or fewer acceptance criteria?**
 
-**Selected tier:** `tier:simple`
+**Selected tier:** `tier:standard`
 
-**Tier rationale:** Straightforward code extraction — identify the 27 duplicated lines, move to shared module, replace with imports. No design decisions needed.
+**Tier rationale:** 3 files to modify, and the duplicated code blocks are "similar" not "identical" (qlty reports mass=149) — the worker needs to read both files, identify the common abstraction, and design the shared module API. Not copy-paste work.
 
 ## How (Approach)
 
