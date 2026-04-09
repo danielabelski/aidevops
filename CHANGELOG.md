@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.213] - 2026-04-09
+
+### Added
+
+- add architectural protection for routines repo + port fixes from closed PRs (#17977)
+
 ## [3.6.211] - 2026-04-09
 
 ### Fixed
