@@ -2,7 +2,7 @@
 mode: subagent
 ---
 
-# t1951: simplification: reduce complexity in simplex-bot commands.ts (61) + index.ts (58)
+# t1956: simplification: reduce complexity in simplex-bot commands.ts (61) + index.ts (58)
 
 ## Origin
 
