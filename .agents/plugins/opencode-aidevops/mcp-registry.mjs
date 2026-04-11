@@ -162,7 +162,8 @@ function getMcpRegistry() {
       eager: false,
       toolPattern: "sentry_*",
       globallyEnabled: false,
-      description: "Error tracking (requires OAuth)",
+      alwaysOverwrite: true, // migrate away from legacy local+token config
+      description: "Error tracking via OAuth (mcp.sentry.dev)",
     },
     {
       name: "socket",
@@ -172,6 +173,103 @@ function getMcpRegistry() {
       toolPattern: "socket_*",
       globallyEnabled: false,
       description: "Dependency security scanning",
+    },
+    // --- Remote MCPs (zero install, lazy-loaded) ---
+    {
+      name: "cloudflare-api",
+      type: "remote",
+      url: "https://mcp.cloudflare.com/mcp",
+      eager: false,
+      toolPattern: "cloudflare-api_*",
+      globallyEnabled: false,
+      description: "Cloudflare Workers, D1, KV, R2, Pages, AI Gateway",
+    },
+    {
+      name: "openapi-search",
+      type: "remote",
+      url: "https://openapi-mcp.openapisearch.com/mcp",
+      eager: false,
+      toolPattern: "openapi-search_*",
+      globallyEnabled: false,
+      description: "OpenAPI schema search across public APIs",
+    },
+    {
+      name: "gh_grep",
+      type: "remote",
+      url: "https://mcp.grep.app",
+      eager: false,
+      toolPattern: "gh_grep_*",
+      globallyEnabled: false,
+      description: "GitHub code search via grep.app",
+    },
+    // --- Local MCPs requiring installed binaries ---
+    {
+      name: "chrome-devtools",
+      type: "local",
+      command: [...pkgRunnerParts, "chrome-devtools-mcp@latest"],
+      eager: false,
+      toolPattern: "chrome-devtools_*",
+      globallyEnabled: false,
+      description: "Chrome DevTools debugging and inspection",
+    },
+    {
+      name: "playwright",
+      type: "local",
+      command: ["npx", "-y", "@playwright/mcp@latest"],
+      eager: false,
+      toolPattern: "playwright_*",
+      globallyEnabled: false,
+      description: "Cross-browser test automation",
+    },
+    {
+      name: "gsc",
+      type: "local",
+      command: [
+        "/bin/bash",
+        "-c",
+        `GOOGLE_APPLICATION_CREDENTIALS=$\{GOOGLE_APPLICATION_CREDENTIALS:-~/.config/aidevops/gsc-credentials.json} ${pkgRunner} mcp-server-gsc`,
+      ],
+      eager: false,
+      toolPattern: "gsc_*",
+      globallyEnabled: false,
+      description: "Google Search Console data",
+    },
+    {
+      name: "google-analytics-mcp",
+      type: "local",
+      command: [
+        "/bin/bash",
+        "-c",
+        "GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-~/.config/aidevops/gsc-credentials.json} analytics-mcp",
+      ],
+      eager: false,
+      toolPattern: "google-analytics-mcp_*",
+      globallyEnabled: false,
+      requiresBinary: "analytics-mcp",
+      description: "Google Analytics data",
+    },
+    {
+      name: "amazon-order-history",
+      type: "local",
+      command: [
+        "/bin/bash",
+        "-c",
+        "node ~/Git/amazon-order-history-csv-download-mcp/dist/index.js",
+      ],
+      eager: false,
+      toolPattern: "amazon-order-history_*",
+      globallyEnabled: false,
+      description: "Amazon order history export",
+    },
+    {
+      name: "MCP_DOCKER",
+      type: "local",
+      command: ["docker", "mcp", "gateway", "run"],
+      eager: false,
+      toolPattern: "MCP_DOCKER_*",
+      globallyEnabled: false,
+      requiresBinary: "docker",
+      description: "Docker MCP gateway",
     },
     {
       name: "shopify-dev-mcp",
@@ -249,6 +347,35 @@ function applyMcpToolPermissions(mcp, tools) {
 }
 
 /**
+ * Legacy MCP names to remove from opencode.json on startup.
+ * Add entries here when an MCP is renamed, merged, or replaced.
+ * Also removes the corresponding tools_* entry.
+ */
+const DEPRECATED_MCPS = [
+  // auggie-mcp was a duplicate of augment-context-engine (same binary, same purpose)
+  { name: "auggie-mcp", toolPattern: "auggie-mcp_*" },
+];
+
+/**
+ * Remove deprecated MCP entries from config.
+ * @param {object} config - OpenCode Config object (mutable)
+ * @returns {number} Number of entries removed
+ */
+function removeDeprecatedMcps(config) {
+  let removed = 0;
+  for (const { name, toolPattern } of DEPRECATED_MCPS) {
+    if (config.mcp[name]) {
+      delete config.mcp[name];
+      removed++;
+    }
+    if (toolPattern && config.tools[toolPattern] !== undefined) {
+      delete config.tools[toolPattern];
+    }
+  }
+  return removed;
+}
+
+/**
  * Register MCP servers in the OpenCode config.
  * Complements generate-opencode-agents.sh by ensuring MCPs are always
  * registered even without re-running setup.sh.
@@ -259,6 +386,8 @@ function applyMcpToolPermissions(mcp, tools) {
 export function registerMcpServers(config) {
   if (!config.mcp) config.mcp = {};
   if (!config.tools) config.tools = {};
+
+  removeDeprecatedMcps(config);
 
   const registry = getMcpRegistry();
   let registered = 0;
