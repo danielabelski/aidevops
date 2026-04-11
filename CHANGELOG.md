@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.236] - 2026-04-11
+
+### Added
+
+- main-agent slash commands across 14 AI clients with aidevops- prefix (#18096)
+
+### Changed
+
+- Maintenance: drop t15473 TODO — scripts/commands reorg not needed (#18100)
+- restore nesting threshold headroom (#18087)
+
+### Fixed
+
+- restrict GH#NNN auto-close to PR title and add dedup guard on closing comments (#18102)
+- detect billing outage failures in gh-failure-miner (#18095)
+
 ## [3.6.229] - 2026-04-10
 
 ### Fixed
