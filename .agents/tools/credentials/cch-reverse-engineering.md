@@ -128,6 +128,95 @@ cch-traffic-monitor.sh diff baseline-v2.1.92.json current-vX.Y.Z.json
 
 Watch for: new/changed headers or `anthropic-beta` values; new billing header fields or different `cch` format; new body fields (`research_preview_*`, `context_management`); changed JSON key ordering (affects body hash if xxHash active).
 
+## Phase 5: Plugin Compatibility Debugging (mitmproxy method)
+
+When an opencode plugin breaks for a specific model but works for others, use mitmproxy to diff wire bytes between the working and failing cases, then compare against the real Claude CLI.
+
+### Setup
+
+```bash
+# Trust mitmproxy CA cert (once)
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ~/.mitmproxy/mitmproxy-ca-cert.pem
+
+# Start proxy (use port 8082 — 8080 is taken by OrbStack)
+mitmdump -s /tmp/mitm-capture.py --mode regular@8082 '~d api.anthropic.com'
+
+# Run opencode through proxy
+HTTPS_PROXY=http://127.0.0.1:8082 HTTP_PROXY=http://127.0.0.1:8082 opencode run -m anthropic/claude-opus-4-6 "hi"
+
+# Run Claude CLI through proxy (requires NODE_EXTRA_CA_CERTS)
+HTTPS_PROXY=http://127.0.0.1:8082 HTTP_PROXY=http://127.0.0.1:8082 \
+  NODE_EXTRA_CA_CERTS=~/.mitmproxy/mitmproxy-ca-cert.pem \
+  claude -p "hi" --model claude-opus-4-6
+```
+
+### Capture script pattern
+
+```python
+import json
+from mitmproxy import http
+
+def request(flow: http.HTTPFlow):
+    if "api.anthropic.com" not in flow.request.pretty_host:
+        return
+    try:
+        parsed = json.loads(flow.request.content)
+        model = parsed.get('model','?')
+    except:
+        model = '?'
+    ua = flow.request.headers.get('user-agent','')
+    src = 'cli' if 'claude-cli' in ua else 'oc'
+    open(f'/tmp/{src}-{model.replace("/","-")}.bin','wb').write(flow.request.content)
+```
+
+### Diff methodology
+
+```python
+import json
+
+with open('/tmp/cli-opus.bin','rb') as f:
+    cli = json.load(f)
+with open('/tmp/oc-opus.bin','rb') as f:
+    oc = json.load(f)
+
+# Top-level key diff
+print("only in cli:", set(cli)-set(oc))
+print("only in oc: ", set(oc)-set(cli))
+
+# Scalar value diffs
+for k in sorted(set(cli)|set(oc)):
+    cv, ov = cli.get(k), oc.get(k)
+    if not isinstance(cv,(list,dict)) and cv != ov:
+        print(f"{k}: cli={repr(cv)[:60]}  oc={repr(ov)[:60]}")
+```
+
+### Session finding (April 2026): `thinking` field required for opus-4-6
+
+**Symptom:** `invalid_request_error: Invalid request data` for opus-4-6 in opencode, sonnet works fine.
+
+**Red herrings pursued before finding root cause:**
+- `$schema` and `additionalProperties` in tool input_schema (stripped — not the cause)
+- `null` top-level fields like `context_management: null` (stripped — not the cause)
+- Rate limiting misidentified as request errors (the `invalid_request_error` label is used for both)
+- Session ID state (`x-claude-code-session-id`) — not the cause
+- `claudecli` provider routing through wrong code path — was a real issue, fixed separately
+
+**Root cause:** CLI diff revealed the real Claude CLI always sends `thinking: {type: "adaptive"}` for opus-4-6 and sonnet-4-6. Opencode sends no `thinking` field. The API requires it and returns `invalid_request_error` without it. Also: `temperature` must be `1` when thinking is enabled — opencode sends `0.2`.
+
+**Fix in `applyBodyTransforms()`:**
+```javascript
+if (isAdaptiveThinkingModel(parsed.model)) {
+  if (!parsed.thinking || parsed.thinking.type !== "adaptive") {
+    parsed.thinking = { type: "adaptive" };
+  }
+  if (parsed.temperature !== undefined && parsed.temperature !== 1) {
+    parsed.temperature = 1;
+  }
+}
+```
+
+**Key lesson:** When a model-specific error resists all request-body fixes, capture the real CLI's wire bytes for the same model and diff them. The CLI is the ground truth for what the API expects.
+
 ## References
 
 - Original research: a10k.co/b/reverse-engineering-claude-code-cch.html
