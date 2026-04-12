@@ -242,6 +242,7 @@ Tasks with no open blockers - ready to work on. Use `/ready` to refresh this lis
 - [ ] t1949 simplification: reduce complexity in .opencode/ files — toon.ts (62), api-gateway.ts (65), ai-research.ts (18 func) — replace multi-return functions with lookup maps. Combined ~145 complexity. #simplification #code-quality #auto-dispatch ~1.5h ref:GH#18039 logged:2026-04-10 -> [todo/tasks/t1949-brief.md]
 - [ ] t1956 simplification: reduce complexity in simplex-bot commands.ts (61) + index.ts (58) — extract per-command handlers into registry. Combined 119 complexity. #simplification #code-quality #auto-dispatch ~1.5h ref:GH#18041 logged:2026-04-10 -> [todo/tasks/t1956-brief.md]
 - [ ] t1952 simplification: reduce remaining higgsfield complexity — commands (334), video (322), common (289), api (72). Follow-up to t1862. Combined 1017 complexity (~25% of all findings). #simplification #code-quality #auto-dispatch ~5h ref:GH#18042 logged:2026-04-10 -> [todo/tasks/t1952-brief.md]
+- [ ] t1959 feat(pulse): wire global circuit breaker to launch failures + canary cache invalidation + adaptive batch throttling — preserve per-issue retry semantics while detecting systemic runtime breakage within ~3 dispatch attempts. Alternative to GH#18347 proposal that avoids auto-reset-on-launch regression (GH#2076). #feature #pulse #dispatch #auto-dispatch ~2.5h ref:GH#18348 logged:2026-04-12 tier:standard -> [todo/tasks/t1959-brief.md]
 
 ## Backlog
 
