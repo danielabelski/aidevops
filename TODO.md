@@ -279,6 +279,7 @@ Tasks with no open blockers - ready to work on. Use `/ready` to refresh this lis
 
 ## Backlog
 
+- [ ] t1991 feat(claudecli): map OpenCode reasoning level to Claude CLI --effort flag — picker shows but selection is ignored; extract reasoning_effort from request, pass as --effort low|medium|high|max to CLI subprocess #enhancement #opencode-plugin #auto-dispatch ~1h ref:GH#18413 logged:2026-04-12 tier:simple
 - [ ] t1935 feat(pulse): deterministic blocked-by resolution via cached dependency graph — self-maintaining graph resolves status:blocked→status:available every 2-min cycle (zero API calls) instead of waiting for LLM supervisor (1h delay). Eliminates ~50min idle time per dependency layer. #enhancement #pulse #auto-dispatch ~4h ref:GH#17942 logged:2026-04-08 tier:standard
 - [ ] t1933 fix(pulse): gate PID-based worker recovery on runner identity — cross-machine PID checks falsely recover in-progress issues dispatched by other runners. Fall back to WORKER_MAX_RUNTIME time-based expiry for cross-runner dispatches. #bug #pulse #multi-runner #auto-dispatch ~2h ref:GH#17889 logged:2026-04-08 tier:standard
 - [ ] GH#17804 fix(upgrade-planning): extracts template placeholders (tXXX/tYYY/tZZZ) from ## Format section as real tasks — discovered during awardsapp upgrade 2026-04-08, upgrade reverted. Fix: section-aware parser or numeric-ID filter. #bug #planning #tooling #regression #auto-dispatch ~1h ref:GH#17804 logged:2026-04-08 tier:simple
