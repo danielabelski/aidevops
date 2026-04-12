@@ -19,11 +19,11 @@ import { checkOpenCodeVersionDrift } from "./version-tracking.mjs";
  */
 function claudeModelDef(overrides) {
   return {
-    attachment: false,
+    attachment: true,
     tool_call: false,
     temperature: true,
     reasoning: true,
-    modalities: { input: ["text"], output: ["text"] },
+    modalities: { input: ["text", "image"], output: ["text"] },
     cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
     ...overrides,
   };
@@ -34,36 +34,30 @@ const ANTHROPIC_MODELS = {
   "claude-haiku-4-5": claudeModelDef({
     name: "Claude Haiku 4.5 (via aidevops)",
     limit: { context: 200000, output: 32000 },
-    family: "claudecli",
   }),
   "claude-sonnet-4-6": claudeModelDef({
     name: "Claude Sonnet 4.6 (via aidevops)",
     limit: { context: 200000, output: 32000 },
-    family: "claudecli",
   }),
   "claude-opus-4-6": claudeModelDef({
     name: "Claude Opus 4.6 (via aidevops)",
     limit: { context: 200000, output: 64000 },
-    family: "claudecli",
   }),
 };
 
-/** Models registered under the claudecli provider (via Claude CLI binary — coming soon). */
+/** Models registered under the claudecli provider (via Claude CLI proxy). */
 const CLAUDECLI_MODELS = {
   "claude-haiku-4-5": claudeModelDef({
-    name: "Claude Haiku 4.5 (via Claude CLI — coming soon)",
+    name: "Claude Haiku 4.5 (via CLI)",
     limit: { context: 200000, output: 32000 },
-    family: "claudecli",
   }),
   "claude-sonnet-4-6": claudeModelDef({
-    name: "Claude Sonnet 4.6 (via Claude CLI — coming soon)",
+    name: "Claude Sonnet 4.6 (via CLI)",
     limit: { context: 200000, output: 32000 },
-    family: "claudecli",
   }),
   "claude-opus-4-6": claudeModelDef({
-    name: "Claude Opus 4.6 (via Claude CLI — coming soon)",
+    name: "Claude Opus 4.6 (via CLI)",
     limit: { context: 200000, output: 64000 },
-    family: "claudecli",
   }),
 };
 
@@ -82,27 +76,28 @@ function registerAnthropicModels(config) {
   if (!config.provider.anthropic.models) config.provider.anthropic.models = {};
   for (const [id, def] of Object.entries(ANTHROPIC_MODELS)) {
     const existing = config.provider.anthropic.models[id];
-    if (!existing || existing.name !== def.name) {
-      config.provider.anthropic.models[id] = { ...existing, ...def };
-      count++;
-    }
+    // Always merge — ensures stale fields (modalities, attachment) get updated
+    config.provider.anthropic.models[id] = { ...existing, ...def };
+    if (!existing) count++;
   }
 
-  // claudecli provider — via Claude CLI binary (coming soon)
+  // claudecli provider — via Claude CLI proxy
   if (!config.provider.claudecli) {
     config.provider.claudecli = {
-      name: "Claude CLI (coming soon)",
+      name: "Claude CLI",
       npm: "@ai-sdk/openai-compatible",
       api: "http://127.0.0.1:32125/v1",
     };
+  } else if (config.provider.claudecli.name === "Claude CLI (coming soon)") {
+    // Migrate legacy provider name
+    config.provider.claudecli.name = "Claude CLI";
   }
   if (!config.provider.claudecli.models) config.provider.claudecli.models = {};
   for (const [id, def] of Object.entries(CLAUDECLI_MODELS)) {
     const existing = config.provider.claudecli.models[id];
-    if (!existing || existing.name !== def.name) {
-      config.provider.claudecli.models[id] = { ...existing, ...def };
-      count++;
-    }
+    // Always merge — ensures stale fields (modalities, attachment) get updated
+    config.provider.claudecli.models[id] = { ...existing, ...def };
+    if (!existing) count++;
   }
 
   return count;
