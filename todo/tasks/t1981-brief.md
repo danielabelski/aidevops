@@ -21,6 +21,18 @@ The investigation deliverable is a short written report (comment on this issue o
 3. **Root cause:** the specific line(s) of code that trigger the reassignment, OR the specific workflow/webhook if it's CI-driven
 4. **Fix or workaround:** either a PR removing the offending logic, scoping it to the current user only, or a documentation update telling multi-operator setups how to avoid the churn
 
+## Live reproduction on this very issue (captured during the t1981 filing)
+
+**#18395 (this issue) reproduced the exact pattern within 60 seconds of creation:**
+
+```
+2026-04-12T18:45:07Z assigned marcusquinn by marcusquinn  (I self-assigned after noticing the workflow-created issue had no assignees)
+2026-04-12T18:45:52Z unassigned marcusquinn by marcusquinn  (45s later, something unassigned me — attribution marcusquinn)
+2026-04-12T18:45:52Z assigned alex-solovyev by alex-solovyev  (same second, alex-solovyev claimed)
+```
+
+This is the third and fourth time I've seen the pattern today (same session). The timing is now **tighter** (45s vs 80s on #18371, 7m on #18370), suggesting the triggering cadence is driven by the other operator's pulse cycle, not a fixed schedule. The fact that it reproduced ON THE ISSUE THAT DESCRIBES IT is direct evidence that (a) the pattern is deterministic, (b) filing the investigation alone does not stop it, and (c) the fix must be at the code/workflow level, not operational.
+
 ## Why
 
 **Concrete evidence from this session:**
