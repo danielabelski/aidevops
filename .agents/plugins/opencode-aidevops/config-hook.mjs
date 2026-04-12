@@ -10,6 +10,7 @@ import { registerMcpServers } from "./mcp-registry.mjs";
 import { registerPoolProvider, getAccounts, ensureValidToken } from "./oauth-pool.mjs";
 import { getCursorProxyPort, registerCursorProvider } from "./cursor-proxy.mjs";
 import { getGoogleProxyPort, registerGoogleProvider } from "./google-proxy.mjs";
+import { getClaudeProxyPort, registerClaudeProvider } from "./claude-proxy.mjs";
 import { checkOpenCodeVersionDrift } from "./version-tracking.mjs";
 
 /**
@@ -241,6 +242,27 @@ export function createConfigHook(deps) {
       config,
     });
 
+    // Claude CLI transport proxy — registers the `claudecli` provider with the
+    // local proxy base URL. Derives models from CLAUDECLI_MODELS to avoid drift.
+    // When proxy is not running, removes placeholder entries to avoid dead models.
+    const claudeProxyPort = getClaudeProxyPort();
+    let claudeModelsRegistered = 0;
+    if (claudeProxyPort) {
+      const claudeModels = Object.entries(CLAUDECLI_MODELS).map(([id, def]) => ({
+        id,
+        name: def.name,
+        reasoning: def.reasoning !== false,
+        contextWindow: def.limit?.context || 200000,
+        maxTokens: def.limit?.output || 32000,
+      }));
+      claudeModelsRegistered = registerClaudeProvider(config, claudeProxyPort, claudeModels)
+        ? claudeModels.length
+        : 0;
+    } else if (config.provider?.claudecli) {
+      // Proxy not running — remove placeholder entries so dead models don't show
+      delete config.provider.claudecli;
+    }
+
     const versionDrift = checkOpenCodeVersionDrift(pluginDir);
 
     // Silent unless something was actually changed
@@ -252,6 +274,7 @@ export function createConfigHook(deps) {
     if (anthropicModelsRegistered > 0) parts.push(`${anthropicModelsRegistered} anthropic models`);
     if (cursorModelsRegistered > 0) parts.push(`${cursorModelsRegistered} Cursor models`);
     if (googleModelsRegistered > 0) parts.push(`${googleModelsRegistered} Google models`);
+    if (claudeModelsRegistered > 0) parts.push(`${claudeModelsRegistered} Claude CLI models`);
 
     if (parts.length > 0) {
       console.error(`[aidevops] Config hook: ${parts.join(", ")}`);
