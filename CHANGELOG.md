@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.244] - 2026-04-12
+
+### Added
+
+- register anthropic and claudecli models via config-hook
+
 ## [3.6.243] - 2026-04-12
 
 ### Changed
