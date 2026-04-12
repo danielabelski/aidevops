@@ -244,7 +244,7 @@ Tasks with no open blockers - ready to work on. Use `/ready` to refresh this lis
 - [ ] t1952 simplification: reduce remaining higgsfield complexity — commands (334), video (322), common (289), api (72). Follow-up to t1862. Combined 1017 complexity (~25% of all findings). #simplification #code-quality #auto-dispatch ~5h ref:GH#18042 logged:2026-04-10 -> [todo/tasks/t1952-brief.md]
 - [ ] t1959 feat(pulse): wire global circuit breaker to launch failures + canary cache invalidation + adaptive batch throttling — preserve per-issue retry semantics while detecting systemic runtime breakage within ~3 dispatch attempts. Alternative to GH#18347 proposal that avoids auto-reset-on-launch regression (GH#2076). #feature #pulse #dispatch #auto-dispatch ~2.5h ref:GH#18348 logged:2026-04-12 tier:standard -> [todo/tasks/t1959-brief.md]
 
-- [ ] t1961 refactor(pulse): extract _has_active_claim() from is_assigned() to fix complexity ratchet — follow-up to #18353; function grew to 101 lines pushing func violations from 40 to 41 (CI broken). Mechanical extract-method; no behaviour change; 16 existing tests must pass. #bug #code-quality #pulse #interactive ~15m logged:2026-04-12 tier:simple -> [todo/tasks/t1961-brief.md]
+- [x] t1961 refactor(pulse): extract _has_active_claim() from is_assigned() to fix complexity ratchet — follow-up to #18353; function grew to 101 lines pushing func violations from 40 to 41 (CI broken). Mechanical extract-method; no behaviour change; 16 existing tests must pass. #bug #code-quality #pulse #interactive ~15m logged:2026-04-12 tier:simple -> [todo/tasks/t1961-brief.md] pr:#18355 completed:2026-04-12
 
 ## Backlog
 
