@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.7.4] - 2026-04-13
+
+### Changed
+
+- Maintenance: add brief and TODO entry for init-routines-helper readonly collision (#18487)
+- split pulse-simplification.sh state cluster below 2000 LOC gate (#18488)
+- file bash 3.2 scanner hardening task (planning only) (#18490)
+- fix(pulse-triage): parse JSON output + inline prompt + shape validation (#18491)
+- teach /review-issue-pr to do temporal-duplicate, framing, and second-order-effects checks (#18480)
+- Maintenance: mark t2018 complete (pr:#18481 testing:self-assessed)
+
+### Fixed
+
+- Job 3 re-runs Job 1 to refresh required CheckRun (#18481)
+
 ## [3.7.3] - 2026-04-13
 
 ### Added
