@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.1] - 2026-04-13
+
+### Fixed
+
+- t1992 — preserve multi-line sweep sections + count shellcheck notes (#18544)
+- tier label source fix — parse Selected tier line + replace existing tier:* labels (t2012) (#18545)
+
 ## [3.8.0] - 2026-04-13
 
 ### Added
