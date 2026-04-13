@@ -7371,6 +7371,24 @@
       "at": "2026-04-13T20:41:46Z",
       "pr": 18711,
       "passes": 1
+    },
+    ".agents/hooks/task-id-collision-guard.sh": {
+      "hash": "5801f2b9fe256ca1a928180f3f08acfc7a155f09",
+      "at": "2026-04-13T21:15:10Z",
+      "pr": 18718,
+      "passes": 1
+    },
+    ".agents/scripts/new-task-helper.sh": {
+      "hash": "1c7cef9e424110184c81a9a3ddb82e788a50ac53",
+      "at": "2026-04-13T21:15:11Z",
+      "pr": 18705,
+      "passes": 1
+    },
+    ".agents/scripts/pulse-cleanup.sh": {
+      "hash": "4c79c164fb75c8d88757af1f804ed93fb332811a",
+      "at": "2026-04-13T21:15:12Z",
+      "pr": 18704,
+      "passes": 1
     }
   },
   ".agents/tools/design/library/brands/clickhouse/DESIGN.md": {
