@@ -53,6 +53,285 @@
 [[ -n "${_PULSE_PREFETCH_LOADED:-}" ]] && return 0
 _PULSE_PREFETCH_LOADED=1
 
+# =============================================================================
+# t2041: Budget-aware LLM sweep — state fingerprint, hygiene anomalies,
+# cache-hit detection. See .agents/reference/pulse-llm-budget.md and
+# .agents/configs/pulse-sweep-budget.json for the design contract.
+# =============================================================================
+
+# Default token budget values. These are the fallback when
+# .agents/configs/pulse-sweep-budget.json is unavailable or missing
+# keys — `_load_pulse_sweep_budget_config` overlays the JSON values.
+: "${PULSE_SWEEP_TOKEN_BUDGET:=3000}"
+: "${PULSE_SWEEP_MAX_EVENTS_PER_PASS:=50}"
+: "${PULSE_SWEEP_DEFERRAL_PROMOTION_THRESHOLD:=3}"
+: "${PULSE_SWEEP_VERIFICATION_QUERY_LIMIT:=5}"
+: "${PULSE_SWEEP_CACHE_HIT_ENABLED:=true}"
+
+# Load the budget config once per process. Called lazily from the t2041
+# helpers. Reads `.agents/configs/pulse-sweep-budget.json` relative to
+# the aidevops repo deploy. Per-repo overrides override default values;
+# falls back to existing env vars on any read failure (fail-open).
+_PULSE_SWEEP_BUDGET_LOADED="${_PULSE_SWEEP_BUDGET_LOADED:-false}"
+_load_pulse_sweep_budget_config() {
+	[[ "$_PULSE_SWEEP_BUDGET_LOADED" == "true" ]] && return 0
+	_PULSE_SWEEP_BUDGET_LOADED=true
+
+	local config_file=""
+	# Prefer deployed path (runtime). Fall back to repo path (tests).
+	if [[ -f "${HOME}/.aidevops/agents/configs/pulse-sweep-budget.json" ]]; then
+		config_file="${HOME}/.aidevops/agents/configs/pulse-sweep-budget.json"
+	elif [[ -n "${AIDEVOPS_REPO_ROOT:-}" && -f "${AIDEVOPS_REPO_ROOT}/.agents/configs/pulse-sweep-budget.json" ]]; then
+		config_file="${AIDEVOPS_REPO_ROOT}/.agents/configs/pulse-sweep-budget.json"
+	fi
+	[[ -f "$config_file" ]] || return 0
+	jq empty "$config_file" 2>/dev/null || return 0
+
+	local _v
+	_v=$(jq -r '.default.token_budget // empty' "$config_file" 2>/dev/null)
+	[[ "$_v" =~ ^[0-9]+$ ]] && PULSE_SWEEP_TOKEN_BUDGET="$_v"
+	_v=$(jq -r '.default.max_events_per_pass // empty' "$config_file" 2>/dev/null)
+	[[ "$_v" =~ ^[0-9]+$ ]] && PULSE_SWEEP_MAX_EVENTS_PER_PASS="$_v"
+	_v=$(jq -r '.default.deferral_promotion_threshold // empty' "$config_file" 2>/dev/null)
+	[[ "$_v" =~ ^[0-9]+$ ]] && PULSE_SWEEP_DEFERRAL_PROMOTION_THRESHOLD="$_v"
+	_v=$(jq -r '.default.verification_query_limit // empty' "$config_file" 2>/dev/null)
+	[[ "$_v" =~ ^[0-9]+$ ]] && PULSE_SWEEP_VERIFICATION_QUERY_LIMIT="$_v"
+	_v=$(jq -r '.default.state_fingerprint_cache_hit_enabled // empty' "$config_file" 2>/dev/null)
+	[[ "$_v" == "true" || "$_v" == "false" ]] && PULSE_SWEEP_CACHE_HIT_ENABLED="$_v"
+
+	return 0
+}
+
+#######################################
+# t2041 Layer 1: Compute a short deterministic fingerprint of a repo's
+# LLM-observable state.
+#
+# The fingerprint is a SHA-256 of the canonicalized set of:
+#   - issues: (number, labels_sorted, assignees_sorted, updatedAt)
+#   - PRs:    (number, labels_sorted, assignees_sorted, reviewDecision,
+#              mergeable, updatedAt)
+# across all open issues and PRs. PR state must be in the fingerprint so
+# PR churn (review rotation, CI status change, labels) invalidates the
+# cache — if PRs were excluded, the cache would say "clean" even when
+# a PR was ready to merge (CodeRabbit review on PR #18546).
+#
+# Arguments:
+#   $1 - repo slug (owner/repo)
+# Outputs:
+#   16-char hex fingerprint on stdout, empty string on error
+# Returns: 0 always (fail-open)
+#######################################
+_compute_repo_state_fingerprint() {
+	local slug="$1"
+	[[ -n "$slug" ]] || {
+		echo ""
+		return 0
+	}
+
+	local limit="${PULSE_QUEUED_SCAN_LIMIT:-200}"
+
+	local issues_json prs_json
+	local issues_ok=false prs_ok=false
+	issues_json=$(gh issue list --repo "$slug" --state open \
+		--json number,labels,assignees,updatedAt \
+		--limit "$limit" 2>/dev/null) && issues_ok=true
+	prs_json=$(gh pr list --repo "$slug" --state open \
+		--json number,labels,assignees,reviewDecision,mergeable,updatedAt \
+		--limit "$limit" 2>/dev/null) && prs_ok=true
+
+	# Fail-open: if BOTH fetches failed entirely (not just returned empty
+	# lists from successful fetches), return an empty fingerprint so the
+	# caller falls through to the existing Layer 2 delta prefetch. A
+	# single-side failure still produces a usable fingerprint because
+	# t2041's verification query is a second check — worst case we miss
+	# one churn cycle, never worse than today's behaviour.
+	if [[ "$issues_ok" != "true" && "$prs_ok" != "true" ]]; then
+		echo ""
+		return 0
+	fi
+
+	[[ -n "$issues_json" && "$issues_json" != "null" ]] || issues_json="[]"
+	[[ -n "$prs_json" && "$prs_json" != "null" ]] || prs_json="[]"
+
+	# Canonicalize both lists. jq --argjson merges the PR list into the
+	# top-level object so the hash covers both.
+	local canon
+	canon=$(jq -cSn \
+		--argjson issues "$issues_json" \
+		--argjson prs "$prs_json" '
+		{
+			issues: ($issues | sort_by(.number) | map({
+				n: .number,
+				l: ([.labels[].name] | sort),
+				a: ([.assignees[].login] | sort),
+				u: .updatedAt
+			})),
+			prs: ($prs | sort_by(.number) | map({
+				n: .number,
+				l: ([.labels[].name] | sort),
+				a: ([.assignees[].login] | sort),
+				r: .reviewDecision,
+				m: .mergeable,
+				u: .updatedAt
+			}))
+		}
+	' 2>/dev/null) || canon=""
+	[[ -n "$canon" ]] || {
+		echo ""
+		return 0
+	}
+
+	# SHA-256 truncated to 16 chars.
+	local hash
+	if command -v shasum >/dev/null 2>&1; then
+		hash=$(printf '%s' "$canon" | shasum -a 256 2>/dev/null | awk '{print substr($1,1,16)}')
+	elif command -v sha256sum >/dev/null 2>&1; then
+		hash=$(printf '%s' "$canon" | sha256sum 2>/dev/null | awk '{print substr($1,1,16)}')
+	else
+		hash=""
+	fi
+	echo "$hash"
+	return 0
+}
+
+#######################################
+# t2041 Layer 1: Run the cheap verification queries.
+#
+# Returns 0 (unchanged) only if BOTH `gh issue list --search "updated:>ISO"`
+# AND `gh pr list --search "updated:>ISO"` return empty results. Returns 1
+# if anything has changed since ISO or any query fails (fail-closed — force
+# fresh fetch on any doubt).
+#
+# The PR-side verification is critical: without it, cache-hit cycles
+# would continue serving stale PR state even when a PR was ready for
+# merge (CodeRabbit review on PR #18546).
+#
+# Arguments:
+#   $1 - repo slug
+#   $2 - last_pass_iso (from cache)
+#######################################
+_verify_repo_state_unchanged() {
+	local slug="$1"
+	local last_pass_iso="$2"
+	[[ -n "$slug" && -n "$last_pass_iso" && "$last_pass_iso" != "null" ]] || return 1
+	_load_pulse_sweep_budget_config
+	local verif_limit="${PULSE_SWEEP_VERIFICATION_QUERY_LIMIT:-5}"
+
+	# Issue-side verification
+	local changed_json count
+	changed_json=$(gh issue list --repo "$slug" --state open \
+		--search "updated:>${last_pass_iso}" \
+		--json number --limit "$verif_limit" 2>/dev/null) || return 1
+	[[ -n "$changed_json" && "$changed_json" != "null" ]] || return 1
+	count=$(printf '%s' "$changed_json" | jq 'length' 2>/dev/null) || count=""
+	[[ "$count" =~ ^[0-9]+$ ]] || return 1
+	[[ "$count" -eq 0 ]] || return 1
+
+	# PR-side verification — same bound, same fail-closed semantics
+	changed_json=$(gh pr list --repo "$slug" --state open \
+		--search "updated:>${last_pass_iso}" \
+		--json number --limit "$verif_limit" 2>/dev/null) || return 1
+	[[ -n "$changed_json" && "$changed_json" != "null" ]] || return 1
+	count=$(printf '%s' "$changed_json" | jq 'length' 2>/dev/null) || count=""
+	[[ "$count" =~ ^[0-9]+$ ]] || return 1
+	[[ "$count" -eq 0 ]] || return 1
+
+	return 0
+}
+
+#######################################
+# t2041: Emit the Hygiene Anomalies section to stdout.
+#
+# Reads the counter file written by _normalize_label_invariants (t2040)
+# in pulse-issue-reconcile.sh. Zero anomalies = one line (literal
+# "## Hygiene Anomalies\n\nNone — label invariants clean.\n"). Nonzero
+# anomalies emit a call-to-action with the counts.
+#
+# No arguments. Output: markdown section on stdout.
+#######################################
+prefetch_hygiene_anomalies() {
+	local hostname_short
+	hostname_short=$(hostname -s 2>/dev/null || echo unknown)
+	local counters_file="${HOME}/.aidevops/cache/pulse-label-invariants.${hostname_short}.json"
+
+	echo "## Hygiene Anomalies"
+	echo ""
+
+	if [[ ! -f "$counters_file" ]]; then
+		echo "Counter file not yet written — first cycle after t2040 deploy."
+		echo ""
+		return 0
+	fi
+
+	local status_fixed tier_fixed triage_missing ts checked
+	status_fixed=$(jq -r '.status_fixed // 0' "$counters_file" 2>/dev/null) || status_fixed=0
+	tier_fixed=$(jq -r '.tier_fixed // 0' "$counters_file" 2>/dev/null) || tier_fixed=0
+	triage_missing=$(jq -r '.triage_missing // 0' "$counters_file" 2>/dev/null) || triage_missing=0
+	ts=$(jq -r '.timestamp // ""' "$counters_file" 2>/dev/null) || ts=""
+	checked=$(jq -r '.checked // 0' "$counters_file" 2>/dev/null) || checked=0
+
+	if [[ "$status_fixed" -eq 0 && "$tier_fixed" -eq 0 && "$triage_missing" -eq 0 ]]; then
+		echo "None — label invariants clean (checked=${checked} at ${ts})."
+		echo ""
+		return 0
+	fi
+
+	echo "Label invariant reconciler detected anomalies on last pass (${ts}):"
+	echo ""
+	if [[ "$status_fixed" -gt 0 ]]; then
+		echo "- **${status_fixed} issues** had multiple \`status:*\` labels (reconciled via precedence)"
+	fi
+	if [[ "$tier_fixed" -gt 0 ]]; then
+		echo "- **${tier_fixed} issues** had multiple \`tier:*\` labels (reconciled via rank)"
+	fi
+	if [[ "$triage_missing" -gt 0 ]]; then
+		echo "- **${triage_missing} issues** marked \`origin:interactive\` but missing tier/auto-dispatch/status (need maintainer triage)"
+	fi
+	echo ""
+	echo "If non-zero on consecutive cycles, investigate the source of the pollution —"
+	echo "a write path is not using \`set_issue_status\` or is concatenating tier labels."
+	echo ""
+	return 0
+}
+
+#######################################
+# t2041 Layer 1: Detect cache hit for a repo.
+#
+# Returns 0 (hit — LLM can skip deep analysis) if:
+#   1. Cache entry has a state_fingerprint field
+#   2. Current fingerprint equals cached fingerprint
+#   3. Verification query confirms no changes since last_prefetch
+# Returns 1 (miss — run full analysis) otherwise.
+#
+# Arguments:
+#   $1 - repo slug
+#   $2 - cache entry JSON (from _prefetch_cache_get)
+#   $3 - output variable name: caller reads PREFETCH_CURRENT_FINGERPRINT
+#        after return (bash 3.2 — no namerefs)
+#######################################
+_prefetch_detect_cache_hit() {
+	local slug="$1"
+	local cache_entry="$2"
+
+	PREFETCH_CURRENT_FINGERPRINT=""
+
+	# Compute the current fingerprint unconditionally — we need it for
+	# the cache write at end-of-pass even on a miss.
+	PREFETCH_CURRENT_FINGERPRINT=$(_compute_repo_state_fingerprint "$slug")
+	[[ -n "$PREFETCH_CURRENT_FINGERPRINT" ]] || return 1
+
+	local cached_fp
+	cached_fp=$(echo "$cache_entry" | jq -r '.state_fingerprint // ""' 2>/dev/null) || cached_fp=""
+	[[ -n "$cached_fp" && "$cached_fp" != "null" ]] || return 1
+	[[ "$cached_fp" == "$PREFETCH_CURRENT_FINGERPRINT" ]] || return 1
+
+	local last_prefetch
+	last_prefetch=$(echo "$cache_entry" | jq -r '.last_prefetch // ""' 2>/dev/null) || last_prefetch=""
+	_verify_repo_state_unchanged "$slug" "$last_prefetch" || return 1
+
+	return 0
+}
+
 #######################################
 # Load the prefetch cache for a single repo slug.
 #
@@ -588,33 +867,65 @@ _prefetch_single_repo() {
 	PREFETCH_UPDATED_PRS="[]"
 	PREFETCH_UPDATED_ISSUES="[]"
 
+	# t2041 Layer 1: detect cache hit. When the current state fingerprint
+	# matches the cached one AND the cheap verification query shows nothing
+	# has changed since last_prefetch, emit a compact "cache hit" marker
+	# the LLM can use to short-circuit deep analysis. We STILL write the
+	# Open PRs / Queued Issues sections (so the LLM has recent state if it
+	# decides to read deeper) but the LLM-facing summary leads with the
+	# cache-hit signal so cheap cycles stay cheap.
+	local cache_hit="false"
+	if _prefetch_detect_cache_hit "$slug" "$cache_entry"; then
+		cache_hit="true"
+		echo "[pulse-wrapper] _prefetch_single_repo: STATE CACHE HIT for ${slug} (fingerprint=${PREFETCH_CURRENT_FINGERPRINT})" >>"$LOGFILE"
+	fi
+
 	{
 		echo "## ${slug} (${path})"
 		echo ""
+		if [[ "$cache_hit" == "true" ]]; then
+			local _cached_last
+			_cached_last=$(echo "$cache_entry" | jq -r '.last_prefetch // "unknown"' 2>/dev/null) || _cached_last="unknown"
+			echo "> **State cache hit** — fingerprint unchanged since \`${_cached_last}\`."
+			echo "> No open issues or PRs have been updated since then."
+			echo "> LLM may skip deep analysis of this repo this cycle."
+			echo ""
+		fi
 		_prefetch_repo_prs "$slug" "$cache_entry" "$sweep_mode"
 		_prefetch_repo_daily_cap "$slug"
 		_prefetch_repo_issues "$slug" "$cache_entry" "$sweep_mode"
 	} >"$outfile"
 
-	# GH#15286: Update cache with fresh data
+	# GH#15286: Update cache with fresh data.
+	# t2041: also persist the state_fingerprint for Layer 1 cache-hit
+	# detection on the next cycle.
 	local now_iso
 	now_iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+	# If the fingerprint wasn't already computed for cache-hit detection
+	# (e.g. cache entry was empty), compute it now so the cache write is
+	# consistent.
+	if [[ -z "${PREFETCH_CURRENT_FINGERPRINT:-}" ]]; then
+		PREFETCH_CURRENT_FINGERPRINT=$(_compute_repo_state_fingerprint "$slug")
+	fi
+	local fingerprint="${PREFETCH_CURRENT_FINGERPRINT:-}"
 	local new_entry
 	if [[ "$sweep_mode" == "full" ]]; then
 		new_entry=$(jq -n \
 			--arg now "$now_iso" \
+			--arg fp "$fingerprint" \
 			--argjson prs "${PREFETCH_UPDATED_PRS:-[]}" \
 			--argjson issues "${PREFETCH_UPDATED_ISSUES:-[]}" \
-			'{last_prefetch: $now, last_full_sweep: $now, prs: $prs, issues: $issues}')
+			'{last_prefetch: $now, last_full_sweep: $now, state_fingerprint: $fp, prs: $prs, issues: $issues}')
 	else
 		local last_full_sweep
 		last_full_sweep=$(echo "$cache_entry" | jq -r '.last_full_sweep // ""' 2>/dev/null) || last_full_sweep=""
 		new_entry=$(jq -n \
 			--arg now "$now_iso" \
 			--arg lfs "$last_full_sweep" \
+			--arg fp "$fingerprint" \
 			--argjson prs "${PREFETCH_UPDATED_PRS:-[]}" \
 			--argjson issues "${PREFETCH_UPDATED_ISSUES:-[]}" \
-			'{last_prefetch: $now, last_full_sweep: $lfs, prs: $prs, issues: $issues}')
+			'{last_prefetch: $now, last_full_sweep: $lfs, state_fingerprint: $fp, prs: $prs, issues: $issues}')
 	fi
 	_prefetch_cache_set "$slug" "$new_entry"
 
@@ -739,6 +1050,11 @@ _run_prefetch_step() {
 
 _append_prefetch_sub_helpers() {
 	local repo_entries="$1"
+
+	# t2041: Hygiene Anomalies — reads t2040's _normalize_label_invariants
+	# counter file. Zero anomalies = one line of text, so this is cheap to
+	# include every cycle. Nonzero triggers investigation.
+	prefetch_hygiene_anomalies >>"$STATE_FILE"
 
 	# Append mission state (reads local files — fast)
 	prefetch_missions "$repo_entries" >>"$STATE_FILE"
