@@ -10,6 +10,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.7] - 2026-04-13
+
+### Added
+
+- use SYNC_PAT for sync-on-pr-merge push (t2048) (#18677)
+- add task-id collision guard commit-msg hook + CI check (#18662)
+- parent-task lifecycle hardening — fail-closed guard + PR keyword guard (#18663)
+- add characterization safety net for stats-functions decomposition (t2044) (#18611)
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Refactor: reduce setup_gh_stub() complexity in test-consolidation-dispatch.sh (#18687)
+- Maintenance: update simplification state registry
+- simplify shopify agent doc (93→80 lines) (#18673)
+- Maintenance: update simplification state registry
+- t2038: research decision + t2048 child brief (#18647)
+- fix(dispatch) force-dispatch override + portable timeout + label seed + test refactor (#18645)
+- remove dead _get_active_claim_meta() with stale index() jq filter (#18638)
+- simplify _has_active_claim() jq filter using any() (#18632)
+- Documentation: add worker brief improvements for high-reference tasks (GH#18458) (#18625)
+- Documentation: add missing triedEmails JSDoc param to handle429Recovery (#18613)
+
+### Fixed
+
+- resolve SUDO_USER home for sudo approve on Linux (#18686)
+- widen origin:worker allowlist to include repository owner (#18685)
+- gh fail-open on API error/offline + fix cross-ref logic (#18665)
+- declare headless origin at pulse-wrapper main() + harden issue-creation sites + cleanup mistagged issues (#18676)
+- strip ANSI from worktree pre-creation + detect automation-applied NMR (#18672)
+- remove trap with local var in parent-task-keyword-guard.sh (#18664)
+- post one-time rebase nudge on interactive CONFLICTING PR (#18651)
+- exempt bot-generated review-followup from ever-NMR permanence trap (#18649)
+- require closing keyword in Check 3 body match (#18642)
+- address Gemini review feedback from PR #18396 (GH#18550) (#18582)
+- prevent simplification-state churn in ratchet-down PRs (#18637)
+- add refresh-description subcommand to make description refresh truthful (#18631)
+- align claude-opus-4-6 maxTokens to 64000 in claude-proxy.mjs (GH#18619) (#18633)
+- scan all args for --self-check and --dry-run flags (GH#18614) (#18629)
+- gate review-followup issues on human triage (GH#18538) (#18610)
+- add jq // fallback operator and remove redundant null checks in pulse-repo-meta.sh and pulse-routines.sh (#18612)
+- address gemini-code-assist review findings from PR #18368 (GH#18593) (#18626)
+
 ## [3.8.5] - 2026-04-13
 
 ### Changed
