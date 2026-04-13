@@ -6899,10 +6899,10 @@
       "passes": 1
     },
     ".agents/commands/AGENTS.md": {
-      "hash": "83d63bd5cd1753ec35ed5f73146ed0df0a08f574",
-      "at": "2026-04-13T16:27:22Z",
+      "hash": "ce051c99c344bebf7812b014c6ec7efbeaae954e",
+      "at": "2026-04-13T17:44:03Z",
       "pr": 18117,
-      "passes": 2
+      "passes": 3
     },
     ".agents/workflows/pulse.md": {
       "hash": "f13a6f55eeb01caf5bb18ff2a6a22e02df63e952",
@@ -7268,6 +7268,36 @@
       "hash": "4dae1ca9bd059d4ab416b421f96766f6188ff7f1",
       "at": "2026-04-11T17:01:45Z",
       "pr": 18268,
+      "passes": 1
+    },
+    ".agents/services/ecommerce/shopify.md": {
+      "hash": "1c057fa35263b57612d3e8cb096fb5b2290f42c5",
+      "at": "2026-04-13T17:44:12Z",
+      "pr": 18661,
+      "passes": 1
+    },
+    ".agents/scripts/commands/build-agent.md": {
+      "hash": "72256f1cd59db2f7f0ce47ddce039ffad91193f3",
+      "at": "2026-04-13T17:44:12Z",
+      "pr": 18660,
+      "passes": 1
+    },
+    ".agents/services/hosting/ubicloud.md": {
+      "hash": "68e47f0cdede7687d404da439eca1f8c8e64a434",
+      "at": "2026-04-13T17:44:12Z",
+      "pr": 18659,
+      "passes": 1
+    },
+    ".agents/scripts/pulse-triage.sh": {
+      "hash": "0ce631b6713fa593171397169b624dfc6ac3be53",
+      "at": "2026-04-13T17:44:12Z",
+      "pr": 18655,
+      "passes": 1
+    },
+    ".agents/scripts/pulse-simplification.sh": {
+      "hash": "3ebcc6b4610761efacbc1d0f23ca240200087c55",
+      "at": "2026-04-13T17:44:12Z",
+      "pr": 18653,
       "passes": 1
     }
   },
