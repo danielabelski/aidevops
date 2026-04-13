@@ -10,6 +10,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.7.3] - 2026-04-13
+
+### Added
+
+- stale-recovery escalation after N consecutive cycles (t2008) (#18462)
+- implement tier-label dedup via GitHub Action and dispatcher fallback (#18441)
+- guard cmd_enrich body writes with sentinel+content-diff gate; add --batch mode to /new-task (#18416)
+- canonical stays on main in interactive sessions, no exceptions (#18414)
+
+### Changed
+
+- fix(pulse-triage): surface triage failures — escalation comment + label provisioning (#18476)
+- Maintenance: mark t2015 complete (pr:#18474 testing:runtime-verified)
+- fix(pulse-dep-graph): parse markdown-formatted blocked-by bodies (#18474)
+- cut TRIAGE_MAX_RETRIES default 3→1 to eliminate lock/unlock churn (#18472)
+- docs: cross-runner coordination reference doc (#18465)
+- feat: add /build-agent slash command and ubicloud hosting agent (#18407)
+- Maintenance: mark t1998 complete (pr:#18438) (#18440)
+- fix simplification re-eval short-circuit that left #18346 stuck forever (#18438)
+- Maintenance: sync TODO.md completion markers for t1962, t1963, t1986 (#18435)
+- Maintenance: mark t1981/t1983/t1984/t1985/t1995 complete (#18436)
+- Tests: stub-based harness for issue-sync-lib.sh with t1983 regression (#18430)
+- post-checkout hook warning when canonical goes off main (#18427)
+- feat(claudecli): map OpenCode reasoning level to Claude CLI --effort flag (#18424)
+- plan: post-checkout hook to auto-restore main in canonical worktree (#18422)
+- parent-task dispatch guard — label survival + #parent tag + dispatch short-circuit (#18419)
+- Maintenance: add TODO completion marker for merged PR #18414 (#18417)
+
+### Fixed
+
+- preserve trailing newline and embed OPENCODE_BIN on Linux pulse (#18477)
+- add auto-dispatch to _is_protected_label exact-match list (#18469)
+- dispatch-dedup audit — add combined label+assignee guard (t1996) (#18446)
+- add logging to two silent skip paths in cleanup_worktrees() Pass 2 (#18442)
+- sync-todo-to-issues workflow tags issues origin:interactive and assigns human pusher (#18431)
+- P0 BSD awk dynamic-regex silently broke add_gh_ref_to_todo on macOS (#18423)
+
 ## [3.7.2] - 2026-04-12
 
 ### Added
