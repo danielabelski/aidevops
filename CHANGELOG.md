@@ -10,6 +10,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.2] - 2026-04-13
+
+### Added
+
+- cost-per-issue circuit breaker (t2007) (#18558)
+- schedule post-merge-review-scanner as daily pulse routine (t1993) (#18557)
+
+### Changed
+
+- refactor: split headless-runtime-helper.sh below 2000 LOC simplification gate (#18562)
+- Maintenance: mark t1992 complete (pr:#18544)
+
+### Fixed
+
+- bump publish-packages to Node 24 to avoid npm self-replace death (#18574)
+- address review bot feedback on dispatch-core and dispatch-engine (#18575)
+- replace hardcoded helper paths and non-portable grep in pulse modules (#18576)
+- address gemini review findings in pulse-prefetch.sh (GH#18554) (#18578)
+- add language specifiers to fenced code blocks in t1990-brief.md (GH#18541) (#18570)
+- address Gemini review feedback on claim-task-id _check_duplicate_issue (#18567)
+- GH#18542 — prefix build-agent path with .agents/ for consistency (#18564)
+- use (.labels // []) null-fallback for all label jq filters (GH#18537) (#18563)
+- add origin:interactive exemption to Job 3 (GH#18532) (#18559)
+
 ## [3.8.1] - 2026-04-13
 
 ### Fixed
