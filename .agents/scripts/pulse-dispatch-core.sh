@@ -677,6 +677,100 @@ _task_id_in_changed_files() {
 }
 
 #######################################
+# GH#17574 + GH#18644: Combined commit-subject dedup gate with
+# force-dispatch maintainer override.
+#
+# Wraps the _is_task_committed_to_main call with an early bypass when
+# the issue carries the `force-dispatch` label. Extracted from
+# _dispatch_dedup_check_layers() to keep the parent function under the
+# 100-line complexity threshold while the logic-body grows.
+#
+# Args:
+#   $1 - issue_number
+#   $2 - repo_slug (owner/repo)
+#   $3 - target_title (issue title from meta_json)
+#   $4 - repo_path (local path to the repo)
+#   $5 - issue_meta_json (pre-fetched JSON with .labels array)
+#
+# Exit codes:
+#   0 - gate fires (block dispatch — task appears committed to main,
+#       force-dispatch is NOT set)
+#   1 - gate allows dispatch (task not committed, OR force-dispatch
+#       override is set)
+#######################################
+_check_commit_subject_dedup_gate() {
+	local issue_number="$1"
+	local repo_slug="$2"
+	local target_title="$3"
+	local repo_path="$4"
+	local issue_meta_json="$5"
+
+	# GH#18644: force-dispatch label bypasses the commit-subject dedup
+	# entirely. The override is for legacy task-ID collisions where a
+	# commit subject accidentally mentions a task ID that was never
+	# claimed via claim-task-id.sh. Maintainer-only — workers must not
+	# apply this label. Does NOT bypass ever-NMR, claim/lock layers,
+	# large-file gates, or blocked-by dependencies.
+	if _has_force_dispatch_label "$issue_meta_json"; then
+		echo "[pulse-wrapper] dispatch_with_dedup: force-dispatch label active on #${issue_number} in ${repo_slug} — bypassing _is_task_committed_to_main (GH#18644)" >>"$LOGFILE"
+		return 1
+	fi
+
+	# GH#17574: Skip dispatch if the task has already been committed
+	# directly to main. Workers that bypass the PR flow (direct commits)
+	# complete the work invisibly — the issue stays open until the
+	# pulse's mark-complete pass runs, which happens AFTER dispatch
+	# decisions for the next cycle. Without this check, the pulse
+	# dispatches redundant workers for already-completed work.
+	#
+	# GH#17642: Do NOT auto-close the issue on a block. The main-commit
+	# check has a high false-positive rate (casual mentions, multi-
+	# runner deployment gaps, stale patterns). A false skip is harmless
+	# (next cycle retries), a false close is destructive (needs manual
+	# reopen, re-dispatch, and loses worker context). Let the verified
+	# merge-pass or human close it.
+	if _is_task_committed_to_main "$issue_number" "$repo_slug" "$target_title" "$repo_path"; then
+		echo "[dispatch_with_dedup] Dispatch blocked for #${issue_number} in ${repo_slug}: task already committed to main (GH#17574)" >>"$LOGFILE"
+		return 0
+	fi
+
+	return 1
+}
+
+#######################################
+# GH#18644: Detect the `force-dispatch` maintainer override label.
+#
+# Purpose: escape hatch for false-positive task-ID collisions in the
+# commit-subject dedup (_is_task_committed_to_main). When a commit
+# subject accidentally mentions a task ID that was never claimed via
+# claim-task-id.sh — e.g., `chore(build.txt): add rule (t2046)` for a
+# task that is actually GH#18508, not the canonical t2046 — the dedup
+# block fires permanently even though no implementation has happened.
+#
+# The `force-dispatch` label is a maintainer-only override that
+# bypasses this specific check. It does NOT bypass:
+#   - The cryptographic approval gate (ever-NMR) above it
+#   - Any Layer 1-7 claim/lock/assignee/open-PR machinery below it
+#   - Large-file gates, blocked-by dependencies, or supervisor title guards
+#
+# Workers MUST NOT apply this label themselves. It represents a
+# human decision that the dedup signal is wrong for this specific issue.
+#
+# Args:
+#   $1 - issue_meta_json (pre-fetched JSON with a .labels array)
+#
+# Exit codes:
+#   0 - force-dispatch label is present
+#   1 - force-dispatch label is absent (or meta_json is empty/invalid)
+#######################################
+_has_force_dispatch_label() {
+	local issue_meta_json="$1"
+	[[ -n "$issue_meta_json" ]] || return 1
+	printf '%s' "$issue_meta_json" |
+		jq -e '.labels | map(.name) | index("force-dispatch")' >/dev/null 2>&1
+}
+
+#######################################
 # GH#17574: Check if a task has already landed on main (via PR merge or direct commit).
 #
 # Workers that bypass the PR flow (direct commits to main) complete the
@@ -953,6 +1047,17 @@ _issue_targets_large_files() {
 			# label application fails but the issue still creates server-side —
 			# see issue-sync-helper.sh:441-464 for the same pattern + GH#15234
 			# context).
+			#
+			# GH#18644: ensure the `simplification-debt` label exists before the
+			# create call. Without this, a first-use of the gate in any repo that
+			# doesn't already have the label fails with "could not add label:
+			# 'simplification-debt' not found" and the whole gate becomes a no-op
+			# for that repo forever. gh label create is idempotent with --force.
+			gh label create "simplification-debt" \
+				--repo "$repo_slug" \
+				--description "Target file needs simplification before implementation work can proceed" \
+				--color "D93F0B" \
+				--force 2>/dev/null || true
 			local _new_num _create_body _create_combined
 			_create_body="## What
 Simplify \`${_lf_path}\` — currently over ${LARGE_FILE_LINE_THRESHOLD} lines. Break into smaller, focused modules.
@@ -1093,18 +1198,8 @@ _dispatch_dedup_check_layers() {
 		return 1
 	fi
 
-	# GH#17574: Skip dispatch if the task has already been committed directly
-	# to main. Workers that bypass the PR flow (direct commits) complete the
-	# work invisibly — the issue stays open until the pulse's mark-complete
-	# pass runs, which happens AFTER dispatch decisions. Without this check,
-	# the pulse dispatches redundant workers for already-completed work.
-	if _is_task_committed_to_main "$issue_number" "$repo_slug" "$target_title" "$repo_path"; then
-		echo "[dispatch_with_dedup] Dispatch blocked for #${issue_number} in ${repo_slug}: task already committed to main (GH#17574)" >>"$LOGFILE"
-		# GH#17642: Do NOT auto-close the issue. The main-commit check has a
-		# high false-positive rate (casual mentions, multi-runner deployment
-		# gaps, stale patterns). A false skip is harmless (next cycle retries),
-		# a false close is destructive (needs manual reopen, re-dispatch, and
-		# loses worker context). Let the verified merge-pass or human close it.
+	# GH#17574/GH#18644: commit-subject dedup gate with force-dispatch override.
+	if _check_commit_subject_dedup_gate "$issue_number" "$repo_slug" "$target_title" "$repo_path" "$issue_meta_json"; then
 		return 1
 	fi
 
