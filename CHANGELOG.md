@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.12] - 2026-04-14
+
+### Added
+
+- add --admin/--auto pass-through to cmd_merge (GH#18731) (#18757)
+
+### Changed
+
+- Documentation: tighten cross-runner-coordination reference (GH#18658) (#18758)
+- Maintenance: ratchet-down FUNCTION_COMPLEXITY_THRESHOLD 33→30 (GH#18729) (#18755)
+- file follow-up brief to complete t2046 Deliverable A audit (#18752)
+
 ## [3.8.11] - 2026-04-13
 
 ### Changed
