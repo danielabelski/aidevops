@@ -8,15 +8,24 @@
 # GitHub issues for follow-up. Idempotent — skips PRs with existing issues.
 #
 # Issue bodies are worker-actionable per the t1901 mandatory rule: each
-# includes file:line refs, a Worker Guidance section, and direct links to
-# the inline review comments. Workers must be able to fix the issue without
-# re-fetching the source PR's review API.
+# includes file:line refs, a Worker Guidance section, direct links to the
+# inline review comments, and a `diff` code fence with the diffHunk tail
+# so workers can see the flagged code without opening the file.
 #
-# Usage: post-merge-review-scanner.sh {scan|dry-run|help} [REPO]
+# Resolution filtering (t2052): the scanner queries GitHub's GraphQL
+# `reviewThreads` connection and skips threads where `isResolved` or
+# `isOutdated` is true. This is the canonical, bot-agnostic signal for
+# "this finding no longer applies" — it works for CodeRabbit (which also
+# writes "Addressed in commit X" per-comment), Gemini (which never self-
+# marks), claude-review, gpt-review, and human reviewers uniformly.
+#
+# Usage: post-merge-review-scanner.sh {scan|dry-run|refresh|refresh-dry-run|help} [REPO]
 # Env:   SCANNER_DAYS (default 7), SCANNER_MAX_ISSUES (default 10),
 #        SCANNER_LABEL (default review-followup),
 #        SCANNER_PR_LIMIT (default 1000),
 #        SCANNER_MAX_COMMENTS (default 10) — cap per issue body,
+#        SCANNER_DIFFHUNK_LINES (default 12) — tail lines of diffHunk to show,
+#        SCANNER_REFRESH_LIMIT (default 200) — max issues per refresh run,
 #        SCANNER_NEEDS_REVIEW (default false) — opt-in escape hatch to apply
 #          needs-maintainer-review at creation time. Normally the worker
 #          itself triages (verify premise → implement / close-wontfix /
@@ -24,7 +33,16 @@
 #          true only for pipelines where every bot finding genuinely needs
 #          human sign-off before any automated action.
 #
-# Worker-is-triager philosophy (GH#18538):
+# Subcommands:
+#   scan             — scan recent merged PRs and create new review-followup issues
+#   dry-run          — same as scan but only logs what would be created
+#   refresh          — rewrite open review-followup issue bodies using the current
+#                      template; close issues whose source PR has no unresolved
+#                      threads. Heals stale backlog without close-and-recreate.
+#   refresh-dry-run  — same as refresh but logs without editing/closing
+#   help             — print usage
+#
+# Worker-is-triager philosophy (GH#18538, PR #18743):
 #   A review-followup issue is not a human-only inbox item. The dispatched
 #   worker IS the triager. It must:
 #     1. Verify the bot's premise by reading the cited file:line.
@@ -59,11 +77,14 @@
 #
 # t1386: https://github.com/marcusquinn/aidevops/issues/2785
 # GH#18538: workers timed out on review-followup issues with truncated bodies.
-# GH#18538 follow-up: worker-is-triager model replaces default-gate model.
+# GH#18538 follow-up (PR #18743): worker-is-triager model replaces default-gate model.
+# t2054 (PR #18736): GraphQL reviewThreads + diffHunk context + refresh backfill.
 set -euo pipefail
 
-# Source shared-constants for gh_create_issue wrapper (t1756)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Source shared-constants for gh_create_issue wrapper (t1756). Use
+# ${BASH_SOURCE[0]:-$0} so that sourcing from a subshell / bash -c context
+# (where BASH_SOURCE may be unset under set -u) doesn't error out.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 # shellcheck source=shared-constants.sh
 [[ -f "${SCRIPT_DIR}/shared-constants.sh" ]] && source "${SCRIPT_DIR}/shared-constants.sh"
 
@@ -72,8 +93,13 @@ SCANNER_MAX_ISSUES="${SCANNER_MAX_ISSUES:-10}"
 SCANNER_LABEL="${SCANNER_LABEL:-review-followup}"
 SCANNER_PR_LIMIT="${SCANNER_PR_LIMIT:-1000}"
 SCANNER_MAX_COMMENTS="${SCANNER_MAX_COMMENTS:-10}"
+SCANNER_DIFFHUNK_LINES="${SCANNER_DIFFHUNK_LINES:-12}"
+SCANNER_REFRESH_LIMIT="${SCANNER_REFRESH_LIMIT:-200}"
 SCANNER_NEEDS_REVIEW="${SCANNER_NEEDS_REVIEW:-false}"
 BOT_RE="coderabbitai|gemini-code-assist|claude-review|gpt-review"
+# ACT_RE is retained ONLY for top-level review summary filtering. For inline
+# comments the thread-resolution filter is the canonical signal — every
+# unresolved review thread is by definition a finding worth surfacing.
 ACT_RE="should|consider|fix|change|update|refactor|missing|add"
 
 log() { echo "[scanner] $*" >&2; }
@@ -87,76 +113,275 @@ get_lookback_date() {
 	fi
 }
 
+# Split a repo slug (owner/name) into its parts. Usage:
+#   parse_repo_slug "owner/name" owner_var name_var
+parse_repo_slug() {
+	local slug="$1"
+	local _owner_var="$2" _name_var="$3"
+	local _owner="${slug%%/*}"
+	local _name="${slug##*/}"
+	printf -v "$_owner_var" '%s' "$_owner"
+	printf -v "$_name_var" '%s' "$_name"
+	return 0
+}
+
+# Fetch PR review threads via GraphQL. Returns the raw JSON response on
+# stdout. Threads include isResolved, isOutdated, and the first comment's
+# author, path, line, url, body, and diffHunk — everything needed to
+# decide whether the finding still applies and to render it as actionable
+# markdown.
+#
+# Exit codes:
+#   0  — success (JSON response emitted to stdout)
+#   2  — fetch/parse error (gh call failed or returned non-JSON).
+#        Callers MUST distinguish rc 0 (fetch OK, possibly no threads) from
+#        rc 2 (fetch failed) — the former means "no findings", the latter
+#        means "we have no data and cannot decide". Collapsing them into a
+#        single "no findings" outcome risks silently closing valid review-
+#        followup issues on transient GitHub/jq errors (CodeRabbit CR #18736).
+#
+# Why GraphQL over REST /pulls/:pr/comments:
+#   - REST does not expose thread state — we'd have to fall back to per-bot
+#     marker detection (CodeRabbit "Addressed in commit X"), which misses
+#     Gemini (no per-comment markers) and any future bot we add.
+#   - GraphQL returns isResolved/isOutdated directly on PullRequestReviewThread.
+#     These are canonical, uniform, and set by GitHub itself when the thread
+#     is resolved (by a reviewer click, a re-push that invalidates the line,
+#     or — for CodeRabbit — its own resolution automation).
+fetch_review_threads_json() {
+	local repo="$1" pr="$2"
+	local owner name
+	parse_repo_slug "$repo" owner name
+	local resp rc=0
+	# SC2016: the $owner/$name/$pr tokens inside this heredoc are GraphQL
+	# variables, not bash variables. The single-quoting is required so
+	# they reach the GraphQL server unexpanded.
+	# shellcheck disable=SC2016
+	resp=$(gh api graphql \
+		-F owner="$owner" -F name="$name" -F pr="$pr" \
+		-f query='
+			query($owner: String!, $name: String!, $pr: Int!) {
+				repository(owner: $owner, name: $name) {
+					pullRequest(number: $pr) {
+						reviewThreads(first: 100) {
+							nodes {
+								isResolved
+								isOutdated
+								comments(first: 1) {
+									nodes {
+										author { login }
+										path
+										line
+										url
+										body
+										diffHunk
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		' 2>/dev/null) || rc=$?
+	if [[ $rc -ne 0 ]]; then
+		log "fetch_review_threads_json: gh graphql failed for ${repo}#${pr} (rc=${rc})"
+		return 2
+	fi
+	# Validate the response is shaped as expected. If the API returned an
+	# error object instead of data, treat it as a fetch failure.
+	if ! printf '%s' "$resp" | jq -e '.data.repository.pullRequest.reviewThreads' >/dev/null 2>&1; then
+		log "fetch_review_threads_json: malformed response for ${repo}#${pr}"
+		return 2
+	fi
+	printf '%s' "$resp"
+	return 0
+}
+
 # Fetch inline review comments and format each as a markdown block. Each
-# block includes the bot login, file:line, a direct link to the comment, and
-# the full body (capped at 2000 chars) as a markdown blockquote so workers
-# can read the bot's full reasoning without re-fetching the API.
+# block includes the bot login, file:line, a direct link to the comment,
+# a `diff` fence with the tail of the diffHunk (so the worker sees the
+# flagged code inline), and the full body (capped at 2000 chars) as a
+# markdown blockquote.
+#
+# Filters:
+#   - Thread must be unresolved (isResolved == false)
+#   - Thread must not be outdated (isOutdated == false)
+#   - First comment author must match BOT_RE
+#
+# Exit codes:
+#   0  — success (stdout is markdown; empty string = no unresolved findings)
+#   2  — fetch error (propagated from fetch_review_threads_json or jq failure)
 fetch_inline_comments_md() {
 	local repo="$1" pr="$2"
-	gh api "repos/${repo}/pulls/${pr}/comments" --paginate 2>/dev/null |
-		jq -r --arg bots "$BOT_RE" --arg acts "$ACT_RE" --argjson cap "$SCANNER_MAX_COMMENTS" '
-			[.[]
-				| select((.user.login // "") | test($bots; "i"))
-				| select((.body // "") | test($acts; "i"))
+	local json rc=0
+	json=$(fetch_review_threads_json "$repo" "$pr") || rc=$?
+	if [[ $rc -ne 0 ]]; then
+		return 2
+	fi
+	local out
+	out=$(printf '%s' "$json" | jq -r \
+		--arg bots "$BOT_RE" \
+		--argjson cap "$SCANNER_MAX_COMMENTS" \
+		--argjson hunk "$SCANNER_DIFFHUNK_LINES" '
+			[.data.repository.pullRequest.reviewThreads.nodes[]?
+				| select((.isResolved // false) == false)
+				| select((.isOutdated // false) == false)
+				| .comments.nodes[0]?
+				| select(. != null)
+				| select(((.author.login // "")) | test($bots; "i"))
 			]
 			| if length == 0 then "" else
 				.[:$cap] | map(
-					"#### \(.user.login) on `\(.path // "<no path>"):\(.line // .original_line // "?")`\n\n"
-					+ "[View inline comment](\(.html_url))\n\n"
+					"#### \(.author.login) on `\(.path // "<no path>"):\(.line // "?")`\n\n"
+					+ "[View inline comment](\(.url // "#"))\n\n"
+					+ (
+						if ((.diffHunk // "") | length) > 0 then
+							"```diff\n"
+							+ ((.diffHunk // "")
+								| split("\n")
+								| (if length > $hunk then .[-$hunk:] else . end)
+								| join("\n"))
+							+ "\n```\n\n"
+						else "" end
+					)
 					+ ((.body // "")[:2000] | split("\n") | map("> " + .) | join("\n"))
 					+ "\n"
 				) | join("\n")
 			end
-		' 2>/dev/null || true
+		' 2>/dev/null) || {
+		log "fetch_inline_comments_md: jq failed on ${repo}#${pr}"
+		return 2
+	}
+	printf '%s' "$out"
+	return 0
 }
 
 # Fetch top-level PR review summaries (Gemini's "Code Review" body, etc.)
 # and format each as a markdown block. Same shape as inline comments but
-# without file:line refs.
+# without file:line refs and without diffHunk (top-level reviews are not
+# line-anchored).
+#
+# Filters:
+#   - Review author must match BOT_RE
+#   - Review body must be non-empty
+#   - Body must NOT be a CodeRabbit metadata summary (e.g. "**Actionable
+#     comments posted: 5**"). These are meta-comments about the per-thread
+#     findings — the per-thread findings themselves appear via
+#     fetch_inline_comments_md. Including the summary duplicates content
+#     and adds <details> wrapper noise.
+#   - Body must contain at least one ACT_RE keyword (cheap noise filter
+#     against "LGTM"/"Reviewed" acks).
+#
+# Exit codes:
+#   0  — success (stdout is markdown; empty string = no bot summaries)
+#   2  — fetch error (gh call failed or jq failure)
 fetch_review_summaries_md() {
 	local repo="$1" pr="$2"
-	gh api "repos/${repo}/pulls/${pr}/reviews" --paginate 2>/dev/null |
-		jq -r --arg bots "$BOT_RE" --arg acts "$ACT_RE" --argjson cap "$SCANNER_MAX_COMMENTS" '
-			[.[]
-				| select((.user.login // "") | test($bots; "i"))
-				| select((.body // "") | length > 0)
-				| select((.body // "") | test($acts; "i"))
+	local resp rc=0
+	resp=$(gh api "repos/${repo}/pulls/${pr}/reviews" --paginate 2>/dev/null) || rc=$?
+	if [[ $rc -ne 0 ]]; then
+		log "fetch_review_summaries_md: gh api failed for ${repo}#${pr} (rc=${rc})"
+		return 2
+	fi
+	local out
+	out=$(printf '%s' "$resp" | jq -r \
+		--arg bots "$BOT_RE" \
+		--arg acts "$ACT_RE" \
+		--argjson cap "$SCANNER_MAX_COMMENTS" '
+			[.[]?
+				| select(((.user.login // "")) | test($bots; "i"))
+				| select(((.body // "")) | length > 0)
+				# Drop CodeRabbit "Actionable comments posted: N" metadata
+				# summary reviews. These add no information beyond the
+				# per-thread findings and pollute the issue body with
+				# boilerplate <details> wrappers.
+				| select(((.body // "")) | test("^\\*\\*Actionable comments posted:|^Actionable comments posted:"; "i") | not)
+				# Keep only bodies containing at least one actionable keyword
+				| select(((.body // "")) | test($acts; "i"))
 			]
 			| if length == 0 then "" else
 				.[:$cap] | map(
 					"#### \(.user.login) review summary\n\n"
-					+ "[View review](\(.html_url))\n\n"
+					+ "[View review](\(.html_url // "#"))\n\n"
 					+ ((.body // "")[:2000] | split("\n") | map("> " + .) | join("\n"))
 					+ "\n"
 				) | join("\n")
 			end
-		' 2>/dev/null || true
+		' 2>/dev/null) || {
+		log "fetch_review_summaries_md: jq failed on ${repo}#${pr}"
+		return 2
+	}
+	printf '%s' "$out"
+	return 0
 }
 
-# Deduped list of `path:line` refs from inline comments, formatted as a
-# markdown bullet list. Used in the Worker Guidance section so workers can
-# see the full set of files to read at a glance.
+# Deduped list of `path:line` refs from unresolved inline comments,
+# formatted as a markdown bullet list. Used in the Worker Guidance section
+# so workers can see the full set of files to read at a glance.
+#
+# Uses the same GraphQL thread source as fetch_inline_comments_md so the
+# file list stays in sync with the rendered comments (no phantom refs
+# from resolved threads).
+#
+# Exit codes:
+#   0  — success (stdout is markdown; empty string = no file refs)
+#   2  — fetch error (propagated from fetch_review_threads_json or jq failure)
 fetch_file_refs_md() {
 	local repo="$1" pr="$2"
-	gh api "repos/${repo}/pulls/${pr}/comments" --paginate 2>/dev/null |
-		jq -r --arg bots "$BOT_RE" --arg acts "$ACT_RE" '
-			[.[]
-				| select((.user.login // "") | test($bots; "i"))
-				| select((.body // "") | test($acts; "i"))
+	local json rc=0
+	json=$(fetch_review_threads_json "$repo" "$pr") || rc=$?
+	if [[ $rc -ne 0 ]]; then
+		return 2
+	fi
+	local out
+	out=$(printf '%s' "$json" | jq -r --arg bots "$BOT_RE" '
+			[.data.repository.pullRequest.reviewThreads.nodes[]?
+				| select((.isResolved // false) == false)
+				| select((.isOutdated // false) == false)
+				| .comments.nodes[0]?
+				| select(. != null)
+				| select(((.author.login // "")) | test($bots; "i"))
 				| select(.path != null)
-				| "- `\(.path):\(.line // .original_line // "?")`"
+				| "- `\(.path):\(.line // "?")`"
 			] | unique | .[]
-		' 2>/dev/null || true
+		' 2>/dev/null) || {
+		log "fetch_file_refs_md: jq failed on ${repo}#${pr}"
+		return 2
+	}
+	printf '%s' "$out"
+	return 0
 }
 
 # Build a worker-actionable issue body for a PR's unaddressed bot feedback.
-# Returns 1 (and prints nothing) if there's no actionable content.
+#
+# Exit codes:
+#   0  — success (body printed to stdout)
+#   1  — no actionable content (all threads resolved/outdated, no bot
+#        summaries). Sentinel that callers — notably do_refresh — use to
+#        decide whether to close a follow-up issue as superseded.
+#   2  — fetch error (one or more helpers failed). Callers MUST NOT treat
+#        this as "no findings" — it means we do not have enough data to
+#        decide, and proceeding risks closing valid follow-up issues.
+#
+# This 3-valued return is important for do_refresh correctness: a
+# transient GitHub/jq failure would otherwise auto-close still-valid
+# follow-up issues on the next refresh run. See PR #18736 CodeRabbit
+# feedback for the original report.
 build_pr_followup_body() {
 	local repo="$1" pr="$2"
 	local inline review file_refs refs_section
-	inline=$(fetch_inline_comments_md "$repo" "$pr")
-	review=$(fetch_review_summaries_md "$repo" "$pr")
-	file_refs=$(fetch_file_refs_md "$repo" "$pr")
+	local inline_rc=0 review_rc=0 refs_rc=0
+	inline=$(fetch_inline_comments_md "$repo" "$pr") || inline_rc=$?
+	review=$(fetch_review_summaries_md "$repo" "$pr") || review_rc=$?
+	file_refs=$(fetch_file_refs_md "$repo" "$pr") || refs_rc=$?
+
+	# Any fetch error → refuse to produce a body. Callers get rc=2 and
+	# must log + skip (not close). This prevents closing valid issues on
+	# transient errors.
+	if [[ $inline_rc -ne 0 || $review_rc -ne 0 || $refs_rc -ne 0 ]]; then
+		log "build_pr_followup_body: fetch error for ${repo}#${pr} (inline=${inline_rc} review=${review_rc} refs=${refs_rc})"
+		return 2
+	fi
 
 	if [[ -z "$inline" && -z "$review" ]]; then
 		return 1
@@ -172,9 +397,11 @@ build_pr_followup_body() {
 ## Unaddressed review bot suggestions
 
 PR #${pr} was merged with unaddressed review bot feedback. Each comment
-below includes its file path, line number, and a direct link to the
-inline review comment. Read the relevant lines, decide whether the
-suggestion is correct, and either apply the fix or close this issue
+below includes its file path, line number, a direct link to the inline
+review comment, and a \`diff\` fence with the code context the bot was
+flagging. Resolved and outdated threads are filtered out via GitHub's
+GraphQL review-thread state. Read the relevant lines, decide whether
+the suggestion is correct, and either apply the fix or close this issue
 with a wontfix rationale.
 
 **Source PR:** https://github.com/${repo}/pull/${pr}
@@ -248,10 +475,16 @@ ${refs_section}
 
 **Implementation steps (Outcome B path):**
 
-1. Read each file at the specified \`:line\` (read ~20 lines around for context).
-2. Read the bot's full comment below — it contains the rationale and suggested change.
-3. Verify the premise before implementing (see Outcome A).
-4. If multiple comments target the same file, group edits into one logical commit.
+1. Read the \`diff\` block under each inline comment below — it shows the
+   exact code the bot was flagging. Open the file only if you need
+   surrounding context beyond what the diff tail shows.
+2. Read the bot's full comment below the diff — it contains the rationale
+   and any suggested change.
+3. Verify the premise before implementing (see Outcome A). If the premise
+   is wrong, switch to Outcome A instead of burning iterations trying to
+   satisfy a wrong suggestion.
+4. If multiple comments target the same file, group your edits into one
+   logical commit.
 5. Run \`shellcheck\` / \`markdownlint-cli2\` / project tests as appropriate.
 
 **Verification:**
@@ -267,6 +500,7 @@ ${inline:-_(none)_}
 
 ${review:-_(none)_}
 MD
+	return 0
 }
 
 issue_exists() {
@@ -276,6 +510,19 @@ issue_exists() {
 		--search "in:title \"${title_query}\"" --state all --limit 100 \
 		--json number --jq 'length' || echo "0")
 	[[ "$count" -gt 0 ]]
+}
+
+# Append the signature footer to a body. Uses gh-signature-helper.sh if
+# available; otherwise returns the body unchanged.
+append_sig_footer() {
+	local body="$1"
+	local sig_helper="${SCRIPT_DIR}/gh-signature-helper.sh"
+	local sig_footer=""
+	if [[ -x "$sig_helper" ]]; then
+		sig_footer=$("$sig_helper" footer 2>/dev/null || echo "")
+	fi
+	printf '%s%s' "$body" "$sig_footer"
+	return 0
 }
 
 create_issue() {
@@ -317,16 +564,13 @@ create_issue() {
 		label_list="${label_list},needs-maintainer-review"
 	fi
 
-	# Append signature footer
-	local sig_footer="" sig_helper
-	sig_helper="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/gh-signature-helper.sh"
-	if [[ -x "$sig_helper" ]]; then
-		sig_footer=$("$sig_helper" footer 2>/dev/null || echo "")
-	fi
+	local body_with_sig
+	body_with_sig=$(append_sig_footer "$body")
 
 	gh_create_issue --repo "$repo" --title "$title" \
 		--label "$label_list" \
-		--body "${body}${sig_footer}"
+		--body "$body_with_sig"
+	return 0
 }
 
 do_scan() {
@@ -348,14 +592,24 @@ do_scan() {
 			break
 		fi
 		if issue_exists "$repo" "$pr"; then
-			log "PR #${pr}: issue exists, skip"
+			log "PR #${pr}: issue exists, skip (use 'refresh' to rewrite)"
 			continue
 		fi
-		local body
-		body=$(build_pr_followup_body "$repo" "$pr") || {
+		local body=""
+		local build_rc=0
+		body=$(build_pr_followup_body "$repo" "$pr") || build_rc=$?
+		if [[ "$build_rc" -eq 1 ]]; then
 			log "PR #${pr}: no actionable bot feedback, skip"
 			continue
-		}
+		fi
+		if [[ "$build_rc" -eq 2 ]]; then
+			log "PR #${pr}: fetch error, skip (will retry next scan)"
+			continue
+		fi
+		if [[ -z "$body" ]]; then
+			log "PR #${pr}: inconsistent state (rc=0 but empty body), skip"
+			continue
+		fi
 		local pr_title
 		pr_title=$(gh pr view "$pr" --repo "$repo" --json title --jq '.title' || echo "Unknown")
 		log "PR #${pr}: creating issue"
@@ -366,13 +620,143 @@ do_scan() {
 	return 0
 }
 
+# Rewrite open review-followup issue bodies using the current template.
+# Close issues whose source PR has zero unresolved findings (all resolved
+# or outdated). Self-heals stale backlog from older scanner versions AND
+# future template changes without the close-and-recreate dance.
+#
+# Why not just re-scan: issue_exists() in do_scan skips PRs that already
+# have an issue (any state), so a re-scan leaves the old body in place.
+# Refresh is the explicit path to rewrite existing bodies.
+do_refresh() {
+	local repo="$1" dry_run="$2"
+	log "Refreshing open review-followup issues in ${repo} (dry_run=${dry_run})"
+
+	local issues_json
+	issues_json=$(gh issue list --repo "$repo" --label "$SCANNER_LABEL" \
+		--state open --limit "$SCANNER_REFRESH_LIMIT" \
+		--json number,title,body 2>/dev/null || echo "[]")
+
+	if [[ "$issues_json" == "[]" ]]; then
+		log "No open review-followup issues found"
+		return 0
+	fi
+
+	local count=0 updated=0 closed=0 unchanged=0 skipped=0
+
+	# Stream issues as tab-separated records with base64-encoded body
+	# (base64 survives newlines inside bash read loops).
+	while IFS=$'\t' read -r issue_number title old_body_b64; do
+		[[ -z "$issue_number" ]] && continue
+		count=$((count + 1))
+
+		# Extract source PR number from title: "Review followup: PR #NNN — ..."
+		local pr
+		pr=$(printf '%s' "$title" | sed -n 's/^Review followup: PR #\([0-9][0-9]*\).*/\1/p')
+		if [[ -z "$pr" ]]; then
+			log "issue #${issue_number}: cannot extract PR number from title, skip"
+			skipped=$((skipped + 1))
+			continue
+		fi
+
+		local new_body=""
+		local build_rc=0
+		new_body=$(build_pr_followup_body "$repo" "$pr") || build_rc=$?
+
+		# IMPORTANT (CodeRabbit CR on PR #18736): only close on the
+		# explicit no-findings sentinel (rc=1). Any other non-zero is a
+		# fetch error (rc=2) — log it and skip so we don't auto-close
+		# still-valid follow-up issues on transient GitHub/jq failures.
+		if [[ "$build_rc" -eq 2 ]]; then
+			log "issue #${issue_number}: fetch error building body for PR #${pr}, skip (will retry next refresh)"
+			skipped=$((skipped + 1))
+			continue
+		fi
+
+		if [[ "$build_rc" -eq 1 ]]; then
+			# Explicit no-findings sentinel — all findings resolved or
+			# outdated. Safe to close the follow-up issue.
+			local close_comment="All review findings on PR #${pr} are now resolved or outdated according to GitHub's review-thread state (isResolved or isOutdated == true). Closing as superseded by the GraphQL resolution filter.
+
+If any finding was missed, reopen this issue manually with a comment pointing at the specific thread — that feedback trains the next session on whether the filter needs tightening.
+
+_Refreshed by \`post-merge-review-scanner.sh refresh\` (t2054)._"
+
+			if [[ "$dry_run" == "true" ]]; then
+				log "[DRY-RUN] issue #${issue_number}: would close (PR #${pr} has no unresolved findings)"
+			else
+				if gh issue close "$issue_number" --repo "$repo" \
+					--comment "$close_comment" >/dev/null 2>&1; then
+					log "issue #${issue_number}: closed (no unresolved findings on PR #${pr})"
+					closed=$((closed + 1))
+				else
+					log "issue #${issue_number}: close failed"
+					skipped=$((skipped + 1))
+				fi
+			fi
+			continue
+		fi
+
+		# Paranoid guard: rc=0 but empty body should never happen if
+		# build_pr_followup_body is correct, but if it does, log it and
+		# skip rather than silently closing or silently updating with
+		# empty content.
+		if [[ -z "$new_body" ]]; then
+			log "issue #${issue_number}: inconsistent state (rc=0 but empty body) for PR #${pr}, skip"
+			skipped=$((skipped + 1))
+			continue
+		fi
+
+		# Append signature footer to match create_issue output
+		local new_body_with_sig
+		new_body_with_sig=$(append_sig_footer "$new_body")
+
+		# Decode old body for change detection
+		local old_body=""
+		if [[ -n "$old_body_b64" ]]; then
+			old_body=$(printf '%s' "$old_body_b64" | base64 --decode 2>/dev/null || echo "")
+		fi
+
+		# Strip signature footer from old body before comparison (the
+		# footer embeds a timestamp / token count that changes every run,
+		# so comparing with it would always report "changed"). The sig
+		# helper emits a block starting with "<!-- aidevops:sig -->".
+		local old_body_stripped
+		old_body_stripped="${old_body%%<!-- aidevops:sig -->*}"
+		local new_body_stripped
+		new_body_stripped="${new_body_with_sig%%<!-- aidevops:sig -->*}"
+
+		if [[ "$new_body_stripped" == "$old_body_stripped" ]]; then
+			log "issue #${issue_number}: body unchanged, skip"
+			unchanged=$((unchanged + 1))
+			continue
+		fi
+
+		if [[ "$dry_run" == "true" ]]; then
+			log "[DRY-RUN] issue #${issue_number}: would update body (old=${#old_body} new=${#new_body_with_sig} chars)"
+		else
+			if gh issue edit "$issue_number" --repo "$repo" \
+				--body "$new_body_with_sig" >/dev/null 2>&1; then
+				log "issue #${issue_number}: body updated"
+				updated=$((updated + 1))
+			else
+				log "issue #${issue_number}: edit failed"
+				skipped=$((skipped + 1))
+			fi
+		fi
+	done < <(printf '%s' "$issues_json" | jq -r '.[] | "\(.number)\t\(.title)\t\(.body // "" | @base64)"')
+
+	log "Refresh done. Processed: ${count}, updated: ${updated}, closed: ${closed}, unchanged: ${unchanged}, skipped: ${skipped}"
+	return 0
+}
+
 main() {
 	local command="${1:-}" repo="${2:-}"
 	if [[ -z "$command" ]]; then
-		echo "Usage: $(basename "$0") {scan|dry-run|help} [REPO]"
+		echo "Usage: $(basename "$0") {scan|dry-run|refresh|refresh-dry-run|help} [REPO]"
 		return 2
 	fi
-	if [[ -z "$repo" ]]; then
+	if [[ -z "$repo" ]] && [[ "$command" != "help" && "$command" != "-h" && "$command" != "--help" ]]; then
 		repo=$(gh repo view --json nameWithOwner -q .nameWithOwner || echo "")
 		[[ -z "$repo" ]] && {
 			echo "ERROR: Cannot determine repo" >&2
@@ -382,12 +766,28 @@ main() {
 	case "$command" in
 	scan) do_scan "$repo" "false" ;;
 	dry-run) do_scan "$repo" "true" ;;
-	-h | --help | help) echo "Usage: $(basename "$0") {scan|dry-run|help} [REPO]" ;;
+	refresh) do_refresh "$repo" "false" ;;
+	refresh-dry-run) do_refresh "$repo" "true" ;;
+	-h | --help | help)
+		echo "Usage: $(basename "$0") {scan|dry-run|refresh|refresh-dry-run|help} [REPO]"
+		echo ""
+		echo "  scan              Scan merged PRs and create new review-followup issues"
+		echo "  dry-run           Same as scan but log what would be created"
+		echo "  refresh           Rewrite open review-followup issue bodies; close issues"
+		echo "                    whose source PR has zero unresolved findings"
+		echo "  refresh-dry-run   Same as refresh but log what would be edited/closed"
+		echo "  help              This message"
+		;;
 	*)
 		echo "ERROR: Unknown command '$command'" >&2
 		return 2
 		;;
 	esac
+	return 0
 }
 
-main "$@"
+# Source guard: only run main() when executed as a script, not when
+# sourced (e.g. by the test harness). The `(return 0 2>/dev/null)`
+# idiom is the canonical, portable check: `return` outside a function
+# or sourced context errors, so if we CAN return 0, we're being sourced.
+(return 0 2>/dev/null) || main "$@"
