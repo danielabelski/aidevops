@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.8] - 2026-04-13
+
+### Changed
+
+- make memory recall mandatory in build.txt + AGENTS.md (#18698)
+- remove flock from pulse instance lock — mkdir-only is sufficient (#18688)
+
 ## [3.8.7] - 2026-04-13
 
 ### Added
