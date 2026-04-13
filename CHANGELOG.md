@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.0] - 2026-04-13
+
+### Added
+
+- wire circuit breaker, canary invalidation, adaptive throttle (t1959) (#18527)
+
+### Fixed
+
+- parse URL from gh issue create instead of invalid --json flag (#18533)
+- copy restricted agents verbatim instead of permissive stub (GH#18509) (#18528)
+
 ## [3.7.8] - 2026-04-13
 
 ### Added
