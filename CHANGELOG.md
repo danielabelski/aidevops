@@ -10,6 +10,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.9] - 2026-04-13
+
+### Changed
+
+- fix(pulse-triage) address gemini-code-assist review feedback from PR #18388 (#18628)
+- Maintenance: update simplification state registry
+- Maintenance: update simplification state registry
+- Maintenance: ratchet-down FUNCTION_COMPLEXITY_THRESHOLD 43→33 (#18720)
+- Maintenance: update simplification state registry
+- Refactor: decompose cmd_enrich() into focused helpers under 100 lines (#18715)
+- Refactor: decompose generate_subagent_stub() into focused helper functions (#18717)
+- Maintenance: ratchet down FUNCTION_COMPLEXITY_THRESHOLD 46 → 43 (GH#18695) (#18703)
+- Maintenance: update simplification state registry
+- extract _read_lock_pid + _handle_existing_lock from acquire_instance_lock (#18701)
+- Refactor: split _normalize_unassign_stale into focused helpers (GH#18690) (#18700)
+
+### Fixed
+
+- declare install_brew/install_python locals before setup_prompt (SC2154) (#18742)
+- setup.sh readonly GREEN cascade + dep-graph complexity (#18728)
+- complete remaining CodeRabbit findings on claude-proxy (#18730)
+- bump nesting threshold 266 → 272 (+7 headroom) (#18727)
+- strip origin:worker label independently of simplification-debt (#18726)
+- address review feedback from PR #18407 — jq null fallback, --arg safety, jq over python3 (#18566)
+- address review-followup findings in new-task-helper.sh (#18725)
+
 ## [3.8.8] - 2026-04-13
 
 ### Changed
