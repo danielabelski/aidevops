@@ -6773,10 +6773,10 @@
       "passes": 2
     },
     ".agents/configs/complexity-thresholds-history.md": {
-      "hash": "5a6b95cc20d459ffecc2e43bc793a7687d67b854",
-      "at": "2026-04-14T20:55:03Z",
+      "hash": "975fa2b39ad740f14952c93ad6ce928eed397e1e",
+      "at": "2026-04-14T23:50:30Z",
       "pr": 17979,
-      "passes": 15
+      "passes": 16
     },
     ".agents/scripts/memory-pressure-monitor.sh": {
       "hash": "d71f3754e56b925114a9b13c4ae3809cfb0c199d",
