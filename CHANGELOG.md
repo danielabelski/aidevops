@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.14] - 2026-04-14
+
+### Changed
+
+- brief-first issue body inlining — fix Sonnet worker first-pass failures (#18782)
+
 ## [3.8.12] - 2026-04-14
 
 ### Added
