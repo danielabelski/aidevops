@@ -5699,10 +5699,10 @@
       "pr": 16651
     },
     ".agents/scripts/dispatch-dedup-helper.sh": {
-      "hash": "27acbdc86a91e209f79259a8c294a950435dc1d4",
-      "at": "2026-04-14T08:25:17Z",
-      "pr": 18809,
-      "passes": 11
+      "hash": "d85b5669dedbf300f7d628747cd83d39074962b9",
+      "at": "2026-04-14T09:06:31Z",
+      "pr": 18917,
+      "passes": 12
     },
     ".agents/tools/ocr/overview.md": {
       "hash": "6dedb5ff5ef2e5d4288b956494a2bfc34b15b864",
@@ -6432,7 +6432,7 @@
       "hash": "476c989fca56149f90f1eefc2b02cafdc5a6e0d5",
       "simplified_at": "2026-04-04T09:17:13Z",
       "issue": "GH#17250",
-      "action": "consolidated 6 group tables + CSS block into single unified table with CSS variable column (94\u219228 lines)",
+      "action": "consolidated 6 group tables + CSS block into single unified table with CSS variable column (94→28 lines)",
       "at": "2026-04-04T14:53:40Z",
       "passes": 1
     },
@@ -6845,10 +6845,10 @@
       "passes": 1
     },
     ".agents/workflows/brief.md": {
-      "hash": "afa650ee65c536b86ac72d047c7643fbf2984253",
-      "at": "2026-04-09T07:32:16Z",
-      "pr": 17647,
-      "passes": 1
+      "hash": "72ad31f6f389a85966d857cc584fda2ce3c6f0c0",
+      "at": "2026-04-14T09:06:31Z",
+      "pr": 18927,
+      "passes": 2
     },
     ".agents/scripts/brief-tier-test-helper.sh": {
       "hash": "e856d04a2fead9fcf07c4e5ca80ab1ce792e6348",
@@ -6905,10 +6905,10 @@
       "passes": 9
     },
     ".agents/workflows/pulse.md": {
-      "hash": "56ee27508114a708f99f97132fb0e2903fec69ef",
-      "at": "2026-04-14T00:00:00Z",
-      "pr": 18930,
-      "passes": 3
+      "hash": "ff61825e354fc702e37c4716e1a891698d2b480e",
+      "at": "2026-04-14T09:06:31Z",
+      "pr": 18924,
+      "passes": 4
     },
     ".agents/workflows/pulse-sweep.md": {
       "hash": "02c55ceede075d7be12c1e0141a6e926d9efb9d6",
@@ -7079,10 +7079,10 @@
       "passes": 3
     },
     ".agents/workflows/define.md": {
-      "hash": "95da6084ccfee741bfa75a6686adf664a6064e81",
-      "at": "2026-04-14T09:37:00Z",
+      "hash": "f0b8d4d6f49604f982e06a48754f9d4bbf94288f",
+      "at": "2026-04-14T09:06:31Z",
       "pr": 18926,
-      "passes": 2
+      "passes": 3
     },
     ".agents/workflows/optimize-tiers.md": {
       "hash": "066bd6b47e328dbd06fdda6e003d447d060aa816",
