@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.19] - 2026-04-14
+
+### Changed
+
+- Maintenance: ratchet-down complexity thresholds (func:30→23, nest:272→269) (#18812)
+
+### Fixed
+
+- file-overlap verification before auto-closing conflicting worker PRs (#18820)
+- move completed tasks to ## Done instead of in-place [x] marking (#18806)
+
 ## [3.8.16] - 2026-04-14
 
 ### Fixed
