@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.24] - 2026-04-14
+
+### Changed
+
+- GH#18830: fix root cause of silent dispatch abort (bash 3.2 NUL parser bug) (#18877)
+- Maintenance: update simplification state registry
+
 ## [3.8.23] - 2026-04-14
 
 ### Added
