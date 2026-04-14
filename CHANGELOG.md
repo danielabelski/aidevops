@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.23] - 2026-04-14
+
+### Added
+
+- detect closed-not-merged PRs with still-open linked issues (#18828)
+
+### Changed
+
+- Refactor: decompose _sweep_shellcheck into focused helpers (GH#18810) (#18849)
+- Maintenance: update simplification state registry
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- [HOTFIX] oauth-pool third-party detection — namespace tool names (#18860)
+- prevent spurious re-queue issues when qlty reports zero smells (#18848)
+
 ## [3.8.19] - 2026-04-14
 
 ### Changed
