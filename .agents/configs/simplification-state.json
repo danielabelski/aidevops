@@ -6432,7 +6432,7 @@
       "hash": "476c989fca56149f90f1eefc2b02cafdc5a6e0d5",
       "simplified_at": "2026-04-04T09:17:13Z",
       "issue": "GH#17250",
-      "action": "consolidated 6 group tables + CSS block into single unified table with CSS variable column (94\u219228 lines)",
+      "action": "consolidated 6 group tables + CSS block into single unified table with CSS variable column (94→28 lines)",
       "at": "2026-04-04T14:53:40Z",
       "passes": 1
     },
@@ -6821,10 +6821,10 @@
       "passes": 2
     },
     ".agents/workflows/brief/tier-standard.md": {
-      "hash": "178aa2cb19871e3774e2d3ff1977b15f23468605",
-      "at": "2026-04-09T07:32:15Z",
-      "pr": 17669,
-      "passes": 1
+      "hash": "a7b7a6193f46afab4ef570832c6cf2774241267c",
+      "at": "2026-04-14T09:37:48Z",
+      "pr": 18940,
+      "passes": 2
     },
     ".agents/scripts/commands/optimize-tiers.md": {
       "hash": "066bd6b47e328dbd06fdda6e003d447d060aa816",
@@ -6911,10 +6911,10 @@
       "passes": 4
     },
     ".agents/workflows/pulse-sweep.md": {
-      "hash": "bca76bb1a939ea3b94018c0e74b580aee29a2cc5",
-      "at": "2026-04-14T10:00:00Z",
-      "pr": 18115,
-      "passes": 3
+      "hash": "a53224a50e1a86cc16c371dab21f300bca4c2650",
+      "at": "2026-04-14T09:37:48Z",
+      "pr": 18923,
+      "passes": 4
     },
     ".agents/commands/build-plus.md": {
       "hash": "a157ac23bc7f9d042eefd0c5418af9fb60d82aff",
