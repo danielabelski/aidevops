@@ -6773,10 +6773,10 @@
       "passes": 2
     },
     ".agents/configs/complexity-thresholds-history.md": {
-      "hash": "241d6cd649b29fd3b84d9b27e743bd843944ab96",
-      "at": "2026-04-14T09:58:52Z",
+      "hash": "5a6b95cc20d459ffecc2e43bc793a7687d67b854",
+      "at": "2026-04-14T20:55:03Z",
       "pr": 17979,
-      "passes": 14
+      "passes": 15
     },
     ".agents/scripts/memory-pressure-monitor.sh": {
       "hash": "d71f3754e56b925114a9b13c4ae3809cfb0c199d",
@@ -7437,6 +7437,12 @@
       "at": "2026-04-14T20:17:00Z",
       "pr": 18801,
       "passes": 2
+    },
+    ".agents/scripts/pulse-prefetch.sh": {
+      "hash": "bdc2d29c3356b99a9d243966952a99da908f28b3",
+      "at": "2026-04-14T20:55:10Z",
+      "pr": 18995,
+      "passes": 1
     }
   },
   ".agents/tools/design/library/brands/clickhouse/DESIGN.md": {
