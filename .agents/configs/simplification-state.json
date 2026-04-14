@@ -1826,10 +1826,10 @@
       "pr": 15916
     },
     ".agents/scripts/stats-functions.sh": {
-      "hash": "9e1b487cca25b72e4b9bc529bc7f402027297e8b",
-      "at": "2026-04-13T16:27:34Z",
-      "passes": 8,
-      "pr": 11273
+      "hash": "99a988fa40fb5a9d331f136fe999eb431ef3b629",
+      "at": "2026-04-14T02:45:18Z",
+      "pr": 18766,
+      "passes": 9
     },
     ".agents/scripts/tests/test-gh-signature-helper.sh": {
       "hash": "ca0b55552cf1b7cbc0963325cbd56b0fdf526576",
@@ -5699,10 +5699,10 @@
       "pr": 16651
     },
     ".agents/scripts/dispatch-dedup-helper.sh": {
-      "hash": "160b606935f533fc75fa7d90733c22d2522150a1",
-      "at": "2026-04-14T02:22:25Z",
-      "passes": 8,
-      "pr": 16650
+      "hash": "99d3560d57d4d324704b4c0f8fe5ae2fe1b809fc",
+      "at": "2026-04-14T02:45:22Z",
+      "pr": 18678,
+      "passes": 9
     },
     ".agents/tools/ocr/overview.md": {
       "hash": "6dedb5ff5ef2e5d4288b956494a2bfc34b15b864",
@@ -6899,10 +6899,10 @@
       "passes": 1
     },
     ".agents/commands/AGENTS.md": {
-      "hash": "28cc2074f94bb958888f896fa00fe70bce8ca3eb",
-      "at": "2026-04-14T02:22:15Z",
+      "hash": "3511c83f5781d3d0b8cf38891434e69d192ab5c4",
+      "at": "2026-04-14T02:45:10Z",
       "pr": 18117,
-      "passes": 5
+      "passes": 6
     },
     ".agents/workflows/pulse.md": {
       "hash": "f13a6f55eeb01caf5bb18ff2a6a22e02df63e952",
