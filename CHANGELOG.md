@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.39] - 2026-04-15
+
+### Added
+
+- add backfill-sub-issues subcommand (t2114) (#19167)
+
+### Changed
+
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- relax kill thresholds to let workers complete (#19168)
+
 ## [3.8.38] - 2026-04-15
 
 ### Added
