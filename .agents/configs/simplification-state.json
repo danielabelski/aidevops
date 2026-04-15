@@ -1712,9 +1712,9 @@
       "pr": 16084
     },
     ".agents/scripts/cron-helper.sh": {
-      "hash": "a036bcba2d66b44d1cfe0ae9fe48358ddd68fbab",
-      "at": "2026-04-03T03:15:28Z",
-      "passes": 1,
+      "hash": "2b63d10e39197fd598d801399b64d319a7eb8310",
+      "at": "2026-04-15T22:51:53Z",
+      "passes": 2,
       "pr": 15920
     },
     ".agents/scripts/dataset-helper.sh": {
@@ -1766,9 +1766,9 @@
       "pr": 16471
     },
     ".agents/scripts/matrix-dispatch-helper.sh": {
-      "hash": "22ca1563968c62d047a2713a40b0d3f15b6d681c",
-      "at": "2026-04-09T07:32:02Z",
-      "passes": 2,
+      "hash": "670ded5a2e120a4dd6cb6551c79bf21499ea9391",
+      "at": "2026-04-15T22:51:54Z",
+      "passes": 3,
       "pr": 15431
     },
     ".agents/scripts/mission-email-helper.sh": {
@@ -1814,9 +1814,9 @@
       "pr": 16536
     },
     ".agents/scripts/session-checkpoint-helper.sh": {
-      "hash": "1feda3eaabb02f6475b7d89129c0fafb06605298",
-      "at": "2026-04-09T07:32:02Z",
-      "passes": 2,
+      "hash": "e5beef2a264250ac84d4c25a9f577f3462ef4afa",
+      "at": "2026-04-15T22:51:55Z",
+      "passes": 3,
       "pr": 15917
     },
     ".agents/scripts/settings-helper.sh": {
@@ -5261,21 +5261,21 @@
       "pr": 16415
     },
     "TODO.md": {
-      "hash": "9528deccb39e24c6eab5abc19fbffd18bace21e9",
-      "at": "2026-04-15T19:04:02Z",
-      "passes": 20,
+      "hash": "8d1ce0ca9a629bb98802d46b14331bdd1691d800",
+      "at": "2026-04-15T22:52:18Z",
+      "passes": 21,
       "pr": 15490
     },
     "aidevops.sh": {
-      "hash": "2e486711f9bd1a8fed3820eda055207784b71b25",
-      "at": "2026-04-15T21:03:04Z",
+      "hash": "757881f069c802f24ab496f6c73c4196b078b8bf",
+      "at": "2026-04-15T22:52:18Z",
       "pr": 19029,
-      "passes": 63
+      "passes": 64
     },
     "setup.sh": {
-      "hash": "e93cd938ae30f82ecd2944230854f58c7332232f",
-      "at": "2026-04-15T21:03:04Z",
-      "passes": 61,
+      "hash": "0343addb91e60c491511d9d85163c07d93d6baeb",
+      "at": "2026-04-15T22:52:18Z",
+      "passes": 62,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -6773,10 +6773,10 @@
       "passes": 3
     },
     ".agents/configs/complexity-thresholds-history.md": {
-      "hash": "975fa2b39ad740f14952c93ad6ce928eed397e1e",
-      "at": "2026-04-14T23:50:30Z",
+      "hash": "926a520d5bc815afd92ea09c1c54b21f0e45936f",
+      "at": "2026-04-15T22:51:45Z",
       "pr": 17979,
-      "passes": 16
+      "passes": 17
     },
     ".agents/scripts/memory-pressure-monitor.sh": {
       "hash": "8df7dbaf7b29f4c65bf3fbce670d766a31eabb74",
@@ -6875,16 +6875,16 @@
       "passes": 1
     },
     ".agents/scripts/generate-claude-commands.sh": {
-      "hash": "381bfb2fc3b1be6b0cc3232498691b0a078d7f72",
-      "at": "2026-04-09T07:32:16Z",
+      "hash": "2d23d498eb9145bf0633990c845f71c562e90165",
+      "at": "2026-04-15T22:51:54Z",
       "pr": 17571,
-      "passes": 1
+      "passes": 2
     },
     ".agents/scripts/full-loop-helper.sh": {
-      "hash": "a19288250dc54b11775c2bba7796a9b700f4a1da",
-      "at": "2026-04-15T03:31:33Z",
+      "hash": "d369e2bc2b0e7f9dad45789af18d1132ed306093",
+      "at": "2026-04-15T22:51:54Z",
       "pr": 19046,
-      "passes": 7
+      "passes": 8
     },
     ".agents/workflows/autoresearch.md": {
       "hash": "f6c9df3d4d0f41acbccf1714eaa890ea59bcb0b3",
@@ -6899,10 +6899,10 @@
       "passes": 1
     },
     ".agents/commands/AGENTS.md": {
-      "hash": "f570ca81207d28bf3232b2cf55642e6ae48affba",
-      "at": "2026-04-15T07:31:45Z",
+      "hash": "ce01ce671b7c7eee80020ba2c94938751f844880",
+      "at": "2026-04-15T22:51:44Z",
       "pr": 18117,
-      "passes": 13
+      "passes": 14
     },
     ".agents/workflows/pulse.md": {
       "hash": "ff61825e354fc702e37c4716e1a891698d2b480e",
@@ -7319,10 +7319,10 @@
       "passes": 3
     },
     ".agents/scripts/pulse-merge.sh": {
-      "hash": "916aea2d20b3d07b1098cb032835c0b11833dfc0",
-      "at": "2026-04-15T08:44:22Z",
+      "hash": "c0f5c3e8a65928d25434ce4099cb23e2dd3404b8",
+      "at": "2026-04-15T22:51:54Z",
       "pr": 18829,
-      "passes": 9
+      "passes": 10
     },
     ".agents/scripts/pulse-quality-debt.sh": {
       "hash": "04957bb5580d2f45b0926bd22b2310916b1ab0da",
