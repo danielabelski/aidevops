@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.45] - 2026-04-16
+
+### Changed
+
+- final Pattern C migration + zero-violation audit (Phase 7c) (#19180)
+- migrate Tier 1/2 setup-chain helpers to Pattern A (#19183)
+- Maintenance: update simplification state registry
+- Maintenance: mark t2125 complete (pr:#19199)
+- Maintenance: ratchet FUNCTION_COMPLEXITY_THRESHOLD 29→28 (#19199)
+
+### Fixed
+
+- drop origin:interactive exclusion from CI/conflict/review feedback routing (#19205)
+
 ## [3.8.44] - 2026-04-15
 
 ### Added
