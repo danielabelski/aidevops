@@ -10,6 +10,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.44] - 2026-04-15
+
+### Added
+
+- route CI failures and merge conflicts to issues for worker re-dispatch (#19200)
+- t2123 configurable review gate rate-limit behavior per tool and per repo (#19186)
+
+### Changed
+
+- Maintenance: mark t2122 complete (pr:#19181)
+- extend Response.json() fix to remaining opencode plugin Bun.serve callers (#19181)
+- test harness Pattern C batch 2 (Phase 7b) (#19184)
+- BOLD readonly normalization batch 2 (Phase 8b) (#19182)
+- Refactor: Pattern C color variable rename in 5 test harnesses (#19188)
+- Refactor: t2053.6 eliminate banned readonly + final production audit (Phase 6) (#19187)
+
+### Fixed
+
+- use Response.json() in proxy handlers to avoid Bun _Response type mismatch (#19174)
+- replace --limit 1 with --limit 20 + jq local filter in Check 1b and 2 (GH#19140) (#19195)
+- bump NESTING_DEPTH_THRESHOLD 279→286 to restore headroom (GH#19086) (#19192)
+
 ## [3.8.43] - 2026-04-15
 
 ### Changed
