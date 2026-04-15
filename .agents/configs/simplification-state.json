@@ -5267,15 +5267,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "hash": "cca90fddd3cc03408cbc1b76eb2e137ef58f052b",
-      "at": "2026-04-15T20:06:19Z",
+      "hash": "2e486711f9bd1a8fed3820eda055207784b71b25",
+      "at": "2026-04-15T21:03:04Z",
       "pr": 19029,
-      "passes": 62
+      "passes": 63
     },
     "setup.sh": {
-      "hash": "e86ec8196b107438b8c5284725a08858d1ca083a",
-      "at": "2026-04-15T20:06:19Z",
-      "passes": 60,
+      "hash": "e93cd938ae30f82ecd2944230854f58c7332232f",
+      "at": "2026-04-15T21:03:04Z",
+      "passes": 61,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -5925,10 +5925,10 @@
       "passes": 1
     },
     ".agents/scripts/design-preview-helper.sh": {
-      "hash": "62b4ec20acb991421258457048d87fdc20bf7439",
-      "at": "2026-04-09T22:13:22Z",
+      "hash": "fb72927eeb79b85ca1a2ce802de5eebb04871d40",
+      "at": "2026-04-15T21:02:38Z",
       "pr": 16879,
-      "passes": 3
+      "passes": 4
     },
     ".agents/tools/design/library/styles/playful-vibrant/DESIGN.md": {
       "hash": "f42502be75dfeee3f716f54b3ea2d8e6697414a6",
@@ -6767,10 +6767,10 @@
       "passes": 3
     },
     ".agents/scripts/tabby-helper.sh": {
-      "hash": "6f8d6f554f385810e4e738a5cdebda03efcb1840",
-      "at": "2026-04-09T07:32:02Z",
+      "hash": "fcbdba8938e0a37591f2fb3e51fb24062d01356d",
+      "at": "2026-04-15T21:02:40Z",
       "pr": 17549,
-      "passes": 2
+      "passes": 3
     },
     ".agents/configs/complexity-thresholds-history.md": {
       "hash": "975fa2b39ad740f14952c93ad6ce928eed397e1e",
@@ -7457,10 +7457,10 @@
       "passes": 1
     },
     ".agents/scripts/worktree-helper.sh": {
-      "hash": "886cd9c5ac9770068f8d82b0f577466b8de8b1c6",
-      "at": "2026-04-15T03:32:06Z",
+      "hash": "4d554bea9e09f95a3d4929aa6aadc4c0a9539f29",
+      "at": "2026-04-15T21:02:40Z",
       "pr": 19087,
-      "passes": 1
+      "passes": 2
     }
   },
   ".agents/tools/design/library/brands/clickhouse/DESIGN.md": {
