@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.47] - 2026-04-16
+
+### Added
+
+- auto-close parent-task issues when all children resolved (#19211)
+- shell init pattern lint gate (t2053 Phase 2) (#19210)
+
 ## [3.8.46] - 2026-04-16
 
 ### Added
