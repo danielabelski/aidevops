@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.43] - 2026-04-15
+
+### Changed
+
+- Refactor: t2053.8a BOLD readonly normalization batch 1 (Phase 8a) (#19179)
+- Maintenance: update simplification state registry
+- Refactor: t2053.8c BOLD readonly normalization batch 3 (Phase 8c) (#19177)
+- migrate Tier 4 standalone helpers (Phase 5) (#19176)
+
+### Fixed
+
+- auto-restart pulse after agent deployment (#19185)
+
 ## [3.8.42] - 2026-04-15
 
 ### Changed
