@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.40] - 2026-04-15
+
+### Changed
+
+- feat(ci): systemic gh_create_issue / gh_create_pr wrapper enforcement (#19169)
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- preserve subtask decimal suffix in blocked-by parsing (#19170)
+
 ## [3.8.39] - 2026-04-15
 
 ### Added
