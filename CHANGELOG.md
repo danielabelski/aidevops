@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.32] - 2026-04-15
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Maintenance: t2108 brief + TODO entry for pulse-merge title fallback fix (#19053)
+
+### Fixed
+
+- route orphan worktree removal through trash before delete (#19057)
+
 ## [3.8.31] - 2026-04-15
 
 ### Added
