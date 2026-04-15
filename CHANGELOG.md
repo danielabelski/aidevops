@@ -10,6 +10,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.31] - 2026-04-15
+
+### Added
+
+- harden interactive full-loop with structural issue claim (#19039)
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Maintenance: t2105 brief + TODO entry for aidevops issue CLI subcommand wiring (#19043)
+- stats-functions decomposition Phase 3 — extract stats-health-dashboard.sh (#19033)
+- Maintenance: file t2100 parent + t2101/t2102/t2103 children for #19024 post-mortem
+- Refactor: tighten brief composition templates prose (#19027)
+- feat(tooling): add static scanner for unguarded Linux/macOS-only command calls (#19023)
+- Maintenance: update simplification state registry
+- Refactor: reduce qlty smells 39→20 to achieve maintainability A-grade (#19013)
+- bump NESTING_DEPTH_THRESHOLD 279→284 to restore headroom (#19020)
+- add QLTY_SMELL_THRESHOLD ratchet for multi-language smell count (#18878)
+- Maintenance: ratchet down NESTING_DEPTH_THRESHOLD 284→279 (GH#19015) (#19017)
+- Maintenance: update simplification state registry
+- decompose _create_new_quality_debt_issue into focused helpers (#19011)
+- Maintenance: update simplification state registry
+- reduce _scan_single_pr complexity by extracting helpers (#19012)
+- Maintenance: mark t2099 complete (pr:#19008)
+- Maintenance: update simplification state registry
+- auto-apply 'good first issue' label to tier:simple issues (#19008)
+- fix review-followup scanner to skip empty bot reviews (#19005)
+- bump NESTING_DEPTH_THRESHOLD 281→284 to restore headroom (#19006)
+- Maintenance: update simplification state registry
+- split quality-feedback-helper.sh into focused modules (#19001)
+- Maintenance: update simplification state registry
+- bump NESTING_DEPTH_THRESHOLD 275→281 to restore headroom (#18996)
+- GH#18995: refactor(pulse-prefetch): extract helpers to reduce prefetch_needs_info_replies to 64 lines (#18997)
+- Maintenance: update simplification state registry
+- t2065: add qlty smell regression gate workflow
+- check statusCheckRollup before --admin merge to prevent merging PRs with failing CI (#18968)
+- fix(pulse): disk-space pre-check + worktree count cap + daily cleanup routine (#18990)
+- Refactor: extract parser and index modules from email_imap_adapter.py to eliminate Qlty total-complexity smell (#18992)
+- Maintenance: update simplification state registry
+- fix(pulse): reduce cleanup_worktrees timeout 600s→60s (#18991)
+- fix(worktree-helper): 10s timeout on git fetch --prune in cleanup (#18989)
+- add canary test for pulse-wrapper.sh main() runtime execution (#18982)
+- route review feedback from stuck worker PRs to linked issue (#18972)
+
+### Fixed
+
+- link worktree branch names to issue numbers, reuse existing worktrees (#19052)
+- use gh pr checks --required to filter required-only checks (GH#19040, t2104) (#19041)
+- skip gh issue close on parent-task linked issues (t2099) (#19034)
+- resolve 9 of 11 medium+ issues from GH#19013 refactor (#19022)
+- keep ANTHROPIC_API_KEY for native CLI fallback + rename provider (#18975)
+- exclude signature_not_fetched from systemic clusters (#18999)
+- dedup recently-closed simplification-debt issues before re-filing (#18969)
+- show full --confidence high|medium|low placeholder in memory-helper store example (#18903)
+- prevent cleanup-stage stall on rate-limit exhaustion + reduce full-sweep interval + add pulse health check (#18986)
+
 ## [3.8.30] - 2026-04-14
 
 ### Changed
