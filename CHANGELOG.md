@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.46] - 2026-04-16
+
+### Added
+
+- auto-close open issues with merged PRs (#19209)
+
+### Changed
+
+- Maintenance: ratchet-down NESTING_DEPTH_THRESHOLD 286 → 281 (GH#19204) (#19207)
+
 ## [3.8.45] - 2026-04-16
 
 ### Changed
