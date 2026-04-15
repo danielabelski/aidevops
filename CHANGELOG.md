@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.37] - 2026-04-15
+
+### Changed
+
+- enforce signature footer in gh_create_issue and gh_create_pr wrappers (#19102)
+- refactor: reduce cmd_add() complexity in worktree-helper.sh (#19095)
+- tighten brief.md — fold headless section, compress tier default, drop redundant QR bullet (#19097)
+- Maintenance: update simplification state registry
+- migrate Tier 3 pulse/worker helpers to Pattern A (Phase 4) (#19090)
+
 ## [3.8.35] - 2026-04-15
 
 ### Changed
