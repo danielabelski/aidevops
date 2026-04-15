@@ -1754,9 +1754,9 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "hash": "70a8032a1ebaef0c5996899ee3d563f5e2094df0",
-      "at": "2026-04-14T08:25:18Z",
-      "passes": 18,
+      "hash": "cbbfdcd4cc2e91dd59b5250ca726f5d8fa50ab11",
+      "at": "2026-04-15T15:27:39Z",
+      "passes": 19,
       "pr": 15086
     },
     ".agents/scripts/issue-sync-lib.sh": {
@@ -6695,10 +6695,10 @@
       "passes": 2
     },
     ".agents/scripts/worker-lifecycle-common.sh": {
-      "hash": "29bd124161ec5a8c0f210910784cabc8dfc4faa4",
-      "at": "2026-04-14T08:25:20Z",
+      "hash": "15a54c2316949e5f5bcbb52efbf7587f95e87863",
+      "at": "2026-04-15T15:27:41Z",
       "pr": 17353,
-      "passes": 5
+      "passes": 6
     },
     ".agents/tools/code-review/setup.md": {
       "hash": "fb0d5288be7a808f9dc232d229f4dca354745323",
