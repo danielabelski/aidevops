@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.35] - 2026-04-15
+
+### Changed
+
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- restore gitignored node_modules in worktrees
+
 ## [3.8.34] - 2026-04-15
 
 ### Changed
