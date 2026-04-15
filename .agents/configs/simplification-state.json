@@ -6839,10 +6839,10 @@
       "passes": 2
     },
     ".agents/workflows/brief/templates.md": {
-      "hash": "cfe4ea70c0cdf20b8d066b3a7ed8df055445b5c3",
-      "at": "2026-04-15T03:00:55Z",
+      "hash": "8f1ca1ac6cf9ab689d00af0945eb3af6ca039c80",
+      "at": "2026-04-15T03:59:49Z",
       "pr": 17658,
-      "passes": 2
+      "passes": 3
     },
     ".agents/workflows/brief.md": {
       "hash": "0f13cdc0577cd473600fbb0a609536ad21c0a411",
@@ -7319,10 +7319,10 @@
       "passes": 2
     },
     ".agents/scripts/pulse-merge.sh": {
-      "hash": "c49180f792b56933c684f52fdc0b80bec3eb5505",
-      "at": "2026-04-15T02:32:29Z",
+      "hash": "95176fa79cf2c1a3883450079791215de25606e9",
+      "at": "2026-04-15T03:59:28Z",
       "pr": 18829,
-      "passes": 7
+      "passes": 8
     },
     ".agents/scripts/pulse-quality-debt.sh": {
       "hash": "04957bb5580d2f45b0926bd22b2310916b1ab0da",
@@ -7373,10 +7373,10 @@
       "passes": 1
     },
     ".agents/hooks/task-id-collision-guard.sh": {
-      "hash": "5801f2b9fe256ca1a928180f3f08acfc7a155f09",
-      "at": "2026-04-13T21:15:10Z",
+      "hash": "7af29498bf5df56b0743eee15a76e71bfa598688",
+      "at": "2026-04-15T03:59:21Z",
       "pr": 18718,
-      "passes": 1
+      "passes": 2
     },
     ".agents/scripts/new-task-helper.sh": {
       "hash": "4c8ce538c2cdbf98f4b247a4d9217aaa5bf67f5b",
