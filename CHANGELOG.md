@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.42] - 2026-04-15
+
+### Changed
+
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- reset stale-recovery tick counter on auto-approve (#19172)
+
 ## [3.8.41] - 2026-04-15
 
 ### Changed
