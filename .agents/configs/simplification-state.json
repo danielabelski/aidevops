@@ -1790,10 +1790,10 @@
       "pr": 15455
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "hash": "28387b233527dae82a6d5270892d39f596489201",
-      "at": "2026-04-14T20:17:00Z",
+      "hash": "90cb0dea8fa49195884bb9426eb0872906fcfff2",
+      "at": "2026-04-15T02:32:29Z",
       "pr": 18689,
-      "passes": 12
+      "passes": 13
     },
     ".agents/scripts/schema-validator-helper.sh": {
       "hash": "91041cff94cedcf2b6e9fcaa8373cef9a77608bf",
@@ -5267,10 +5267,10 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "hash": "35f24719f5c22f28debe75ab450772ccc10a393c",
-      "at": "2026-04-13T16:28:01Z",
-      "passes": 55,
-      "pr": 15470
+      "hash": "42ade4fa8db91dfe7ae918a6bc8c58162eee8f2a",
+      "at": "2026-04-15T02:32:29Z",
+      "pr": 19029,
+      "passes": 56
     },
     "setup.sh": {
       "hash": "a8b689110f709175e1aed7f0b5b8cd8c9da88fe5",
@@ -6432,7 +6432,7 @@
       "hash": "476c989fca56149f90f1eefc2b02cafdc5a6e0d5",
       "simplified_at": "2026-04-04T09:17:13Z",
       "issue": "GH#17250",
-      "action": "consolidated 6 group tables + CSS block into single unified table with CSS variable column (94\u219228 lines)",
+      "action": "consolidated 6 group tables + CSS block into single unified table with CSS variable column (94→28 lines)",
       "at": "2026-04-04T14:53:40Z",
       "passes": 1
     },
@@ -6881,10 +6881,10 @@
       "passes": 1
     },
     ".agents/scripts/full-loop-helper.sh": {
-      "hash": "6607e3ceff9ce3eb2ac34b70ffa57a61cee6e3e5",
-      "at": "2026-04-14T20:16:59Z",
-      "pr": 18058,
-      "passes": 5
+      "hash": "e353d5eb994bd2d50aa2e3773934b85b8be28f18",
+      "at": "2026-04-15T02:32:29Z",
+      "pr": 19046,
+      "passes": 6
     },
     ".agents/workflows/autoresearch.md": {
       "hash": "f6c9df3d4d0f41acbccf1714eaa890ea59bcb0b3",
@@ -7079,10 +7079,10 @@
       "passes": 3
     },
     ".agents/workflows/define.md": {
-      "hash": "f0b8d4d6f49604f982e06a48754f9d4bbf94288f",
-      "at": "2026-04-14T09:06:31Z",
+      "hash": "50fedc89674fa998b1a1a7e3fae138649473a8f2",
+      "at": "2026-04-15T02:32:29Z",
       "pr": 18926,
-      "passes": 3
+      "passes": 4
     },
     ".agents/workflows/optimize-tiers.md": {
       "hash": "066bd6b47e328dbd06fdda6e003d447d060aa816",
@@ -7319,10 +7319,10 @@
       "passes": 2
     },
     ".agents/scripts/pulse-merge.sh": {
-      "hash": "837795f6385ed250256f9b407440a5d6b5ff9351",
-      "at": "2026-04-15T00:41:03Z",
+      "hash": "c49180f792b56933c684f52fdc0b80bec3eb5505",
+      "at": "2026-04-15T02:32:29Z",
       "pr": 18829,
-      "passes": 6
+      "passes": 7
     },
     ".agents/scripts/pulse-quality-debt.sh": {
       "hash": "04957bb5580d2f45b0926bd22b2310916b1ab0da",
@@ -7349,10 +7349,10 @@
       "passes": 2
     },
     ".agents/scripts/issue-sync-helper.sh": {
-      "hash": "778e2a1a0f2a5232b84fb55ff5b93afd77873407",
-      "at": "2026-04-14T08:25:18Z",
+      "hash": "e02a39bd0976189c77486d70d853fb8a052c73c3",
+      "at": "2026-04-15T02:32:29Z",
       "pr": 18706,
-      "passes": 4
+      "passes": 5
     },
     ".agents/scripts/pulse-fast-fail.sh": {
       "hash": "292f4dfd80d2cb97715a9bda1fe985b5cabf6c80",
@@ -7361,10 +7361,10 @@
       "passes": 3
     },
     ".agents/scripts/pulse-simplification-state.sh": {
-      "hash": "1c80e0f0daf970ad6b014856089835e9e8c71e88",
-      "at": "2026-04-14T08:25:19Z",
+      "hash": "1b044ed90b9140fab14cc33dae6af134816b6a13",
+      "at": "2026-04-15T02:32:29Z",
       "pr": 18680,
-      "passes": 4
+      "passes": 5
     },
     ".agents/reference/bash-fd-locking.md": {
       "hash": "79fdafdb8ba9765b398538f513272a710e2f696a",
@@ -7385,10 +7385,10 @@
       "passes": 2
     },
     ".agents/scripts/pulse-cleanup.sh": {
-      "hash": "060f271fc0dee36afa7260cf8a9e1b9048ebe0e3",
-      "at": "2026-04-15T01:04:40Z",
+      "hash": "88c7d4f1beba3de5f86421e507fc899b9879a6e6",
+      "at": "2026-04-15T02:32:29Z",
       "pr": 18704,
-      "passes": 3
+      "passes": 4
     },
     ".agents/scripts/pulse-dep-graph.sh": {
       "hash": "b5be2e1e04ea9d7e5242220c3b048319cca91cfa",
@@ -7421,10 +7421,10 @@
       "passes": 2
     },
     ".agents/scripts/shared-constants.sh": {
-      "hash": "cd76824e43a02bb5f03428a73182816f9060c09f",
-      "at": "2026-04-14T20:17:01Z",
+      "hash": "187250991cd69fe91bf1c0d5726597dac890a39d",
+      "at": "2026-04-15T02:32:29Z",
       "pr": 18847,
-      "passes": 3
+      "passes": 4
     },
     ".agents/scripts/interactive-session-helper.sh": {
       "hash": "4a62f8f22b887223c9aa5c730d10f74d6350eef5",
