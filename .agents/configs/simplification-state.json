@@ -5267,15 +5267,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "hash": "93e438a052a2f0fcc6afcb3ed0024ab52a4d5883",
-      "at": "2026-04-15T18:38:30Z",
+      "hash": "cca90fddd3cc03408cbc1b76eb2e137ef58f052b",
+      "at": "2026-04-15T20:06:19Z",
       "pr": 19029,
-      "passes": 61
+      "passes": 62
     },
     "setup.sh": {
-      "hash": "ec841dfaf4ca99df16acf6437ef99c54eb34346d",
-      "at": "2026-04-15T18:38:30Z",
-      "passes": 59,
+      "hash": "e86ec8196b107438b8c5284725a08858d1ca083a",
+      "at": "2026-04-15T20:06:19Z",
+      "passes": 60,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7409,10 +7409,10 @@
       "passes": 5
     },
     ".agents/scripts/pulse-dispatch-core.sh": {
-      "hash": "2267caae5f0cd19e9854762ede7803f6b8e96b18",
-      "at": "2026-04-15T07:31:56Z",
+      "hash": "2f27c838214719f8ee1e4e66b37cf84c95f9cdac",
+      "at": "2026-04-15T20:05:53Z",
       "pr": 18832,
-      "passes": 6
+      "passes": 7
     },
     ".agents/scripts/stats-quality-sweep.sh": {
       "hash": "6fe05a80fbe9be2c6c0c56f40f40bd3b96f52bf1",
