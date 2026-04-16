@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.52] - 2026-04-16
+
+### Changed
+
+- fix interactive claims broken by stale-recovery + auto-claim conflation (#19237)
+- tighten shell-style-guide.md from 143 to 135 lines (#19240)
+- ratchet down NESTING_DEPTH_THRESHOLD 286→281 (actual 279 + 2 buffer) (#19239)
+- tighten pre-dispatch-validators.md from 134 to 129 lines (#19221)
+- refactor(email-pipeline): decompose email python cluster (#19230)
+- refactor(higgsfield): decompose commands/video/common/image into focused modules (#19232)
+- decompose doc/agent indexing python cluster into shared modules (#19233)
+- Maintenance: update simplification state registry
+
 ## [3.8.51] - 2026-04-16
 
 ### Changed
