@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.49] - 2026-04-16
+
+### Fixed
+
+- lock issue before posting approval marker to prevent comment injection (#19213)
+
 ## [3.8.48] - 2026-04-16
 
 ### Fixed
