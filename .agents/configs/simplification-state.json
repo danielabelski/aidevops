@@ -281,9 +281,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-15T22:51:44Z",
-      "hash": "ce01ce671b7c7eee80020ba2c94938751f844880",
-      "passes": 14,
+      "at": "2026-04-16T16:35:54Z",
+      "hash": "57be256a0723a08ffcfe773fcf28551fd5dc96f2",
+      "passes": 15,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -1633,9 +1633,9 @@
       "pr": 15301
     },
     ".agents/reference/bash-compat.md": {
-      "at": "2026-04-14T20:16:56Z",
-      "hash": "2349fcdc14f5b7aa6a1c7c23008e38f8ef558240",
-      "passes": 3,
+      "at": "2026-04-16T16:36:01Z",
+      "hash": "ec88d2b87aa7aebf380fde58e3cafa178f5e3f27",
+      "passes": 4,
       "pr": 16580
     },
     ".agents/reference/bash-fd-locking.md": {
@@ -2429,9 +2429,9 @@
       "pr": 18691
     },
     ".agents/scripts/pulse-issue-reconcile.sh": {
-      "at": "2026-04-16T14:49:36Z",
-      "hash": "318cf6b577892d6f7f4fde09d4f2c2fb17b200e8",
-      "passes": 5,
+      "at": "2026-04-16T16:36:05Z",
+      "hash": "0674552bba5250b2ca6e7b1e67bcb94e10d8a0f4",
+      "passes": 6,
       "pr": 18690
     },
     ".agents/scripts/pulse-merge.sh": {
@@ -7479,21 +7479,21 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-16T14:50:00Z",
-      "hash": "ba4582a32fbb92b0366d365666950dd47d973a9c",
-      "passes": 22,
+      "at": "2026-04-16T16:36:31Z",
+      "hash": "dbc3ab67c160b6f40e73ce928617946714911fa0",
+      "passes": 23,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-16T14:50:00Z",
-      "hash": "384c3f257fb661b354ad4b438fad9d7b4fd97deb",
-      "passes": 67,
+      "at": "2026-04-16T16:36:31Z",
+      "hash": "e4ad536d7f2a041461b47a6cd0895aa43f661ad2",
+      "passes": 68,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-04-16T14:50:00Z",
-      "hash": "c8c060b1f7a4b718fb4a127ae702074ee26e8c2b",
-      "passes": 65,
+      "at": "2026-04-16T16:36:32Z",
+      "hash": "8603ac191ccbd775170f948cb474d23db0c57988",
+      "passes": 66,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
