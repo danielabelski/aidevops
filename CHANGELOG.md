@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.58] - 2026-04-16
+
+### Changed
+
+- Maintenance: mark t2139 complete (pr:#19309)
+- review-bot-gate require positive completion signal in bot_has_real_review (#19309)
+
 ## [3.8.57] - 2026-04-16
 
 ### Changed
