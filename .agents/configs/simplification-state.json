@@ -2472,15 +2472,15 @@
       "pr": 18653
     },
     ".agents/scripts/pulse-triage.sh": {
-      "at": "2026-04-16T18:41:09Z",
-      "hash": "ba7f171da4407e8a3bfa831eeae53a2ca9e79480",
-      "passes": 6,
+      "at": "2026-04-16T20:58:45Z",
+      "hash": "f1883bf0adfbb2995671ccabe56b81bf3ffda73b",
+      "passes": 7,
       "pr": 18655
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "at": "2026-04-16T19:05:41Z",
-      "hash": "61e5e619efafbda551a7a5183feb77d4833a96db",
-      "passes": 15,
+      "at": "2026-04-16T20:58:45Z",
+      "hash": "3b8829a55485ff8bcb0a8eaca2c71828ada7da0c",
+      "passes": 16,
       "pr": 18689
     },
     ".agents/scripts/quality-feedback-findings-lib.sh": {
@@ -5835,7 +5835,7 @@
       "pr": 17019
     },
     ".agents/tools/design/library/styles/corporate-traditional/02-colours.md": {
-      "action": "consolidated 6 group tables + CSS block into single unified table with CSS variable column (94\u219228 lines)",
+      "action": "consolidated 6 group tables + CSS block into single unified table with CSS variable column (94→28 lines)",
       "at": "2026-04-04T14:53:40Z",
       "hash": "476c989fca56149f90f1eefc2b02cafdc5a6e0d5",
       "issue": "GH#17250",
