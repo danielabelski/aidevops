@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.63] - 2026-04-16
+
+### Changed
+
+- fix agent-discovery TypeError crashing all agent deployment (#19402)
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- pass display_to_filename to validate_subagent_refs in agent discovery scripts (#19406)
+
 ## [3.8.62] - 2026-04-16
 
 ### Changed
