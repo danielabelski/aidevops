@@ -2195,9 +2195,9 @@
       "pr": 13544
     },
     ".agents/scripts/compare-models-helper.sh": {
-      "at": "2026-04-15T03:00:31Z",
-      "hash": "e4073c02f86fbd1282fc761eabcfffb04794e508",
-      "passes": 2,
+      "at": "2026-04-16T17:59:28Z",
+      "hash": "b7ccfd91028100009a4520fc4e0152c15737f084",
+      "passes": 3,
       "pr": 15946
     },
     ".agents/scripts/complexity-scan-helper.sh": {
@@ -4235,9 +4235,9 @@
       "pr": 17218
     },
     ".agents/tools/ai-assistants/models-opus.md": {
-      "at": "2026-04-03T20:00:54Z",
-      "hash": "1594303319230800e8af3bdf93a94a6051a6b038",
-      "passes": 1,
+      "at": "2026-04-16T17:59:42Z",
+      "hash": "3a05d116a06d195536d2b4efe900704f6e1c4606",
+      "passes": 2,
       "pr": 16821
     },
     ".agents/tools/ai-assistants/models-sonnet.md": {
@@ -7557,10 +7557,10 @@
       "pr": 15470
     },
     "setup-modules/agent-deploy.sh": {
-      "hash": "a016ea7018b9516289ca614feaf02ae0381bc487",
-      "at": "2026-04-16T14:50:00Z",
+      "hash": "46d74c0f0720a3deb8b01f9bab0f1cff7f2a8258",
+      "at": "2026-04-16T18:00:14Z",
       "pr": 19203,
-      "passes": 2
+      "passes": 3
     }
   },
   "setup-modules/agent-deploy.sh": {
