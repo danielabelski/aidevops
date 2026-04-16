@@ -10,6 +10,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.62] - 2026-04-16
+
+### Changed
+
+- Maintenance: ratchet-down complexity thresholds (GH#19395) (#19401)
+- Maintenance: update simplification state registry
+- tighten pre-dispatch-validators.md (79→75 lines) (#19400)
+- tighten shell-style-guide.md + fix scanner thrash root cause (#19398)
+- Maintenance: update simplification state registry
+- detect + auto-recover stampless origin:interactive claims (#19384)
+- bump NESTING_DEPTH_THRESHOLD 283→288 (281 violations, 2 headroom) (#19392)
+- Maintenance: update simplification state registry
+- Maintenance: ratchet-down NESTING_DEPTH_THRESHOLD 288→283 (GH#19382) (#19386)
+- tighten pre-dispatch-validators.md (remove redundant prose) (#19385)
+- refactor(pulse-triage): centralize consolidation gate defaults at module top (#19383)
+- Maintenance: update simplification state registry
+- bump NESTING_DEPTH_THRESHOLD 283→288 (281 violations, 2 headroom) (#19377)
+- Maintenance: ratchet down BASH32_COMPAT_THRESHOLD 78→74 (GH#19374) (#19378)
+- tighten pre-dispatch-validators.md (82→79 lines) (#19375)
+- Maintenance: update simplification state registry
+- chore: ratchet-down complexity thresholds (#19369)
+- contributor insight pipeline — session-miner upstream issue filing with privacy sanitization (#19372)
+
+### Fixed
+
+- resolve agent basename collisions deterministically (t2149) (#19403)
+
 ## [3.8.61] - 2026-04-16
 
 ### Changed
