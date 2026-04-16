@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.48] - 2026-04-16
+
+### Fixed
+
+- post approval marker before removing NMR label (#19212)
+
 ## [3.8.47] - 2026-04-16
 
 ### Added
