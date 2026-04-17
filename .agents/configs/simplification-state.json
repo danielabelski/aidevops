@@ -408,9 +408,9 @@
       "pr": 18172
     },
     ".agents/configs/complexity-thresholds-history.md": {
-      "at": "2026-04-17T00:37:18Z",
-      "hash": "e061339d1b3dd9a3ef46a2d9a8072bfb12ca7056",
-      "passes": 24,
+      "at": "2026-04-17T02:21:39Z",
+      "hash": "d6cf89e7810d4ebc756a7741eba98714cb71e720",
+      "passes": 25,
       "pr": 17979
     },
     ".agents/content.md": {
@@ -2202,9 +2202,9 @@
       "pr": 13544
     },
     ".agents/scripts/compare-models-helper.sh": {
-      "at": "2026-04-16T17:59:28Z",
-      "hash": "b7ccfd91028100009a4520fc4e0152c15737f084",
-      "passes": 3,
+      "at": "2026-04-17T02:21:48Z",
+      "hash": "78acbb2279ca1a5723c58ea6d76922f703639024",
+      "passes": 4,
       "pr": 15946
     },
     ".agents/scripts/complexity-scan-helper.sh": {
@@ -4242,9 +4242,9 @@
       "pr": 17218
     },
     ".agents/tools/ai-assistants/models-opus.md": {
-      "at": "2026-04-16T17:59:42Z",
-      "hash": "3a05d116a06d195536d2b4efe900704f6e1c4606",
-      "passes": 2,
+      "at": "2026-04-17T02:21:58Z",
+      "hash": "1d39640e402281e45f7f2c8379b2f8f843bea698",
+      "passes": 3,
       "pr": 16821
     },
     ".agents/tools/ai-assistants/models-sonnet.md": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-17T01:55:37Z",
-      "hash": "8c7ddc46e48a13737aa32bba816198df513901fb",
-      "passes": 31,
+      "at": "2026-04-17T02:22:14Z",
+      "hash": "5fca77615cad7dbc01ac60fbe1a3868ed026259f",
+      "passes": 32,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-16T22:35:35Z",
-      "hash": "8909f84547d716ece96fb7e52bbb3d9b2ed7b725",
-      "passes": 73,
+      "at": "2026-04-17T02:22:15Z",
+      "hash": "a8ddb289c4813915facf992a296e3c3db5da6cc8",
+      "passes": 74,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-16T22:35:35Z",
-      "hash": "3ba5245b1d4b4d93f7f0e83be8ab62a1f4f7cbaf",
-      "passes": 71,
+      "at": "2026-04-17T02:22:15Z",
+      "hash": "4d62560d4053703747293bffa0d6ffc227206235",
+      "passes": 72,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
