@@ -10,6 +10,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.66] - 2026-04-17
+
+### Added
+
+- t2169 simplification-outcome-check workflow + gate short-circuit (#19520)
+
+### Changed
+
+- GH#19593: chore: ratchet-down complexity thresholds (#19594)
+- GH#19589: chore: ratchet-down complexity thresholds (#19591)
+- Maintenance: update simplification state registry
+- Maintenance: bump NESTING_DEPTH_THRESHOLD to 290 (GH#19588) (#19590)
+- chore: ratchet-down complexity thresholds (GH#19586) (#19587)
+- chore: ratchet-down complexity thresholds (GH#19582) (#19584)
+- Maintenance: update simplification state registry
+- Maintenance: bump NESTING_DEPTH_THRESHOLD 285→290 for GH#19581 proximity warning (#19583)
+- chore: ratchet-down complexity thresholds (GH#19579) (#19580)
+- Maintenance: update simplification state registry
+- Maintenance: bump NESTING_DEPTH_THRESHOLD to 290 (GH#19577) (#19578)
+- Maintenance: ratchet-down complexity thresholds (GH#19574) (#19575)
+- Maintenance: update simplification state registry
+- Maintenance: bump NESTING_DEPTH_THRESHOLD to 290 (GH#19572) (#19573)
+- Maintenance: ratchet-down complexity thresholds (GH#19569) (#19570)
+- Maintenance: update simplification state registry
+- Maintenance: bump NESTING_DEPTH_THRESHOLD to 290 (GH#19565) (#19567)
+- chore: ratchet-down complexity thresholds (GH#19563) (#19564)
+- Maintenance: ratchet-down complexity thresholds (GH#19554) (#19558)
+- chore(ci): bump NESTING_DEPTH_THRESHOLD 285→290 (283 violations + 7 headroom) (#19560)
+- Maintenance: ratchet-down complexity thresholds (GH#19554) (#19555)
+- chore: ratchet-down BASH32_COMPAT_THRESHOLD 78→74 (#19553)
+- Maintenance: update simplification state registry
+- chore(ci): bump NESTING_DEPTH_THRESHOLD 285→290 (283 violations + 7 headroom) (#19552)
+- chore: ratchet-down complexity thresholds (GH#19547) (#19548)
+- Maintenance: update simplification state registry
+- chore(ci): bump NESTING_DEPTH_THRESHOLD 285→290 (283 violations + 7 headroom) (#19545)
+- Maintenance: ratchet-down complexity thresholds (GH#19541) (#19542)
+- Maintenance: update simplification state registry
+- chore(ci): bump NESTING_DEPTH_THRESHOLD 285→290 (283 violations + 7 headroom) (#19538)
+- chore: ratchet-down BASH32_COMPAT_THRESHOLD 78→74 (#19539)
+- chore: ratchet-down NESTING_DEPTH_THRESHOLD 290→285 (#19535)
+- Maintenance: update simplification state registry
+- chore(ci): bump NESTING_DEPTH_THRESHOLD 285→290 (283 violations + 7 headroom) (#19532)
+- chore: ratchet-down complexity thresholds (nesting 290→285, bash32 78→74) (#19529)
+- Maintenance: update simplification state registry
+- chore: ratchet-down BASH32_COMPAT_THRESHOLD 78→74 (#19525)
+- chore(ci): bump nesting depth threshold 284→290 (283 violations + 7 headroom) (#19527)
+- Maintenance: update simplification state registry
+- fix(pulse-triage): clear stale needs-simplification labels when cited continuations are phantom (#19524)
+- chore: ratchet-down complexity thresholds (GH#19519) (#19522)
+- docs(build.txt): add deployed-vs-source diagnostic rule for runtime investigations (#19518)
+- chore: ratchet-down BASH32_COMPAT_THRESHOLD 78→74 (GH#19516) (#19517)
+- Maintenance: update simplification state registry
+- bump nesting threshold 284→289 (282 violations + 7 headroom) (#19515)
+- Maintenance: update simplification state registry
+- tighten video-seo.md agent doc (109→97 lines) (#19507)
+- restructure video-schema.md into slim index + chapter files (#19509)
+- tighten transcript-seo.md (107→105 lines) (#19510)
+- chore: ratchet-down complexity thresholds (GH#19506) (#19511)
+- Maintenance: update simplification state registry
+- Maintenance: file Fixes C/D/E as children of #19482 (t2163 5-fix plan); mark t2164 complete (#19501)
+- add video-seo, transcript-seo, video-schema agents with cross-reference pass (#19495)
+- bump NESTING_DEPTH_THRESHOLD from 284 to 289 (#19496)
+- tighten large-file-gate path extraction + verify file size before continuation (#19484)
+- chore: ratchet-down complexity thresholds (GH#19480) (#19481)
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- bump BASH32_COMPAT_THRESHOLD to 78 (CI reports 76 violations vs threshold 74) (#19576)
+- revert BASH32_COMPAT_THRESHOLD to 78 (CI reports 76 violations vs threshold 74) (#19571)
+- bump BASH32_COMPAT_THRESHOLD 74→78 — CI shows 76 violations post-GH#19531 merge (#19540)
+
 ## [3.8.65] - 2026-04-17
 
 ### Changed
