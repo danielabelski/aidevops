@@ -2472,9 +2472,9 @@
       "pr": 18653
     },
     ".agents/scripts/pulse-triage.sh": {
-      "at": "2026-04-17T01:00:36Z",
-      "hash": "99590567d4716120a560db53ffdb3a31d8ac51a1",
-      "passes": 9,
+      "at": "2026-04-17T02:39:49Z",
+      "hash": "c835e2dc7d7e33e9d98c8134a643e1acbd3bb517",
+      "passes": 10,
       "pr": 18655
     },
     ".agents/scripts/pulse-wrapper.sh": {
@@ -2568,9 +2568,9 @@
       "pr": 17549
     },
     ".agents/scripts/tests/test-consolidation-dispatch.sh": {
-      "at": "2026-04-16T23:28:26Z",
-      "hash": "f0b2ee7ed4f1bedfbb54e66bd777611daeb692e5",
-      "passes": 3,
+      "at": "2026-04-17T02:39:49Z",
+      "hash": "4b8eba96eff261e0ef57e1d4b7a194e5a7608e6b",
+      "passes": 4,
       "pr": 18679
     },
     ".agents/scripts/tests/test-gh-signature-helper.sh": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-17T02:22:14Z",
-      "hash": "5fca77615cad7dbc01ac60fbe1a3868ed026259f",
-      "passes": 32,
+      "at": "2026-04-17T02:40:13Z",
+      "hash": "4c4500a037d159eb6474baeeb5bb67fcefec2266",
+      "passes": 33,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-17T02:22:15Z",
-      "hash": "a8ddb289c4813915facf992a296e3c3db5da6cc8",
-      "passes": 74,
+      "at": "2026-04-17T02:40:13Z",
+      "hash": "545a9967e052231c49910197741a59cfc82fbdc6",
+      "passes": 75,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-17T02:22:15Z",
-      "hash": "4d62560d4053703747293bffa0d6ffc227206235",
-      "passes": 72,
+      "at": "2026-04-17T02:40:13Z",
+      "hash": "fd411d0daa75d2a1705b5cfeb6d6607329434024",
+      "passes": 73,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
