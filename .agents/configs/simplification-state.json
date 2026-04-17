@@ -408,9 +408,9 @@
       "pr": 18172
     },
     ".agents/configs/complexity-thresholds-history.md": {
-      "at": "2026-04-17T07:13:58Z",
-      "hash": "095664b86fc852a694fd5dc0eeb7eaa077c0b627",
-      "passes": 29,
+      "at": "2026-04-17T08:05:41Z",
+      "hash": "932444fc24c06058ae42e5728c00e53dcfe7d45e",
+      "passes": 30,
       "pr": 17979
     },
     ".agents/content.md": {
