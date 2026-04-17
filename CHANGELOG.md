@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.67] - 2026-04-17
+
+### Changed
+
+- hotfix: auto-clean broken symlinks in OpenCode runtime dirs (blocks new sessions) (#19612)
+- chore: ratchet-down BASH32_COMPAT_THRESHOLD 78→74 (#19609)
+- Maintenance: update simplification state registry
+- fix NESTING_DEPTH_THRESHOLD 285/290 ping-pong by increasing buffer to 7 units (#19605)
+- extend per-function regression to nesting/bash32/file-size + retire ratchet treadmill (#19592)
+
 ## [3.8.66] - 2026-04-17
 
 ### Added
