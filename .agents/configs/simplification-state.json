@@ -1664,9 +1664,9 @@
       "pr": 15301
     },
     ".agents/reference/cross-runner-coordination.md": {
-      "at": "2026-04-14T08:25:14Z",
-      "hash": "c90bb1c6df51bb3a23625fc628f41d4952227aa6",
-      "passes": 2,
+      "at": "2026-04-17T01:00:32Z",
+      "hash": "9774bc5bb2e4d2cda742039c0b70b87f25da694f",
+      "passes": 3,
       "pr": 18658
     },
     ".agents/reference/customization.md": {
@@ -2238,9 +2238,9 @@
       "pr": 16879
     },
     ".agents/scripts/dispatch-dedup-helper.sh": {
-      "at": "2026-04-14T20:16:59Z",
-      "hash": "1c1ba50e50a17b4d2232a1f7620e3b5455a12e96",
-      "passes": 13,
+      "at": "2026-04-17T01:00:35Z",
+      "hash": "bed1b9f6e1bf9f5ab8f26a2cd315c113d74730fc",
+      "passes": 14,
       "pr": 18917
     },
     ".agents/scripts/email-agent-helper.sh": {
@@ -2472,9 +2472,9 @@
       "pr": 18653
     },
     ".agents/scripts/pulse-triage.sh": {
-      "at": "2026-04-16T23:28:26Z",
-      "hash": "95a04613255019bb45035234da065d3501719bb2",
-      "passes": 8,
+      "at": "2026-04-17T01:00:36Z",
+      "hash": "99590567d4716120a560db53ffdb3a31d8ac51a1",
+      "passes": 9,
       "pr": 18655
     },
     ".agents/scripts/pulse-wrapper.sh": {
