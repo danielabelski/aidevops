@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-18T05:39:18Z",
-      "hash": "bdad5a28654331fffe9727dd21ef435f1f59c74c",
-      "passes": 21,
+      "at": "2026-04-18T18:06:24Z",
+      "hash": "f8af71d6a74d4cdf50bfd4f5ab42708d75729734",
+      "passes": 22,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -820,9 +820,9 @@
       "pr": 15249
     },
     ".agents/hooks/task-id-collision-guard.sh": {
-      "at": "2026-04-18T03:26:08Z",
-      "hash": "369c330ddb24fa46c657c92e746b654e395e5afc",
-      "passes": 3,
+      "at": "2026-04-18T18:06:27Z",
+      "hash": "b64545528f1b24431c580ec4f5120f6070b4cc62",
+      "passes": 4,
       "pr": 18718
     },
     ".agents/legal.md": {
@@ -2250,9 +2250,9 @@
       "pr": 15919
     },
     ".agents/scripts/foss-handlers/generic.sh": {
-      "at": "2026-03-29T03:15:47Z",
-      "hash": "7412f9cbe91058b1222b48f99b92d40700910d9e",
-      "passes": 1,
+      "at": "2026-04-18T18:06:34Z",
+      "hash": "a6ba9b2b6ae7054938ad66eb1c1256f11f6dda23",
+      "passes": 2,
       "pr": 12346
     },
     ".agents/scripts/framework-issue-helper.sh": {
@@ -2478,9 +2478,9 @@
       "pr": 18655
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "at": "2026-04-18T05:58:48Z",
-      "hash": "7b53c9e5f27ee6271db652b9792e41ad6d7200fe",
-      "passes": 18,
+      "at": "2026-04-18T18:06:35Z",
+      "hash": "cdb7ed591c6db4c4ce2f312124b2483f86d31dbc",
+      "passes": 19,
       "pr": 18689
     },
     ".agents/scripts/quality-feedback-findings-lib.sh": {
@@ -2502,9 +2502,9 @@
       "pr": 19004
     },
     ".agents/scripts/routine-log-helper.sh": {
-      "at": "2026-04-15T03:31:35Z",
-      "hash": "7fb1dd659344d6b04666fcc271264c30004c5e6b",
-      "passes": 3,
+      "at": "2026-04-18T18:06:36Z",
+      "hash": "16da17a8951f847125d2a990cdd223ab3d8176a2",
+      "passes": 4,
       "pr": 17786
     },
     ".agents/scripts/schema-validator-helper.sh": {
@@ -2544,9 +2544,9 @@
       "pr": 15916
     },
     ".agents/scripts/shared-constants.sh": {
-      "at": "2026-04-18T05:58:48Z",
-      "hash": "457eac8a5b14dfe3b73d309afd35c0c4ab2653e3",
-      "passes": 7,
+      "at": "2026-04-18T18:06:36Z",
+      "hash": "19e1bb19facc9c931cdba0840cfb6ac82c166f66",
+      "passes": 8,
       "pr": 18847
     },
     ".agents/scripts/stats-functions.sh": {
@@ -2621,9 +2621,9 @@
       "pr": 17353
     },
     ".agents/scripts/worker-watchdog.sh": {
-      "at": "2026-04-15T03:00:33Z",
-      "hash": "135e62ddb97682effe07cb0b1ce2c3235f42e1e5",
-      "passes": 4,
+      "at": "2026-04-18T18:06:36Z",
+      "hash": "7e111f2621d9d1b41f6991bd0e6afdba4782af43",
+      "passes": 5,
       "pr": 17393
     },
     ".agents/scripts/worktree-helper.sh": {
@@ -5181,9 +5181,9 @@
       "pr": 16540
     },
     ".agents/tools/deployment/cloudron-app-packaging-skill.md": {
-      "at": "2026-04-02T20:39:36Z",
-      "hash": "1f64ebaf8c35b127e676cfe1dce1c08af1815168",
-      "passes": 2,
+      "at": "2026-04-18T18:06:51Z",
+      "hash": "4af50883ae1ef08e25571529ce0394e985cc38ca",
+      "passes": 3,
       "pr": 14880
     },
     ".agents/tools/deployment/cloudron-app-packaging-skill/addons-ref.md": {
@@ -5199,9 +5199,9 @@
       "pr": 0
     },
     ".agents/tools/deployment/cloudron-app-packaging.md": {
-      "at": "2026-03-28T03:54:01Z",
-      "hash": "ee098e42ce7866f6c6c80dd0cf0a9bbd8d3f789d",
-      "passes": 1,
+      "at": "2026-04-18T18:06:51Z",
+      "hash": "329d84d2ce6e1bc24f571e9c2596cadeccb4a83b",
+      "passes": 2,
       "pr": 11344
     },
     ".agents/tools/deployment/cloudron-app-publishing-skill.md": {
@@ -5217,9 +5217,9 @@
       "pr": 16478
     },
     ".agents/tools/deployment/cloudron-server-ops-skill.md": {
-      "at": "2026-03-30T03:33:52Z",
-      "hash": "2b286bda289b02298ca6d38aaf97440394e6c99f",
-      "passes": 2,
+      "at": "2026-04-18T18:06:51Z",
+      "hash": "27201996e9027ded105254eac5e306b1c9ba6a04",
+      "passes": 3,
       "pr": 13678
     },
     ".agents/tools/deployment/coolify-cli.md": {
@@ -6180,9 +6180,9 @@
       "pr": 12309
     },
     ".agents/tools/git/opencode-github.md": {
-      "at": "2026-03-28T03:54:27Z",
-      "hash": "064220aa37037434a1a4d977c034401ca840cabe",
-      "passes": 1,
+      "at": "2026-04-18T18:06:56Z",
+      "hash": "7de772de90fdf5653c951159d1652e48bf64e706",
+      "passes": 2,
       "pr": 11349
     },
     ".agents/tools/git/opencode-gitlab.md": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-18T17:06:23Z",
-      "hash": "ec2b75d03476093af78840d7dd54fb9f09901a98",
-      "passes": 46,
+      "at": "2026-04-18T18:07:04Z",
+      "hash": "b25a88979a08432f4ca744d7fd8c88607de0ab4f",
+      "passes": 47,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-18T05:04:47Z",
-      "hash": "d6740a8c1de29585da28fa8df9c73ca694a5cde4",
-      "passes": 80,
+      "at": "2026-04-18T18:07:04Z",
+      "hash": "e2e39ca697ec99a521fe2957c7350fb6beb0d687",
+      "passes": 81,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-18T05:04:47Z",
-      "hash": "f54c467e544fd2c47d12aeaa9d5156310fd23a61",
-      "passes": 78,
+      "at": "2026-04-18T18:07:04Z",
+      "hash": "0528c4b4d9187ff044ef69f2ea270a22e24cc50b",
+      "passes": 79,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
