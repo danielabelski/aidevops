@@ -820,9 +820,9 @@
       "pr": 15249
     },
     ".agents/hooks/task-id-collision-guard.sh": {
-      "at": "2026-04-15T03:59:21Z",
-      "hash": "7af29498bf5df56b0743eee15a76e71bfa598688",
-      "passes": 2,
+      "at": "2026-04-18T03:26:08Z",
+      "hash": "369c330ddb24fa46c657c92e746b654e395e5afc",
+      "passes": 3,
       "pr": 18718
     },
     ".agents/legal.md": {
@@ -1856,9 +1856,9 @@
       "pr": 16085
     },
     ".agents/scripts/claim-task-id.sh": {
-      "at": "2026-04-17T01:30:44Z",
-      "hash": "fff29aadaf4d76ce0f0fa27f4003786183f0fbae",
-      "passes": 9,
+      "at": "2026-04-18T03:26:13Z",
+      "hash": "e430503ab310309f767c399b988bb06a121ef9d3",
+      "passes": 10,
       "pr": 17531
     },
     ".agents/scripts/commands/add-skill.md": {
