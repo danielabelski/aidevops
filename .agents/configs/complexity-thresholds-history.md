@@ -152,3 +152,4 @@ and monotonically decreases".
 | Value | PR/Issue | Reason |
 |-------|----------|--------|
 | 111 | baseline (2026-04-14, GH#18775) | initial baseline: 109 actual smells + 2 buffer; qlty 0.619.0 reports 37 qlty:file-complexity, 26 qlty:identical-code, 26 qlty:function-complexity, 7 qlty:return-statements, 5 qlty:function-parameters, 4 qlty:nested-control-flow, 2 qlty:similar-code, 2 qlty:boolean-logic |
+| 24 | ratchet-post-merge | auto-ratchet after 9c5963a ("chore: claim t2219"): count 22 + 2 buffer = 24 (previously 29, reduction 5) |
