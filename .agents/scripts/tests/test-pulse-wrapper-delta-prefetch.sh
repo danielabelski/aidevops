@@ -111,7 +111,10 @@ _prefetch_needs_full_sweep() {
 	fi
 	local last_epoch now_epoch
 	# GH#17699: TZ=UTC required — macOS date interprets input as local time
-	last_epoch=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%SZ" "$last_full_sweep" "+%s" 2>/dev/null) || last_epoch=0
+	# Cross-platform: try macOS date -j first, then GNU date -d
+	last_epoch=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%SZ" "$last_full_sweep" "+%s" 2>/dev/null) \
+		|| last_epoch=$(TZ=UTC date -d "${last_full_sweep/T/ }" "+%s" 2>/dev/null) \
+		|| last_epoch=0
 	now_epoch=$(date -u +%s)
 	local age=$((now_epoch - last_epoch))
 	if [[ "$age" -ge "$PULSE_PREFETCH_FULL_SWEEP_INTERVAL" ]]; then
@@ -173,9 +176,11 @@ test_needs_full_sweep_no_entry() {
 }
 
 test_needs_full_sweep_stale() {
-	# 25 hours ago — macOS date -v syntax
+	# 25 hours ago — try macOS date -v first, then GNU date -d, then fixed fallback
 	local stale_ts
-	stale_ts=$(date -u -v-25H +%Y-%m-%dT%H:%M:%SZ 2>/dev/null) || stale_ts="2026-03-31T11:00:00Z"
+	stale_ts=$(date -u -v-25H +%Y-%m-%dT%H:%M:%SZ 2>/dev/null) \
+		|| stale_ts=$(date -u -d '25 hours ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null) \
+		|| stale_ts="2026-03-31T11:00:00Z"
 	local entry
 	entry=$(jq -n --arg ts "$stale_ts" '{last_full_sweep: $ts}')
 	if _prefetch_needs_full_sweep "$entry"; then
@@ -188,8 +193,12 @@ test_needs_full_sweep_stale() {
 
 test_needs_full_sweep_recent() {
 	# 1 hour ago — should NOT need full sweep
+	# Try macOS date -v first, then GNU date -d; never fall back to current time
+	# (current time would make last_epoch=0 on Linux when date -j also fails, causing false positive)
 	local recent_ts
-	recent_ts=$(date -u -v-1H +%Y-%m-%dT%H:%M:%SZ 2>/dev/null) || recent_ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+	recent_ts=$(date -u -v-1H +%Y-%m-%dT%H:%M:%SZ 2>/dev/null) \
+		|| recent_ts=$(date -u -d '1 hour ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null) \
+		|| recent_ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 	local entry
 	entry=$(jq -n --arg ts "$recent_ts" '{last_full_sweep: $ts}')
 	if _prefetch_needs_full_sweep "$entry"; then
@@ -214,6 +223,101 @@ test_cache_atomic_write() {
 	return 0
 }
 
+# ─── GH#19966 regression: ${N:-{}} expansion bug fix ─────────────────────────
+# Bash expansion grammar: "${2:-{}}" reads the expansion as "${2:-{}" (default="{")
+# and treats the trailing "}" as a literal — appending "}" to every non-empty arg.
+# The fix uses the explicit-fallback idiom: "${2:-}" then [[ -n "$x" ]] || x="{}".
+
+# Simulate the OLD (buggy) pattern for documentation purposes
+_gh19966_old_wrapper() {
+	local slug="$1"
+	local cache_entry="${2:-{}}"
+	echo "$cache_entry"
+	return 0
+}
+
+# Simulate the NEW (fixed) explicit-fallback idiom
+_gh19966_fixed_wrapper() {
+	local slug="$1"
+	local cache_entry="${2:-}"
+	[[ -n "$cache_entry" ]] || cache_entry="{}"
+	echo "$cache_entry"
+	return 0
+}
+
+test_gh19966_bug_corrupts_nonempty_json() {
+	# Document the root cause: ${2:-{}} appends a trailing } to non-empty args.
+	# When $2 is non-empty the default is never used, but the closing } of {}
+	# is consumed as part of the expansion syntax, leaving a bare } literal.
+	local input='{"last_prefetch":"2026-04-12T08:00:00Z","prs":[]}'
+	local output
+	output=$(_gh19966_old_wrapper "owner/repo" "$input")
+	# The bug: jq cannot parse the output because of the trailing }
+	local last_prefetch
+	last_prefetch=$(echo "$output" | jq -r '.last_prefetch // ""' 2>/dev/null) || last_prefetch=""
+	if [[ -z "$last_prefetch" ]]; then
+		print_result "bug-doc: \${2:-{}} corrupts non-empty JSON — jq parse fails (GH#19966 root cause)" 0
+	else
+		# Shell may have fixed parsing in a future version — still record the outcome
+		print_result "bug-doc: \${2:-{}} corrupts non-empty JSON — jq parse fails (GH#19966 root cause)" 1 \
+			"unexpected: jq succeeded with last_prefetch=${last_prefetch} (shell behaviour changed?)"
+	fi
+	return 0
+}
+
+test_gh19966_fix_preserves_nonempty_json() {
+	# The fix: explicit-fallback idiom passes non-empty cache_entry through intact.
+	local input='{"last_prefetch":"2026-04-12T08:00:00Z","prs":[]}'
+	local output
+	output=$(_gh19966_fixed_wrapper "owner/repo" "$input")
+	local last_prefetch
+	last_prefetch=$(echo "$output" | jq -r '.last_prefetch // ""' 2>/dev/null)
+	if [[ "$last_prefetch" == "2026-04-12T08:00:00Z" ]]; then
+		print_result "fix: explicit-fallback idiom preserves non-empty cache_entry (GH#19966)" 0
+	else
+		print_result "fix: explicit-fallback idiom preserves non-empty cache_entry (GH#19966)" 1 \
+			"got last_prefetch='${last_prefetch}' from output='${output}'"
+	fi
+	return 0
+}
+
+test_gh19966_fix_defaults_empty_to_object() {
+	# The fix must still default to {} when arg is absent or empty.
+	local output_absent output_empty
+	output_absent=$(_gh19966_fixed_wrapper "owner/repo")
+	output_empty=$(_gh19966_fixed_wrapper "owner/repo" "")
+	local ok=0
+	[[ "$output_absent" == "{}" ]] || ok=1
+	[[ "$output_empty" == "{}" ]] || ok=1
+	if [[ "$ok" -eq 0 ]]; then
+		print_result "fix: empty/absent arg defaults to {} (GH#19966)" 0
+	else
+		print_result "fix: empty/absent arg defaults to {} (GH#19966)" 1 \
+			"absent='${output_absent}' empty='${output_empty}'"
+	fi
+	return 0
+}
+
+test_gh19966_delta_path_extracts_timestamp() {
+	# Regression: when cache_entry (from _prefetch_cache_get) contains last_prefetch,
+	# the delta path must be able to extract the timestamp.
+	# Before the fix, the trailing } made cache_entry invalid JSON so jq returned "".
+	# The [[ -z "$last_prefetch" ]] guard then fell back to a full sweep every cycle.
+	local cache_entry='{"last_prefetch":"2026-04-12T10:00:00Z","last_full_sweep":"2026-04-12T00:00:00Z","prs":[],"issues":[]}'
+	# Simulate the fixed wrapper receiving cache_entry as $2
+	local received
+	received=$(_gh19966_fixed_wrapper "owner/repo" "$cache_entry")
+	local last_prefetch
+	last_prefetch=$(echo "$received" | jq -r '.last_prefetch // ""' 2>/dev/null)
+	if [[ "$last_prefetch" == "2026-04-12T10:00:00Z" ]]; then
+		print_result "delta path: last_prefetch extractable from non-empty cache_entry (GH#19966)" 0
+	else
+		print_result "delta path: last_prefetch extractable from non-empty cache_entry (GH#19966)" 1 \
+			"last_prefetch='${last_prefetch}' (delta would fall back to full sweep)"
+	fi
+	return 0
+}
+
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 main() {
@@ -226,6 +330,12 @@ main() {
 	test_needs_full_sweep_stale
 	test_needs_full_sweep_recent
 	test_cache_atomic_write
+
+	# GH#19966 regression tests for ${N:-{}} bash expansion bug
+	test_gh19966_bug_corrupts_nonempty_json
+	test_gh19966_fix_preserves_nonempty_json
+	test_gh19966_fix_defaults_empty_to_object
+	test_gh19966_delta_path_extracts_timestamp
 
 	teardown_test_env
 
