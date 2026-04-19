@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.76] - 2026-04-19
+
+### Changed
+
+- tier:simple body-shape validator (auto-downgrade mis-tiered briefs pre-dispatch) (#19930)
+- nudge parent-task issues with zero filed children (#19928)
+- fix(nmr): preserve NMR when circuit breaker tripped, prevent #19756 auto-approval loop (#19909)
+- fix(worker-lifecycle): skip tier escalation on no_work crashes (#19918)
+- Maintenance: mark t2180 complete (pr:#19915 completed:2026-04-19) [skip ci]
+- feat(claim-task-id): pre-claim discovery pass (5-function decomposition) (#19915)
+- Maintenance: update simplification state registry
+
 ## [3.8.75] - 2026-04-19
 
 ### Added
