@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-19T16:33:41Z",
-      "hash": "3feaafd7e8dec6afedcaedc1c9490a16a97cf67f",
-      "passes": 28,
+      "at": "2026-04-19T18:03:40Z",
+      "hash": "c9fbb23652fddd1360f8b3e871f7fa47ed8382ec",
+      "passes": 29,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -2328,9 +2328,9 @@
       "pr": 16471
     },
     ".agents/scripts/linters-local.sh": {
-      "at": "2026-04-19T15:35:43Z",
-      "hash": "ea3bc093b71543e2b8781a69e620769500e81270",
-      "passes": 5,
+      "at": "2026-04-19T18:03:55Z",
+      "hash": "1df8b1cd0e59bca6bfe8b6df0b7f0cb8380b7efc",
+      "passes": 6,
       "pr": 17036
     },
     ".agents/scripts/matrix-dispatch-helper.sh": {
