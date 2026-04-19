@@ -10,6 +10,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.75] - 2026-04-19
+
+### Added
+
+- add framework-wide safety invariant for gh issue/pr edit (GH#19857) (#19907)
+- add SYNC_PAT detection to aidevops security check (#19892)
+- re-measure scanner-cited files before worker dispatch (#19891)
+
+### Changed
+
+- feat(detection): add hourly stub-title issue scanner routine (r006) (#19906)
+- t2265: feat(aidevops-init): add init_scope field to scope scaffolding per repo (#19905)
+- refactor(pre-commit): ratchet-style validators (block on increase, pass pre-existing) (#19904)
+- Maintenance: mark t2371 complete (pr:#19900 completed:2026-04-19) [skip ci]
+- feat: add shellcheckrc parity drift detection (#19898)
+- perf(complexity-guard): parallelize 3 sequential metric checks to prevent worker push timeouts (#19902)
+- feat(scanner-bodies): enrich issue templates with playbook links, precedent cites, and CI override instructions (#19900)
+- fix(pulse-merge): harden 5 pre-existing reliability issues in merge conflict + feedback clusters (#19899)
+- Maintenance: mark t2370 complete (pr:#19896 completed:2026-04-19) [skip ci]
+- feat(workflows): complexity-bump-ok justification validator (#19896)
+- Maintenance: mark t2263 complete (pr:#19894 completed:2026-04-19) [skip ci]
+- fix(complexity-guard): add file-existence guards to all scanner functions (#19894)
+- Maintenance: mark t2367 complete (pr:#19891 completed:2026-04-19) [skip ci]
+- document claim scope limitation, add lockdown/unlock subcommands (#19890)
+- Maintenance: mark t2261 complete (pr:#19886 completed:2026-04-19) [skip ci]
+- Performance: replace serial port scan with batch lsof query in assign_port() (#19886)
+- Maintenance: mark t2259 complete (pr:#19885 completed:2026-04-19) [skip ci]
+- fix CAS retry exhaustion causing silent +100 offset drift in claim-task-id (#19884)
+- add biome-zero regression test for grep -c arithmetic crash (#19882)
+- fix(ci): skip TODO.md proof-log for planning-only PRs (#19883)
+- Maintenance: mark t2260 complete (pr:#19881 completed:2026-04-19) [skip ci]
+- Maintenance: mark t2366 complete (pr:#19878 completed:2026-04-19) [skip ci]
+- feat(routines): add r914 daily repo-aidevops-health keeper (#19878)
+- Maintenance: mark t2384 complete (pr:#19875 completed:2026-04-19) [skip ci]
+- implement 5-layer defence against enrich-path data-loss bug (#19876)
+- chore(todo): log brief + TODO entry for pre-commit hook ratcheting (#19875)
+
+### Fixed
+
+- guard enrich path with dispatch-dedup-helper.sh is-assigned before gh issue edit (#19901)
+- replace greedy brief-body #NNN scanning with structured ref:GH# lookup (t2260) (#19881)
+
 ## [3.8.74] - 2026-04-19
 
 ### Changed
