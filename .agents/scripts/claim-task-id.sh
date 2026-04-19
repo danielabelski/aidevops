@@ -72,6 +72,16 @@
 #   - If .task-counter doesn't exist, initialize from TODO.md highest ID
 #   - First run creates .task-counter and commits to <remote>/<counter_branch>
 #
+# Concurrent load / rebase safety (t2229):
+#   Under concurrent load, branches forked before other sessions claimed IDs
+#   carry a stale .task-counter. On PR merge, the stale value would overwrite
+#   the current one — silently duplicating IDs. Three defences:
+#     1. .gitattributes merge=ours (non-squash merges)
+#     2. .github/workflows/counter-monotonic.yml CI check (all merge strategies)
+#     3. full-loop-helper.sh _rebase_and_push auto-resets drifted counter
+#   Always rebase onto origin/main before pushing a branch that touched
+#   .task-counter: `git fetch origin main && git rebase origin/main`
+#
 # Platform detection:
 #   - Checks git remote URL for github.com, gitlab.com, gitea
 #   - Uses gh CLI for GitHub, glab CLI for GitLab
@@ -475,6 +485,90 @@ read_local_counter() {
 	return 0
 }
 
+# Fetch remote counter branch and pin the commit SHA for atomic reads.
+# CRITICAL (GH#19689): all subsequent reads in the CAS function MUST use
+# the pinned SHA, never the ref name. When concurrent processes share a
+# repo, a competing push+fetch can update the local ref between our
+# counter-read and our tree/parent-read, breaking the CAS invariant.
+#
+# Echoes "pinned_sha counter_value" on success. Returns 1 on failure.
+_cas_fetch_and_pin() {
+	local repo_path="$1"
+
+	cd "$repo_path" || return 1
+
+	if ! git fetch "$REMOTE_NAME" "$COUNTER_BRANCH" 2>/dev/null; then
+		log_warn "Failed to fetch ${REMOTE_NAME}/${COUNTER_BRANCH}"
+	fi
+
+	local pinned_sha
+	pinned_sha=$(git rev-parse "${REMOTE_NAME}/${COUNTER_BRANCH}" 2>/dev/null) || {
+		log_warn "Failed to resolve ${REMOTE_NAME}/${COUNTER_BRANCH}"
+		return 1
+	}
+
+	local current_value
+	current_value=$(git show "${pinned_sha}:${COUNTER_FILE}" 2>/dev/null | tr -d '[:space:]')
+
+	if [[ -z "$current_value" ]] || ! [[ "$current_value" =~ ^[0-9]+$ ]]; then
+		log_info "Counter missing/invalid — attempting auto-bootstrap (GH#6569)"
+		local bootstrap_result
+		bootstrap_result=$(bootstrap_remote_counter "$repo_path") || true
+		git fetch "$REMOTE_NAME" "$COUNTER_BRANCH" 2>/dev/null || true
+		pinned_sha=$(git rev-parse "${REMOTE_NAME}/${COUNTER_BRANCH}" 2>/dev/null) || {
+			log_error "BOOTSTRAP_COUNTER_FAILED: cannot resolve ref after bootstrap"
+			return 1
+		}
+		current_value=$(git show "${pinned_sha}:${COUNTER_FILE}" 2>/dev/null | tr -d '[:space:]')
+		if [[ -z "$current_value" ]] || ! [[ "$current_value" =~ ^[0-9]+$ ]]; then
+			log_error "BOOTSTRAP_COUNTER_FAILED: counter unavailable after bootstrap attempt"
+			return 1
+		fi
+	fi
+
+	echo "${pinned_sha} ${current_value}"
+	return 0
+}
+
+# Build a counter-increment commit on top of pinned_sha and push it.
+# Uses git plumbing (hash-object, ls-tree, mktree, commit-tree) — safe
+# from any branch, never touches HEAD or the working tree index.
+# All reads use pinned_sha to prevent the ref-race (GH#19689).
+#
+# Returns 0 on success, 1 on hard error, 2 on retriable conflict.
+_cas_build_and_push() {
+	local pinned_sha="$1"
+	local new_counter="$2"
+	local commit_msg="$3"
+
+	local blob_sha
+	blob_sha=$(echo "$new_counter" | git hash-object -w --stdin 2>/dev/null) || {
+		log_warn "Failed to create blob"
+		return 1
+	}
+
+	local tree_sha
+	tree_sha=$(git ls-tree "${pinned_sha}" | sed "s|[0-9a-f]\{40,64\}	${COUNTER_FILE}$|${blob_sha}	${COUNTER_FILE}|" | git mktree 2>/dev/null) || {
+		log_warn "Failed to create tree"
+		return 1
+	}
+
+	local commit_sha
+	commit_sha=$(git commit-tree "$tree_sha" -p "$pinned_sha" -m "$commit_msg" 2>/dev/null) || {
+		log_warn "Failed to create commit"
+		return 1
+	}
+
+	if ! git push "$REMOTE_NAME" "${commit_sha}:refs/heads/${COUNTER_BRANCH}" 2>/dev/null; then
+		log_warn "Push failed (conflict — another session claimed an ID)"
+		git fetch "$REMOTE_NAME" "$COUNTER_BRANCH" 2>/dev/null || true
+		return 2
+	fi
+
+	git fetch "$REMOTE_NAME" "$COUNTER_BRANCH" 2>/dev/null || true
+	return 0
+}
+
 # Atomic CAS allocation: fetch → read → increment → commit → push
 # Returns 0 on success, 1 on hard error, 2 on retriable conflict
 allocate_counter_cas() {
@@ -483,20 +577,12 @@ allocate_counter_cas() {
 
 	cd "$repo_path" || return 1
 
-	# Step 1: Read current counter from <remote>/<counter_branch>.
-	# If missing/invalid, auto-bootstrap from TODO.md (GH#6569).
-	local current_value
-	if ! current_value=$(read_remote_counter "$repo_path"); then
-		log_info "Counter missing — attempting auto-bootstrap (GH#6569)"
-		local bootstrap_result
-		bootstrap_result=$(bootstrap_remote_counter "$repo_path") || true
-		# After bootstrap attempt, retry reading the counter.
-		# If another session bootstrapped concurrently, we still get a valid value.
-		if ! current_value=$(read_remote_counter "$repo_path"); then
-			log_error "BOOTSTRAP_COUNTER_FAILED: counter unavailable after bootstrap attempt"
-			return 1
-		fi
-	fi
+	# Step 1: Fetch + pin (atomic snapshot of counter + parent SHA)
+	local pin_result
+	pin_result=$(_cas_fetch_and_pin "$repo_path") || return 1
+	local pinned_sha current_value
+	pinned_sha="${pin_result%% *}"
+	current_value="${pin_result##* }"
 
 	local first_id="$current_value"
 	local last_id=$((current_value + count - 1))
@@ -504,56 +590,23 @@ allocate_counter_cas() {
 
 	log_info "Counter at ${current_value}, claiming $(printf 't%03d' "$first_id")..$(printf 't%03d' "$last_id"), new counter: ${new_counter}"
 
-	# Step 2: Build a commit directly on <remote>/<counter_branch> using plumbing commands.
-	# This is safe from any branch — we never touch HEAD or the working tree index.
-	cd "$repo_path" || return 1
+	# Per-process nonce prevents commit-identity collision (GH#19689 root cause #2).
+	# git commit-tree is content-addressed: identical inputs (tree, parent, message,
+	# timestamp) produce identical SHA. Concurrent processes in the same second all
+	# produce the same SHA, and git push returns 0 ("Everything up-to-date") for
+	# duplicates — the CAS gate silently passes. The nonce (PID + random) makes
+	# each process's commit unique.
+	local nonce="${BASHPID:-$$}_${RANDOM}"
 
 	local commit_msg="chore: claim task ID"
 	if [[ "$count" -eq 1 ]]; then
-		commit_msg="chore: claim $(printf 't%03d' "$first_id")"
+		commit_msg="chore: claim $(printf 't%03d' "$first_id") [${nonce}]"
 	else
-		commit_msg="chore: claim $(printf 't%03d' "$first_id")..$(printf 't%03d' "$last_id")"
+		commit_msg="chore: claim $(printf 't%03d' "$first_id")..$(printf 't%03d' "$last_id") [${nonce}]"
 	fi
 
-	# Create a blob with the new counter value
-	local blob_sha
-	blob_sha=$(echo "$new_counter" | git hash-object -w --stdin 2>/dev/null) || {
-		log_warn "Failed to create blob"
-		return 1
-	}
-
-	# Read <remote>/<counter_branch>'s tree, replace .task-counter with our new blob
-	local tree_sha
-	tree_sha=$(git ls-tree "${REMOTE_NAME}/${COUNTER_BRANCH}" | sed "s|[0-9a-f]\{40,64\}	${COUNTER_FILE}$|${blob_sha}	${COUNTER_FILE}|" | git mktree 2>/dev/null) || {
-		log_warn "Failed to create tree"
-		return 1
-	}
-
-	# Create a commit on top of <remote>/<counter_branch>
-	local parent_sha
-	parent_sha=$(git rev-parse "${REMOTE_NAME}/${COUNTER_BRANCH}" 2>/dev/null) || {
-		log_warn "Failed to resolve ${REMOTE_NAME}/${COUNTER_BRANCH}"
-		return 1
-	}
-
-	local commit_sha
-	commit_sha=$(git commit-tree "$tree_sha" -p "$parent_sha" -m "$commit_msg" 2>/dev/null) || {
-		log_warn "Failed to create commit"
-		return 1
-	}
-
-	# Step 3: Push the exact commit to <counter_branch> — this is the atomic gate.
-	# If another session pushed between our fetch and now, this fails (non-fast-forward).
-	# Safe from any branch: we push a specific SHA, not HEAD.
-	if ! git push "$REMOTE_NAME" "${commit_sha}:refs/heads/${COUNTER_BRANCH}" 2>/dev/null; then
-		log_warn "Push failed (conflict — another session claimed an ID)"
-		# Fetch latest for next retry attempt
-		git fetch "$REMOTE_NAME" "$COUNTER_BRANCH" 2>/dev/null || true
-		return 2
-	fi
-
-	# Update local ref so subsequent fetches see our commit
-	git fetch "$REMOTE_NAME" "$COUNTER_BRANCH" 2>/dev/null || true
+	# Step 2+3: Build commit on pinned_sha and push (atomic gate)
+	_cas_build_and_push "$pinned_sha" "$new_counter" "$commit_msg" || return $?
 
 	# Success — output the claimed IDs
 	echo "$first_id"
@@ -695,9 +748,25 @@ allocate_offline() {
 # Auto-assign a newly created issue to the current GitHub user.
 # Prevents duplicate dispatch when multiple machines/pulses are running.
 # Non-blocking — assignment failure doesn't fail issue creation.
+#
+# t2218: skip self-assign when the task carries auto-dispatch labels.
+# Mirrors the t2157 carve-out in issue-sync-helper.sh::_push_auto_assign_interactive.
+# When an interactive session creates a task intended for worker dispatch
+# (auto-dispatch label present), self-assigning the pusher creates the
+# (origin:interactive + assignee) combo that GH#18352/t1996 dedup-blocks
+# the pulse from dispatching a worker. Skip the assignment so the pulse
+# can dispatch immediately; the issue retains origin:interactive for
+# provenance.
 _auto_assign_issue() {
 	local issue_num="$1"
 	local repo_path="$2"
+
+	# t2218: skip when auto-dispatch tag present — issue is worker-owned.
+	# TASK_LABELS is the module-level variable set by --labels parsing.
+	if [[ ",${TASK_LABELS:-}," == *",auto-dispatch,"* ]]; then
+		log_info "Skipping auto-assign for #${issue_num} — auto-dispatch entry is worker-owned (t2218)"
+		return 0
+	fi
 
 	local current_user
 	current_user=$(gh api user --jq '.login' 2>/dev/null || echo "")

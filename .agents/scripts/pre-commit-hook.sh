@@ -5,6 +5,7 @@
 # Install with: cp .agents/scripts/pre-commit-hook.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || exit
+# shellcheck disable=SC1091  # shared-constants.sh is deployed alongside at runtime
 source "${SCRIPT_DIR}/shared-constants.sh"
 
 set -euo pipefail
@@ -17,7 +18,28 @@ get_modified_shell_files() {
 	return 0
 }
 
-# Validate that TODO.md doesn't have duplicate task IDs
+# Validate that this commit does not INTRODUCE new duplicate task IDs in TODO.md.
+#
+# Design (t2209):
+#   1. Task IDs are extracted only from real task-list entries — lines that
+#      start (after optional leading whitespace) with "- [ ] tNNN",
+#      "- [x] tNNN", or "- [-] tNNN" (declined). Routine IDs (rNNN) under
+#      ## Routines are also matched. This excludes doc examples
+#      ("- `t001` - Top-level task") and prose mentions that embed
+#      "- [ ] tNNN" inside backticks or parentheses.
+#      Subtask IDs like t123.1.2 are captured by (\.[0-9]+)*.
+#   2. The check is DIFF-AWARE. TODO.md on main has historical duplicate
+#      IDs (e.g. t131 and t1056 were both claimed twice under old
+#      workflows). Those cannot be renamed without breaking issue and PR
+#      back-references. We compare staged-state duplicates against
+#      HEAD-state duplicates and only fail on IDs that are NEW duplicates
+#      introduced by the current commit.
+#
+# Behaviour:
+#   - Historical duplicate present in HEAD, still present in staged → pass.
+#   - New task-list entry whose ID already appears elsewhere → fail.
+#   - Two new task-list entries with the same ID in one commit → fail.
+#   - TODO.md doesn't exist in HEAD (first commit) → any duplicate fails.
 validate_duplicate_task_ids() {
 	# Only check if TODO.md is staged
 	if ! git diff --cached --name-only | grep -q '^TODO\.md$'; then
@@ -30,19 +52,31 @@ validate_duplicate_task_ids() {
 		return 0
 	fi
 
-	# Extract all task IDs (including subtasks like t123.1)
-	local task_ids
-	task_ids=$(echo "$staged_todo" | grep -oE '\bt[0-9]+(\.[0-9]+)*\b' | sort)
+	local head_todo
+	head_todo=$(git show HEAD:TODO.md 2>/dev/null || true)
 
-	# Check for duplicates
-	local duplicates
-	duplicates=$(echo "$task_ids" | uniq -d)
+	local staged_dupes head_dupes new_dupes
+	staged_dupes=$(printf '%s\n' "$staged_todo" \
+		| sed -nE 's/^[[:space:]]*- \[[ x-]\][[:space:]]+([tr][0-9]+(\.[0-9]+)*).*/\1/p' \
+		| sort | uniq -d)
+	head_dupes=$(printf '%s\n' "$head_todo" \
+		| sed -nE 's/^[[:space:]]*- \[[ x-]\][[:space:]]+([tr][0-9]+(\.[0-9]+)*).*/\1/p' \
+		| sort | uniq -d)
 
-	if [[ -n "$duplicates" ]]; then
-		print_error "Duplicate task IDs found in TODO.md:"
-		echo "$duplicates" | while read -r dup; do
-			print_error "  - $dup"
-		done
+	# IDs duplicated in staged that were NOT already duplicated in HEAD =
+	# newly introduced collisions. `comm -23` emits lines unique to the
+	# first sorted input — exactly what we want.
+	new_dupes=$(comm -23 \
+		<(printf '%s\n' "$staged_dupes") \
+		<(printf '%s\n' "$head_dupes") \
+		| grep -v '^$' || true)
+
+	if [[ -n "$new_dupes" ]]; then
+		print_error "New duplicate task IDs introduced in TODO.md:"
+		while read -r dup; do
+			[[ -n "$dup" ]] && print_error "  - $dup"
+		done <<< "$new_dupes"
+		print_error "Historical duplicates in main are tolerated; this commit adds a NEW collision."
 		return 1
 	fi
 
@@ -58,9 +92,9 @@ validate_return_statements() {
 		if [[ -f "$file" ]]; then
 			# Check for functions without return statements
 			local functions
-			functions=$(grep -c "^[a-zA-Z_][a-zA-Z0-9_]*() {" "$file" || echo "0")
+			functions=$(grep -c "^[a-zA-Z_][a-zA-Z0-9_]*() {" "$file" || true)
 			local returns
-			returns=$(grep -c "return [01]" "$file" || echo "0")
+			returns=$(grep -c "return [01]" "$file" || true)
 
 			if [[ $functions -gt 0 && $returns -lt $functions ]]; then
 				print_error "Missing return statements in $file"
@@ -78,12 +112,37 @@ validate_positional_parameters() {
 	print_info "Validating positional parameters..."
 
 	for file in "$@"; do
-		# Exclude currency/pricing patterns: $[1-9] followed by digit, decimal, comma,
-		# slash (e.g. $28/mo, $1.99, $1,000), pipe (markdown table cell), or common
-		# currency/pricing unit words (per, mo, month, flat, etc.).
 		if [[ -f "$file" ]]; then
 			local violations_output
-			violations_output=$(grep -n '\$[1-9]' "$file" | grep -v 'local.*=.*\$[1-9]' | grep -vE '\$[1-9][0-9.,/]' | grep -vE '\$[1-9]\s*\|' | grep -vE '\$[1-9]\s+(per|mo(nth)?|year|yr|day|week|hr|hour|flat|each|off|fee|plan|tier|user|seat|unit|addon|setup|trial|credit|annual|quarterly|monthly)\b') || true
+			# Use awk to strip single-quoted segments and comments before scanning.
+			# This prevents false positives on:
+			#   - awk field references: awk '$1 >= 3' (not shell positional params)
+			#   - doc comments: # Arguments: $1=name (comments aren't executed)
+			# Exclusion patterns (currency, local assignments, pipes, pricing words)
+			# are preserved from the original grep pipeline.
+			# shellcheck disable=SC2016  # $1, $[1-9] etc. are awk regex literals, not shell expansions
+			violations_output=$(awk '
+			{
+				line = $0
+				# Strip single-quoted segments — shell does not expand $ inside single quotes,
+				# so awk field refs like awk '"'"'$1 >= 3'"'"' are not positional params.
+				# \047 is octal for single-quote (avoids shell quoting issues).
+				gsub(/\047[^\047]*\047/, "", line)
+				# Skip pure comment lines (after stripping quoted content)
+				if (line ~ /^[[:space:]]*#/) next
+				# Strip inline comments
+				sub(/[[:space:]]+#.*/, "", line)
+				# Skip lines with local var assignments (proper usage pattern)
+				if (line ~ /local[[:space:]].*=.*\$[1-9]/) next
+				# Skip currency/pricing patterns: $N followed by digit, decimal, comma, slash
+				if (line ~ /\$[1-9][0-9.,\/]/) next
+				# Skip markdown table cells: $N followed by pipe
+				if (line ~ /\$[1-9][[:space:]]*\|/) next
+				# Skip pricing unit words
+				if (line ~ /\$[1-9][[:space:]]+(per|mo(nth)?|year|yr|day|week|hr|hour|flat|each|off|fee|plan|tier|user|seat|unit|addon|setup|trial|credit|annual|quarterly|monthly)/) next
+				# After stripping, if $[1-9] is still present, flag as violation
+				if (line ~ /\$[1-9]/) print NR ": " $0
+			}' "$file") || true
 			if [[ -n "$violations_output" ]]; then
 				print_error "Direct positional parameter usage in $file"
 				echo "$violations_output" | head -3
@@ -102,13 +161,13 @@ validate_string_literals() {
 
 	for file in "$@"; do
 		if [[ -f "$file" ]]; then
-			# Check for repeated string literals
+			# Check for repeated string literals (skip empty, short <4 chars, and numeric-only)
 			local repeated
-			repeated=$(grep -o '"[^"]*"' "$file" | sort | uniq -c | awk '$1 >= 3' | wc -l || echo "0")
+			repeated=$(grep -oE '"[^"]{4,}"' "$file" | grep -vE '^"[0-9]+\.?[0-9]*"$' | sort | uniq -c | awk '$1 >= 3' | wc -l || true)
 
 			if [[ $repeated -gt 0 ]]; then
 				print_warning "Repeated string literals in $file (consider using constants)"
-				grep -o '"[^"]*"' "$file" | sort | uniq -c | awk '$1 >= 3 {print "  " $1 "x: " $2}' | head -3
+				grep -oE '"[^"]{4,}"' "$file" | grep -vE '^"[0-9]+\.?[0-9]*"$' | sort | uniq -c | awk '$1 >= 3 {print "  " $1 "x: " $2}' | head -3
 				((++violations))
 			fi
 		fi
@@ -540,7 +599,12 @@ validate_repo_root_files() {
 	return 0
 }
 
-main() {
+# --- Split hook entry points (t2207) ---
+# pre-commit: fast local checks only (target <5s)
+# pre-push:   slower network-dependent checks (secretlint, SonarCloud, CodeRabbit)
+# Single script, mode selected by HOOK_MODE env var or $(basename "$0").
+
+main_pre_commit() {
 	echo -e "${BLUE}Pre-commit Quality Validation${NC}"
 	echo -e "${BLUE}================================${NC}"
 
@@ -573,7 +637,8 @@ main() {
 	done < <(get_modified_shell_files)
 
 	if [[ ${#modified_files[@]} -eq 0 ]]; then
-		print_info "No shell files modified, skipping quality checks"
+		print_info "No shell files modified, skipping shell quality checks"
+		print_success "Pre-commit checks passed."
 		return 0
 	fi
 
@@ -583,7 +648,7 @@ main() {
 
 	local total_violations=0
 
-	# Run validation checks
+	# Run local validation checks (fast — no network calls)
 	validate_return_statements "${modified_files[@]}" || ((total_violations += $?))
 	echo ""
 
@@ -596,29 +661,12 @@ main() {
 	run_shellcheck "${modified_files[@]}" || ((total_violations += $?))
 	echo ""
 
-	check_secrets || ((total_violations += $?))
-	echo ""
-
-	check_quality_standards
-	echo ""
-
-	# Optional CodeRabbit CLI review (if available)
-	if [[ -f ".agents/scripts/coderabbit-cli.sh" ]] && command -v coderabbit &>/dev/null; then
-		print_info "🤖 Running CodeRabbit CLI review..."
-		if bash .agents/scripts/coderabbit-cli.sh review >/dev/null 2>&1; then
-			print_success "CodeRabbit CLI review completed"
-		else
-			print_info "CodeRabbit CLI review skipped (setup required)"
-		fi
-		echo ""
-	fi
-
 	# Final decision
 	if [[ $total_violations -eq 0 ]]; then
-		print_success "🎉 All quality checks passed! Commit approved."
+		print_success "Pre-commit checks passed."
 		return 0
 	else
-		print_error "❌ Quality violations detected ($total_violations total)"
+		print_error "Quality violations detected ($total_violations total)"
 		echo ""
 		print_info "To fix issues automatically, run:"
 		print_info "  ./.agents/scripts/quality-fix.sh"
@@ -631,6 +679,63 @@ main() {
 
 		return 1
 	fi
+}
+
+main_pre_push() {
+	echo -e "${BLUE}Pre-push Quality Validation${NC}"
+	echo -e "${BLUE}================================${NC}"
+
+	local total_violations=0
+
+	check_secrets || ((total_violations += $?))
+	echo ""
+
+	check_quality_standards
+	echo ""
+
+	# Optional CodeRabbit CLI review (if available)
+	if [[ -f ".agents/scripts/coderabbit-cli.sh" ]] && command -v coderabbit &>/dev/null; then
+		print_info "Running CodeRabbit CLI review..."
+		if bash .agents/scripts/coderabbit-cli.sh review >/dev/null 2>&1; then
+			print_success "CodeRabbit CLI review completed"
+		else
+			print_info "CodeRabbit CLI review skipped (setup required)"
+		fi
+		echo ""
+	fi
+
+	# Final decision
+	if [[ $total_violations -eq 0 ]]; then
+		print_success "Pre-push checks passed."
+		return 0
+	else
+		print_error "Quality violations detected ($total_violations total)"
+		echo ""
+		print_info "To bypass this check (not recommended), use:"
+		print_info "  git push --no-verify"
+
+		return 1
+	fi
+}
+
+main() {
+	local mode="${HOOK_MODE:-}"
+	if [[ -z "$mode" ]]; then
+		case "$(basename "$0")" in
+		pre-commit) mode="pre-commit" ;;
+		pre-push) mode="pre-push" ;;
+		*) mode="pre-commit" ;; # default for direct CLI invocation
+		esac
+	fi
+	case "$mode" in
+	pre-commit) main_pre_commit "$@" ;;
+	pre-push) main_pre_push "$@" ;;
+	all) main_pre_commit "$@" && main_pre_push "$@" ;;
+	*)
+		print_error "Unknown HOOK_MODE: $mode"
+		return 1
+		;;
+	esac
 }
 
 main "$@"

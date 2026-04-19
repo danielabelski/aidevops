@@ -10,6 +10,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.72] - 2026-04-19
+
+### Added
+
+- auto-swap Resolves to For for parent-task issues in _build_pr_body (t2242) (#19794)
+- enforce mutual exclusion of origin:interactive/worker/worker-takeover (t2200) (#19731)
+
+### Changed
+
+- tabby-profile-sync: parse folded YAML, detect worktrees via git (#19793)
+- add curl retry-with-backoff to validate-version-consistency.sh (#19791)
+- add ratchet gate rule and gh pr checks cancelled-vs-fail note
+- briefs for self-healing pulse framework improvements (#19781)
+- Maintenance: update simplification state registry
+- document origin:interactive auto-merge window (#19776)
+- prevent closing-keyword auto-close and unverified attribution (#19696)
+- fix validate_string_literals over-counting empty and short strings (#19775)
+- fix(pre-commit): eliminate positional parameter false positives on awk and comments (#19772)
+- Maintenance: add ref:GH#19774 to t2248 entry
+- fix(pre-commit): replace grep -c || echo "0" with || true to prevent multiline arithmetic errors (#19769)
+- add shell test-harness template encoding set-e and local pitfalls (#19768)
+- wire up Hostinger SSH key auth in wp-helper, hostinger-helper, docs, and template (#19767)
+- Maintenance: mark t2239 complete (pr:#19759)
+- Add opus-4.7 as top auto-escalation rung + model:opus-4-7 opt-in label (#19759)
+- Maintenance: update simplification state registry
+- feat(interactive-session-helper): post-merge subcommand for auto-heal after planning PR merge (#19766)
+- file 7 framework improvement briefs (v3.8.71 lifecycle retrospective) (#19758)
+- plan t2225 + t2227 + t2234 — intrinsic harness improvements for planning-PR incidents (#19745)
+- feat(pulse-merge): idle interactive PR handover to worker pipeline (#19682)
+- ci: add markdownlint-cli2 and biome CI jobs to code-quality.yml (#19711)
+- brief — macOS-specific briefs fail Ubuntu AC verification (planning-only) (#19725)
+- Maintenance: update simplification state registry
+- correct opencode upstream slug to anomalyco/opencode in docs and configs (#19728)
+- add paths-ignore to Qlty workflows to suppress docs-only cancelled-as-fail noise (#19726)
+- fix(pre-commit): make TODO.md duplicate-ID check diff-aware (#19712)
+
+### Fixed
+
+- extend pre-commit duplicate-ID check to declined tasks and routine IDs (#19789)
+- add t2157-style auto-dispatch carve-out to _auto_assign_issue (t2218) (#19788)
+- prevent duplicate task IDs under concurrent CAS invocation (GH#19689) (#19765)
+
+## [3.8.71] - 2026-04-18
+
+### Added
+
+- add complexity-regression pre-push guard and generalize installer (t2198) (#19710)
+
+### Changed
+
+- force base-10 in _resolve_current_counter octal-trap comparisons (#19709)
+- fix PATH ordering and clear AIDEVOPS_BASH_REEXECED env leak (#19707)
+- Documentation: sync cloudron skill files with upstream git.cloudron.io/docs/skills (t2213) (#19708)
+- correct observability.md falsified Tool.execute OTEL root cause and upstream link (#19705)
+- document NMR auto-approval forces auto-dispatch label on maintainer-authored issues (#19704)
+- Maintenance: update simplification state registry
+- install pre-commit hook, biome.json, document Codacy auto-fix anti-pattern (#19683)
+- file Linux worker launch failure diagnosis task for alex-solovyev (#19680)
+- trim INTENT_PARAM_SCHEMA description to reduce per-request token cost (#19676)
+- fix Effect.runPromise terminology and session-introspect-helper.sh naming in observability.md (#19677)
+- fix trap chaining, fixed-string dedup, and --issue validation in issue-sync-relationships.sh (#19674)
+- fix regex to detect combined flag patterns in assoc-array and nameref detection (#19675)
+- Maintenance: update simplification state registry
+- declare agent__intent on tool schemas so Anthropic preserves it (#19663)
+- document opencode run-mode Tool.execute OTEL span gap (#19662)
+- Maintenance: update simplification state registry
+- Maintenance: add t2187 backlog entry + brief (opencode run mode Tool.execute span gap) (#19661)
+- Maintenance: update simplification state registry
+- Maintenance: mark t2186 complete (pr:#19659)
+- fix(headless): include OTEL_* in sandbox passthrough for worker trace export (#19659)
+- fix bash re-exec guard BASH_SOURCE stack walk + plist modern bash (#19656)
+- Maintenance: update simplification state registry
+- feat(pulse-merge): coderabbit-nits-ok label to auto-dismiss CR-only CHANGES_REQUESTED reviews (#19653)
+- tighten observability.md prose (150→143 lines) (#19655)
+- tighten opencode-maintenance.md (163→140 lines) (#19654)
+- fix(pulse-routines): silence unrecognised schedule expression noise (#19652)
+- Maintenance: mark t2184 complete (pr:#19651)
+- fix(observability): capture duration_ms + metadata in tool_calls INSERT (#19651)
+- Maintenance: update simplification state registry
+
 ## [3.8.70] - 2026-04-18
 
 ### Changed
