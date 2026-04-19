@@ -2238,9 +2238,9 @@
       "pr": 16879
     },
     ".agents/scripts/dispatch-dedup-helper.sh": {
-      "at": "2026-04-17T01:00:35Z",
-      "hash": "bed1b9f6e1bf9f5ab8f26a2cd315c113d74730fc",
-      "passes": 14,
+      "at": "2026-04-19T18:36:44Z",
+      "hash": "2bec7bd14bf6b8eb0842ce980acb15f865b8666f",
+      "passes": 15,
       "pr": 18917
     },
     ".agents/scripts/email-agent-helper.sh": {
@@ -2316,9 +2316,9 @@
       "pr": 18843
     },
     ".agents/scripts/issue-sync-helper.sh": {
-      "at": "2026-04-19T15:35:43Z",
-      "hash": "a07c67a234c90d2707888f3dbfa9f1cdd32ab1c3",
-      "passes": 15,
+      "at": "2026-04-19T18:36:45Z",
+      "hash": "9e6f80e2a0115655b2c4cdea0acc207281001441",
+      "passes": 16,
       "pr": 18706
     },
     ".agents/scripts/issue-sync-lib.sh": {
@@ -2352,9 +2352,9 @@
       "pr": 15752
     },
     ".agents/scripts/model-availability-helper.sh": {
-      "at": "2026-04-09T07:32:15Z",
-      "hash": "66d1406c1562ca42e13914a6cc27d2bd0625da3d",
-      "passes": 1,
+      "at": "2026-04-19T18:36:45Z",
+      "hash": "9c140ad8bf353024521d3c2e4b395232a12cf1d6",
+      "passes": 2,
       "pr": 17797
     },
     ".agents/scripts/new-task-helper.sh": {
@@ -2412,9 +2412,9 @@
       "pr": 18796
     },
     ".agents/scripts/pulse-dispatch-core.sh": {
-      "at": "2026-04-19T16:33:53Z",
-      "hash": "22a5c93ceadd56e41369e8ec338982f21f72fa25",
-      "passes": 11,
+      "at": "2026-04-19T18:36:45Z",
+      "hash": "6e06573ccff53e44666c01b730d8d0840c43e15a",
+      "passes": 12,
       "pr": 18832
     },
     ".agents/scripts/pulse-dispatch-engine.sh": {
@@ -7492,9 +7492,9 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-19T16:57:56Z",
-      "hash": "3bf15db4d951c04be2b9ccb8257281567a2b068f",
-      "passes": 86,
+      "at": "2026-04-19T18:37:10Z",
+      "hash": "9b5d67b5bddfcb9828eb2f57baa521950339c994",
+      "passes": 87,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-19T16:34:23Z",
-      "hash": "2d815bd8ebc3ce19abe09ca653adaac3bc0333ec",
-      "passes": 83,
+      "at": "2026-04-19T18:37:10Z",
+      "hash": "df8bff4dde5cc40053f7fe800ebdb3fc19103f84",
+      "passes": 84,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
