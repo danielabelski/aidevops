@@ -1687,6 +1687,9 @@ WantedBy=timers.target
 	echo ""
 	echo "  Disable with: aidevops auto-update disable"
 	echo "  Check now:    aidevops auto-update check"
+	echo ""
+	# Check linger state so the timer survives logout on headless/server Linux hosts.
+	_print_linger_status
 	return 0
 }
 
@@ -1884,6 +1887,29 @@ cmd_disable() {
 }
 
 #######################################
+# Print linger status row for systemd user timer.
+# Linger allows the user manager to keep running after logout.
+# Skips silently when loginctl is absent (containers) or when user is root.
+# Args: none. Reads $USER from environment.
+# Returns: 0
+#######################################
+_print_linger_status() {
+	[[ "${USER:-}" == "root" ]] && return 0
+	command -v loginctl &>/dev/null || return 0
+	local _linger_state _linger_cmd
+	_linger_state=$(loginctl show-user "$USER" -p Linger --value 2>/dev/null || true)
+	_linger_cmd="sudo loginctl enable-linger $USER"
+	if [[ "$_linger_state" == "yes" ]]; then
+		echo -e "  Linger:    ${GREEN}yes${NC}"
+	elif [[ "$_linger_state" == "no" ]]; then
+		echo -e "  Linger:    ${YELLOW}no${NC} — timer stops on logout; fix: ${_linger_cmd}"
+	else
+		echo -e "  Linger:    ${YELLOW}unknown${NC} — run: ${_linger_cmd}"
+	fi
+	return 0
+}
+
+#######################################
 # Print scheduler section of status output (launchd, systemd, or cron)
 # Args: $1 = backend ("launchd", "systemd", or "cron")
 #######################################
@@ -1947,6 +1973,7 @@ _cmd_status_scheduler() {
 			fi
 			echo "  Timer:     ${SYSTEMD_SERVICE_DIR}/${SYSTEMD_UNIT_NAME}.timer"
 			echo "  Service:   ${SYSTEMD_SERVICE_DIR}/${SYSTEMD_UNIT_NAME}.service"
+			_print_linger_status
 		fi
 		# Also check for any lingering cron entry
 		if crontab -l 2>/dev/null | grep -q "$CRON_MARKER"; then
@@ -2149,6 +2176,9 @@ SCHEDULER BACKENDS:
             - Auto-migrates existing cron entries on first 'enable'
     Linux:  systemd user timer preferred (~/.config/systemd/user/aidevops-auto-update.timer)
             - Falls back to cron when systemctl --user is unavailable
+            - Requires loginctl enable-linger $USER to run when logged out
+            - Without linger, the timer stops when your last session ends
+            - See 'aidevops auto-update status' for current linger state
     Linux:  cron fallback (crontab entry with # aidevops-auto-update marker)
 
 HOW IT WORKS:
