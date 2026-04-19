@@ -10,6 +10,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.74] - 2026-04-19
+
+### Changed
+
+- Maintenance: mark t2190 complete (pr:#19871 completed:2026-04-19) [skip ci]
+- fix(dispatch): Linux ps command truncation defeats worker detection (#19871)
+- Maintenance: mark t2379 complete (pr:#19870 completed:2026-04-19) [skip ci]
+- fix(pulse-dispatch): planning PR squash commits falsely marked as implementation (#19870)
+- correct opencode slug + clean repeated-literal debt + fix validate_string_literals false-positives (#19867)
+- Maintenance: mark t2247 complete (pr:#19868 completed:2026-04-19) [skip ci]
+- emit PR comment, audit log, and label on admin-merge fallback (#19868)
+- Maintenance: mark t2235 complete (pr:#19865 completed:2026-04-19) [skip ci]
+- forbid self-invented task ID suffixes in Traceability rules (#19865)
+- Maintenance: mark t2203 complete (pr:#19866 completed:2026-04-19) [skip ci]
+- refactor(pulse-merge): extract _route_pr_to_fix_worker helper to deduplicate routing gates (#19866)
+- Maintenance: mark t2234 complete (pr:#19862 completed:2026-04-19) [skip ci]
+- docs(brief-template): add planning-PR title-collision warning (t2219) (#19862)
+- Maintenance: mark t2377 complete (pr:#19849 completed:2026-04-19) [skip ci]
+- Maintenance: mark t2246 complete (pr:#19854 completed:2026-04-19) [skip ci]
+- brief and TODO entry for enrich-path data-loss bug (planning only) (#19849)
+- fix(pre-commit-hook): decouple print_warning from violations counter in validate_string_literals (#19853)
+- add pre-install validator dry-run to install-hooks-helper.sh (#19855)
+- split pulse-merge.sh into three modules + fix missing CLAIM_RELEASED on worker success (#19842)
+- fix(task-id-guard): accept Ref/For linkage when linked issue title contains t-ID (#19844)
+- Maintenance: sync ref:GH#19752 to TODO.md [skip ci]
+- Maintenance: mark t2237 complete (pr:#19850 completed:2026-04-19) [skip ci]
+- skip pre-commit hook on release commits to avoid false positives (#19850)
+- Maintenance: mark t2376 complete (pr:#19848 completed:2026-04-19) [skip ci]
+- fix grep -c arithmetic crash blocking Biome CI framework-wide (#19848)
+
+### Fixed
+
+- restore include-all CodeRabbit label semantics (GH#19770) (#19854)
+
 ## [3.8.73] - 2026-04-19
 
 ### Added
