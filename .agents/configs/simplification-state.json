@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-19T05:30:32Z",
-      "hash": "bdab3c89527d15c7c8af8ae3cca1557e6a18af25",
-      "passes": 26,
+      "at": "2026-04-19T15:35:32Z",
+      "hash": "d2e1e4d0dd11b5ad42dd81bf3efebd2a3402a814",
+      "passes": 27,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -1664,9 +1664,9 @@
       "pr": 15301
     },
     ".agents/reference/cross-runner-coordination.md": {
-      "at": "2026-04-17T01:00:32Z",
-      "hash": "9774bc5bb2e4d2cda742039c0b70b87f25da694f",
-      "passes": 3,
+      "at": "2026-04-19T15:35:39Z",
+      "hash": "369713297e682e2d8f6ef3763ae6cf677eb4055d",
+      "passes": 4,
       "pr": 18658
     },
     ".agents/reference/customization.md": {
@@ -1856,9 +1856,9 @@
       "pr": 16085
     },
     ".agents/scripts/claim-task-id.sh": {
-      "at": "2026-04-19T00:33:19Z",
-      "hash": "6b472045443a6242ddb22f1ae28c2a3e777b272a",
-      "passes": 12,
+      "at": "2026-04-19T15:35:41Z",
+      "hash": "1d537f194968819c28a837258832fa54b869952e",
+      "passes": 13,
       "pr": 17531
     },
     ".agents/scripts/commands/add-skill.md": {
@@ -2310,15 +2310,15 @@
       "pr": 18707
     },
     ".agents/scripts/interactive-session-helper.sh": {
-      "at": "2026-04-18T20:46:26Z",
-      "hash": "9017b6451a466d231261d2b858eb75cc954dcb95",
-      "passes": 4,
+      "at": "2026-04-19T15:35:43Z",
+      "hash": "7f1ff2dfe9f16e143dad1df55167e4599d192320",
+      "passes": 5,
       "pr": 18843
     },
     ".agents/scripts/issue-sync-helper.sh": {
-      "at": "2026-04-19T05:30:53Z",
-      "hash": "5e82e93693e38056c20f328a8631d3cebda57a99",
-      "passes": 14,
+      "at": "2026-04-19T15:35:43Z",
+      "hash": "a07c67a234c90d2707888f3dbfa9f1cdd32ab1c3",
+      "passes": 15,
       "pr": 18706
     },
     ".agents/scripts/issue-sync-lib.sh": {
@@ -2328,9 +2328,9 @@
       "pr": 16471
     },
     ".agents/scripts/linters-local.sh": {
-      "at": "2026-04-15T03:00:31Z",
-      "hash": "73f92584b2779e28603e2251676c8c749a6524ef",
-      "passes": 4,
+      "at": "2026-04-19T15:35:43Z",
+      "hash": "ea3bc093b71543e2b8781a69e620769500e81270",
+      "passes": 5,
       "pr": 17036
     },
     ".agents/scripts/matrix-dispatch-helper.sh": {
@@ -2412,9 +2412,9 @@
       "pr": 18796
     },
     ".agents/scripts/pulse-dispatch-core.sh": {
-      "at": "2026-04-19T05:30:55Z",
-      "hash": "5b0f14f48045537e5aedc5ba0e141f898d50f6da",
-      "passes": 9,
+      "at": "2026-04-19T15:35:44Z",
+      "hash": "8807152a26cb716e24911109676160cabc31ca46",
+      "passes": 10,
       "pr": 18832
     },
     ".agents/scripts/pulse-dispatch-engine.sh": {
@@ -2460,15 +2460,15 @@
       "pr": 18681
     },
     ".agents/scripts/pulse-simplification-state.sh": {
-      "at": "2026-04-17T20:02:42Z",
-      "hash": "0e13c5b4a4e5b349243322756be00886b10910d8",
-      "passes": 7,
+      "at": "2026-04-19T15:35:44Z",
+      "hash": "e6737549d0cea8e0e21b9fa804d8bb20b2de1cb5",
+      "passes": 8,
       "pr": 18680
     },
     ".agents/scripts/pulse-simplification.sh": {
-      "at": "2026-04-17T20:02:43Z",
-      "hash": "8400ce2f71488e5d8e10964423d2e49491f0082d",
-      "passes": 10,
+      "at": "2026-04-19T15:35:45Z",
+      "hash": "ba505d7368a1a4eb94bdaa7c3e1e123645646524",
+      "passes": 11,
       "pr": 18653
     },
     ".agents/scripts/pulse-triage.sh": {
@@ -2502,9 +2502,9 @@
       "pr": 19004
     },
     ".agents/scripts/routine-log-helper.sh": {
-      "at": "2026-04-18T18:06:36Z",
-      "hash": "16da17a8951f847125d2a990cdd223ab3d8176a2",
-      "passes": 4,
+      "at": "2026-04-19T15:35:45Z",
+      "hash": "38165378dc1fdd3945ea60afac7575fc2a370abd",
+      "passes": 5,
       "pr": 17786
     },
     ".agents/scripts/schema-validator-helper.sh": {
@@ -2544,9 +2544,9 @@
       "pr": 15916
     },
     ".agents/scripts/shared-constants.sh": {
-      "at": "2026-04-19T05:30:57Z",
-      "hash": "fac31bcc446d519b11bdc8c60c518834cf56d1d2",
-      "passes": 10,
+      "at": "2026-04-19T15:35:45Z",
+      "hash": "757a319ee5d49db7469797cde56bce57f850a1bb",
+      "passes": 11,
       "pr": 18847
     },
     ".agents/scripts/stats-functions.sh": {
@@ -2556,9 +2556,9 @@
       "pr": 18808
     },
     ".agents/scripts/stats-quality-sweep.sh": {
-      "at": "2026-04-17T20:02:43Z",
-      "hash": "2637a73468647128e39db9709ce72e99c96dd0b2",
-      "passes": 3,
+      "at": "2026-04-19T15:35:45Z",
+      "hash": "70fba3d5e6a19fe7b7f5f9540b47f2340448f4a6",
+      "passes": 4,
       "pr": 18810
     },
     ".agents/scripts/tabby-helper.sh": {
@@ -2627,9 +2627,9 @@
       "pr": 17393
     },
     ".agents/scripts/worktree-helper.sh": {
-      "at": "2026-04-19T05:30:58Z",
-      "hash": "3201c79ae20186c574ca49f1e569f13ee71724d9",
-      "passes": 3,
+      "at": "2026-04-19T15:35:46Z",
+      "hash": "0feb5e465fd3a431ddd42379891b53cc904ef8d5",
+      "passes": 4,
       "pr": 19087
     },
     ".agents/seo.md": {
@@ -7115,9 +7115,9 @@
       "pr": 16675
     },
     ".agents/workflows/brief.md": {
-      "at": "2026-04-15T03:32:04Z",
-      "hash": "0f13cdc0577cd473600fbb0a609536ad21c0a411",
-      "passes": 4,
+      "at": "2026-04-19T15:36:12Z",
+      "hash": "87e4c35729a1b50475dc15adc9c992822dac7802",
+      "passes": 5,
       "pr": 18927
     },
     ".agents/workflows/brief/templates.md": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-19T05:31:49Z",
-      "hash": "0ecb6f4ae942040f1ff39cb10a31d0a84a860a90",
-      "passes": 53,
+      "at": "2026-04-19T15:36:14Z",
+      "hash": "e44bb9dfcaed545ed3d75b4e05436e93573c6256",
+      "passes": 54,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-19T05:31:49Z",
-      "hash": "a0639651eed9758ad38859c72330fa1b6f0b0d78",
-      "passes": 83,
+      "at": "2026-04-19T15:36:14Z",
+      "hash": "1b0230e6ea819c9a337be7a0189babbac1b0c466",
+      "passes": 84,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-19T05:31:49Z",
-      "hash": "8661cb8a2e0ff9af8449c9133b4b6e42386b0111",
-      "passes": 81,
+      "at": "2026-04-19T15:36:14Z",
+      "hash": "0ae09786ff1829eb1e8214dd7125d4fb5dd2c087",
+      "passes": 82,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
