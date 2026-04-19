@@ -10,6 +10,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.73] - 2026-04-19
+
+### Added
+
+- prevent .task-counter silent regression on PR merge (t2229) (#19801)
+- add PATH-discoverable gh_create_pr and gh_create_issue shims (t2199) (#19799)
+- t2245 detect stuck 3-way merge state in canonical repos on session start (#19798)
+
+### Changed
+
+- harden cross-runner guard with runner-identity gate (#19843)
+- Maintenance: update simplification state registry
+- Maintenance: mark t2372 complete (pr:#19838 completed:2026-04-19) [skip ci]
+- tighten _normalize_unassign_stale 1h cutoff to 10min for faster orphan-worker recovery (#19838)
+- docs(agents-md): add SYNC_PAT live-state + t2252 caveat to issue-sync limitation paragraph (#19833)
+- Maintenance: mark t2265 complete (pr:#19813 completed:2026-04-19) [skip ci]
+- plan init_scope field for aidevops init scaffolding (#19813)
+- Maintenance: mark complete in TODO.md (pr:#19816 verified:2026-04-19) (#19830)
+- Maintenance: update simplification state registry
+- Maintenance: mark t2251 complete (pr:#19800 completed:2026-04-19) [skip ci]
+- file brief for gh-signature-helper session+token misdetection (#19800)
+- guard session+terminal titles against default-branch clobber (#19816)
+- Maintenance: mark t2366 complete (pr:#19819 completed:2026-04-19) [skip ci]
+- plan r914 daily repo-aidevops-health-keeper routine (#19819)
+- Maintenance: mark t2219 complete (pr:#19820 completed:2026-04-19) [skip ci]
+- fix(ci): skip title-fallback for For/Ref-referenced issues in issue-sync.yml (#19820)
+- Maintenance: mark t2207 complete (pr:#19786 testing:self-assessed)
+- Maintenance: mark t2259 complete (pr:#19814 completed:2026-04-19) [skip ci]
+- Maintenance: sync ref:GH#19774 to TODO.md [skip ci]
+- Maintenance: mark t2248 complete (pr:#19812 completed:2026-04-19) [skip ci]
+- fix(complexity-regression): switch bash32-compat metric from line-keyed to count-per-pattern diff key (#19812)
+- Maintenance: ratchet QLTY_SMELL_THRESHOLD 29→25 (-4) [skip ci]
+- Maintenance: update simplification state registry
+- refactor(hooks): split pre-commit — fast local checks stay, slow network checks move to pre-push (#19786)
+- add push retry loop to version-manager.sh release (#19811)
+- restrict parent-task body-regex fallback to Children section only (#19810)
+- Restore headless OAuth rotation via XDG_DATA_HOME-aware auth path (#19790)
+- fix(ci): scope Markdown Lint + Biome CI to changed-line ranges (#19785)
+- strip markdown code spans before keyword scan in parent-task-keyword-guard (#19796)
+
 ## [3.8.72] - 2026-04-19
 
 ### Added
