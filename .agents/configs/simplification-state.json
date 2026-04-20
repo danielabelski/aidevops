@@ -1856,9 +1856,9 @@
       "pr": 16085
     },
     ".agents/scripts/claim-task-id.sh": {
-      "at": "2026-04-20T17:08:32Z",
-      "hash": "8a2815e5a93f5c0cb8288b0303b8640d7a3d91e3",
-      "passes": 16,
+      "at": "2026-04-20T17:46:37Z",
+      "hash": "129391f643dd480876449b7f0025ff0aabe44d29",
+      "passes": 17,
       "pr": 17531
     },
     ".agents/scripts/commands/add-skill.md": {
@@ -2298,9 +2298,9 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "at": "2026-04-19T05:30:53Z",
-      "hash": "f46465b88cb5140c2e91a5adb79efe9c2b0026f5",
-      "passes": 22,
+      "at": "2026-04-20T17:46:45Z",
+      "hash": "c2aad0bc7a75d0b6080bbf651f1aa0f43b0cf47e",
+      "passes": 23,
       "pr": 15086
     },
     ".agents/scripts/headless-runtime-lib.sh": {
@@ -2316,9 +2316,9 @@
       "pr": 18843
     },
     ".agents/scripts/issue-sync-helper.sh": {
-      "at": "2026-04-20T17:08:34Z",
-      "hash": "8bdf74d81866f55d1e01e2fe5a60c21d2ce15b96",
-      "passes": 19,
+      "at": "2026-04-20T17:46:45Z",
+      "hash": "98040bfec17b5a269a5cf236a83c5db9d709001c",
+      "passes": 20,
       "pr": 18706
     },
     ".agents/scripts/issue-sync-lib.sh": {
@@ -2627,9 +2627,9 @@
       "pr": 17393
     },
     ".agents/scripts/worktree-helper.sh": {
-      "at": "2026-04-20T06:44:59Z",
-      "hash": "9778f5269aeee1927db73310de228c394af197be",
-      "passes": 5,
+      "at": "2026-04-20T17:46:49Z",
+      "hash": "f64ae28e019bf71b990678775dd06505983188d3",
+      "passes": 6,
       "pr": 19087
     },
     ".agents/seo.md": {
