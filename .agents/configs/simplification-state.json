@@ -7622,6 +7622,42 @@
       "at": "2026-04-20T04:00:15Z",
       "pr": 20057,
       "passes": 1
+    },
+    ".agents/reference/hot-deploy.md": {
+      "hash": "7463ad675cb351cf73707b62176f544a803ca01f",
+      "at": "2026-04-20T06:08:30Z",
+      "pr": 20111,
+      "passes": 1
+    },
+    ".agents/reference/testing.md": {
+      "hash": "74ecb0c34ba67fedfc31ebf20a1418353bb8c727",
+      "at": "2026-04-20T06:08:30Z",
+      "pr": 20110,
+      "passes": 1
+    },
+    ".agents/reference/opencode-maintenance.md": {
+      "hash": "ec9a4211e77462a7601584fae9bb13871aa5cd39",
+      "at": "2026-04-20T06:08:30Z",
+      "pr": 20109,
+      "passes": 1
+    },
+    ".agents/reference/observability.md": {
+      "hash": "4834876b78cc91f354a8f2e0481f434eb423e5a6",
+      "at": "2026-04-20T06:08:30Z",
+      "pr": 20108,
+      "passes": 1
+    },
+    ".agents/reference/large-file-split.md": {
+      "hash": "5a2f90012e3c21eefcbe301cb3a4e68c04219eef",
+      "at": "2026-04-20T06:08:30Z",
+      "pr": 20107,
+      "passes": 1
+    },
+    ".agents/scripts/pulse-merge-conflict.sh": {
+      "hash": "6c54add43c6ab57148abf38ca49bf049fe580e26",
+      "at": "2026-04-20T06:08:30Z",
+      "pr": 20060,
+      "passes": 1
     }
   },
   "setup-modules/agent-deploy.sh": {
