@@ -7658,6 +7658,30 @@
       "at": "2026-04-20T06:08:30Z",
       "pr": 20060,
       "passes": 1
+    },
+    ".agents/reference/review-bot-gate.md": {
+      "hash": "0bbeda57a3727179a20a119301495993df75b287",
+      "at": "2026-04-20T07:25:53Z",
+      "pr": 20122,
+      "passes": 1
+    },
+    ".agents/reference/pre-commit-hooks.md": {
+      "hash": "33fba09013c3e7d3de3b0aeec3e773c35cecdd6e",
+      "at": "2026-04-20T07:25:53Z",
+      "pr": 20121,
+      "passes": 1
+    },
+    ".agents/reference/pulse-lock-recovery.md": {
+      "hash": "dd078b4e3e930458d208097e208de8a2a826868c",
+      "at": "2026-04-20T07:25:53Z",
+      "pr": 20120,
+      "passes": 1
+    },
+    ".agents/reference/detection-routines.md": {
+      "hash": "c3846ae9b6da89f6453a7cc88d5474dcb8dab600",
+      "at": "2026-04-20T07:25:53Z",
+      "pr": 20119,
+      "passes": 1
     }
   },
   "setup-modules/agent-deploy.sh": {
