@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.83] - 2026-04-20
+
+### Added
+
+- add AIDEVOPS_OPUS_47_CONTEXT env var for opus-4.7 context override (t2435) (#20079)
+
+### Changed
+
+- Maintenance: sync VERSION to v3.8.82 tag (recover partial-release state)
+- Maintenance: update simplification state registry
+- Maintenance: mark t2432 complete (pr:#20075 completed:2026-04-20) [skip ci]
+- brief deferred follow-up for recent-commit eligibility check (#20075)
+- Maintenance: brief three t2422-spinoff gaps (t2429, t2430, t2431) (#20070)
+
 ## [3.8.80] - 2026-04-20
 
 ### Added
