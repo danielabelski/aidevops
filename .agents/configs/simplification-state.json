@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-20T02:49:26Z",
-      "hash": "8323d35594a9521ed4bc7ae57eb696c41f1e8ef8",
-      "passes": 32,
+      "at": "2026-04-20T03:59:26Z",
+      "hash": "120970d243a7ee5d4e0fb603e1da6d766f67b82a",
+      "passes": 33,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -4242,9 +4242,9 @@
       "pr": 17218
     },
     ".agents/tools/ai-assistants/models-opus.md": {
-      "at": "2026-04-18T20:46:42Z",
-      "hash": "0803dbd0fa2d6eea781be5e30bfe43753038fe0d",
-      "passes": 4,
+      "at": "2026-04-20T03:59:49Z",
+      "hash": "f65332256b36d12abbf325061d47c89acd6fc809",
+      "passes": 5,
       "pr": 16821
     },
     ".agents/tools/ai-assistants/models-sonnet.md": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-20T02:50:37Z",
-      "hash": "61425a194da3a889f39dbbb23aae7c90041ce79f",
-      "passes": 57,
+      "at": "2026-04-20T04:00:14Z",
+      "hash": "bb79f9df68fad4ffc83972b995967479fd90d9fb",
+      "passes": 58,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-20T02:50:37Z",
-      "hash": "fac227840af571b72ae2824f6819001365e7a1b6",
-      "passes": 90,
+      "at": "2026-04-20T04:00:14Z",
+      "hash": "ffb67635e46d498a67b42c52c68bf8fd15af695c",
+      "passes": 91,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-20T02:50:37Z",
-      "hash": "2e056489c534baad96008bb7eb3a93f675899df0",
-      "passes": 88,
+      "at": "2026-04-20T04:00:14Z",
+      "hash": "d95a59c9a6905788085ee0e6d7a669779be3df33",
+      "passes": 89,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7603,6 +7603,24 @@
       "hash": "10ac555efaea19e6c9bf9d468d9902284960a4b5",
       "at": "2026-04-17T04:31:22Z",
       "pr": 19503,
+      "passes": 1
+    },
+    ".agents/scripts/task-brief-helper.sh": {
+      "hash": "ca0d2ac2f875a19b67d849ae5ecdd62999415a08",
+      "at": "2026-04-20T04:00:15Z",
+      "pr": 20059,
+      "passes": 1
+    },
+    ".agents/scripts/tests/test-workflow-cascade-lint.sh": {
+      "hash": "5a91e91ed40aa09b2dd97450e06dbccb24f4a443",
+      "at": "2026-04-20T04:00:15Z",
+      "pr": 20058,
+      "passes": 1
+    },
+    ".agents/scripts/pulse-merge-feedback.sh": {
+      "hash": "1e6c87c3ba814d863b3365168c211b12acde82ea",
+      "at": "2026-04-20T04:00:15Z",
+      "pr": 20057,
       "passes": 1
     }
   },
