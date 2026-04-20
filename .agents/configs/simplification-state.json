@@ -2262,9 +2262,9 @@
       "pr": 12145
     },
     ".agents/scripts/full-loop-helper.sh": {
-      "at": "2026-04-20T06:44:56Z",
-      "hash": "d4c4e6a338418ae8ae40aecc33b6579f7296d652",
-      "passes": 15,
+      "at": "2026-04-20T16:36:50Z",
+      "hash": "b2293aaba79e2944fb0913d4cc8b12ac22d76846",
+      "passes": 16,
       "pr": 19046
     },
     ".agents/scripts/generate-claude-commands.sh": {
