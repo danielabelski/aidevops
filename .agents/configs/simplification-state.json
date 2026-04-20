@@ -2544,9 +2544,9 @@
       "pr": 15916
     },
     ".agents/scripts/shared-constants.sh": {
-      "at": "2026-04-20T09:02:06Z",
-      "hash": "7cc5d605702007ee351bd22d89303cb8a95fb765",
-      "passes": 17,
+      "at": "2026-04-20T23:45:07Z",
+      "hash": "3fbd7589b76b565a7359a4f93e2f62190ecfe796",
+      "passes": 18,
       "pr": 18847
     },
     ".agents/scripts/stats-functions.sh": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-20T23:20:13Z",
-      "hash": "b861531ca3ad746c38554386ab8fbc07cd9fdee0",
-      "passes": 64,
+      "at": "2026-04-20T23:45:28Z",
+      "hash": "58c8836cd671dfb8f1e395044b65d933dbd8e84c",
+      "passes": 65,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-20T04:00:14Z",
-      "hash": "ffb67635e46d498a67b42c52c68bf8fd15af695c",
-      "passes": 91,
+      "at": "2026-04-20T23:45:28Z",
+      "hash": "e3f1dd9453a59fcb6f6f44be1c46e8036606e83c",
+      "passes": 92,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-20T04:00:14Z",
-      "hash": "d95a59c9a6905788085ee0e6d7a669779be3df33",
-      "passes": 89,
+      "at": "2026-04-20T23:45:28Z",
+      "hash": "730df94f833cd259f2991dadba069853c03725dc",
+      "passes": 90,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7681,6 +7681,18 @@
       "hash": "c3846ae9b6da89f6453a7cc88d5474dcb8dab600",
       "at": "2026-04-20T07:25:53Z",
       "pr": 20119,
+      "passes": 1
+    },
+    ".agents/tools/legal/legal-research.md": {
+      "hash": "ebb9143b3e788e734d05b7dac529050c7e4fed5e",
+      "at": "2026-04-20T23:45:28Z",
+      "pr": 20191,
+      "passes": 1
+    },
+    ".agents/reference/override-flags.md": {
+      "hash": "9dd2f11e8fd3d25657bcfc658ad1bb85056849d6",
+      "at": "2026-04-20T23:45:28Z",
+      "pr": 20190,
       "passes": 1
     }
   },
