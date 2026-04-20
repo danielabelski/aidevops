@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-20T17:08:23Z",
-      "hash": "7cd42490bab177042d90bb39d4b1e5ed6b75cb3a",
-      "passes": 36,
+      "at": "2026-04-20T19:55:59Z",
+      "hash": "352a0eb4ee5f6ba19c6186bdb5a46938199d0ca0",
+      "passes": 37,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
