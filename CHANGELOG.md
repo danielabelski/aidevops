@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.90] - 2026-04-21
+
+### Changed
+
+- Maintenance: mark t2692 complete (pr:#20318 completed:2026-04-21) [skip ci]
+- scrub private repo references from aidevops codebase (#20318)
+- Maintenance: update simplification state registry
+
 ## [3.8.89] - 2026-04-21
 
 ### Changed
