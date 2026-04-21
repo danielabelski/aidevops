@@ -2869,3 +2869,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t2707 extend signature-footer enforcement to gh api POST/PATCH on issues|pulls|comments endpoints #auto-dispatch #bug #framework ref:GH#20350 pr:#20352 completed:2026-04-21
 
 - [ ] t2705 diagnose pulse-merge.sh auto-merge gap for origin:interactive PRs #parent ref:GH#20338
+
+- [ ] t2708 pulse-dirty-pr-sweep: narrow origin-interactive-no-close rule to true orphans #auto-dispatch ref:GH#20355
