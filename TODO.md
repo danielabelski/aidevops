@@ -2866,6 +2866,6 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t1904 fix: stat stdout pollution and WAL pragma leak in opencode-db-archive.sh — stat -f '%z' at line 147 uses macOS-only syntax; on Linux stdout pollution causes arithmetic failure under set -u. PRAGMA journal_mode=WAL at line 255 leaks 'wal' to stdout. Fix: replace stat || chain with uname-conditional block (follow document-creation-helper.sh:72-79); move PRAGMA out of heredoc into separate suppressed sqlite3 call. #bugfix #auto-dispatch ~0.5h model:haiku ref:GH#17683 logged:2026-04-07
 
-- [ ] t2707 extend signature-footer enforcement to gh api POST/PATCH on issues|pulls|comments endpoints #auto-dispatch #bug #framework ref:GH#20350
+- [x] t2707 extend signature-footer enforcement to gh api POST/PATCH on issues|pulls|comments endpoints #auto-dispatch #bug #framework ref:GH#20350 pr:#20352 completed:2026-04-21
 
 - [ ] t2705 diagnose pulse-merge.sh auto-merge gap for origin:interactive PRs #parent ref:GH#20338
