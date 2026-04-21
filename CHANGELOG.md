@@ -10,6 +10,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.89] - 2026-04-21
+
+### Changed
+
+- Maintenance: mark t2685 complete (pr:#20307 completed:2026-04-21) [skip ci]
+- harden gh signature-footer enforcement (PATH shim + plugin hook block) (#20307)
+- Maintenance: mark t2688 complete (pr:#20302 completed:2026-04-21) [skip ci]
+- replace `local -n` namerefs with module-level globals for zsh/bash-3.2 compat (#20302)
+- Maintenance: update simplification state registry
+- Maintenance: update simplification state registry
+- split aidevops.sh into 3 sub-libraries to get below 2000-line gate (#20296)
+- extend REST fallback to gh_create_pr (GH#20290) (#20295)
+- add Slack token allowlist to secretlintrc for test fixtures (#20293)
+
+### Fixed
+
+- allow t-ID prose references when claimed in repo history (GH#20291) (#20294)
+
 ## [3.8.88] - 2026-04-21
 
 ### Added
