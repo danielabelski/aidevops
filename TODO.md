@@ -2883,3 +2883,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2713 large-file-gate: skip when brief cites line ranges for every targeted large file #auto-dispatch #bug #enhancement #framework ref:GH#20371
 
 - [ ] t2714 pulse-diagnose-helper.sh: new helper correlating pulse.log events to PR merge decisions #auto-dispatch #enhancement #framework ref:GH#20372
+
+- [ ] t2715 docs: retire t2218 stale gap notes (AGENTS.md + log-issue-aidevops.md) and close orphan TODO entry #documentation #framework ref:GH#20373
