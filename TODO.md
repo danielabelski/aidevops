@@ -762,7 +762,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [x] t2578 pulse-wrapper: detect and break stale mkdir lock after crashed/killed instance — `pkill + nohup` restart leaves old lock in place, new instances log "Another pulse instance holds the mkdir lock ... exiting immediately" and stall the queue. Needs liveness-check + reclaim (model on dispatch-dedup-helper.sh claim-stamp pattern). Discovered during t2574 live-verification (3 concurrent PIDs observed). #bug #auto-dispatch #framework ref:GH#20260 pr:#20263 completed:2026-04-21
 
-- [ ] t2685 harden gh signature-footer enforcement: add `.agents/scripts/gh` PATH shim (auto-injects sig on `--body`/`--body-file` for gh issue/pr comment/create) + tighten `quality-hooks.mjs::checkSignatureFooterGate` with marker-based detection + transparent repair + mentoring throw on unparseable bodies. Prompted by awardsapp#2546 hallucinated footer incident 2026-04-21. See `todo/tasks/t2685-brief.md`. #bug #priority:high #framework #interactive ref:GH#20306
+- [x] t2685 harden gh signature-footer enforcement: add `.agents/scripts/gh` PATH shim (auto-injects sig on `--body`/`--body-file` for gh issue/pr comment/create) + tighten `quality-hooks.mjs::checkSignatureFooterGate` with marker-based detection + transparent repair + mentoring throw on unparseable bodies. Prompted by awardsapp#2546 hallucinated footer incident 2026-04-21. See `todo/tasks/t2685-brief.md`. #bug #priority:high #framework #interactive ref:GH#20306 pr:#20307 completed:2026-04-21
 
 ## In Progress
 
