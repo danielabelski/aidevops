@@ -2382,9 +2382,9 @@
       "pr": 15455
     },
     ".agents/scripts/post-merge-review-scanner.sh": {
-      "at": "2026-04-14T20:17:00Z",
-      "hash": "6fcc33e1df2db4bdf5fe7fae2d5e3ba7b4c05979",
-      "passes": 2,
+      "at": "2026-04-21T17:21:45Z",
+      "hash": "e54ca600cf8eec6b6260c7a9e48f7c189475325c",
+      "passes": 3,
       "pr": 18801
     },
     ".agents/scripts/profile-readme-helper.sh": {
@@ -2406,9 +2406,9 @@
       "pr": 18704
     },
     ".agents/scripts/pulse-dep-graph.sh": {
-      "at": "2026-04-15T18:38:06Z",
-      "hash": "4769810d4bc0232a099939fd5f221f41758b7e95",
-      "passes": 3,
+      "at": "2026-04-21T17:21:45Z",
+      "hash": "3645105eeb19b5662eb5692335a5c35f90d45f7d",
+      "passes": 4,
       "pr": 18796
     },
     ".agents/scripts/pulse-dispatch-core.sh": {
@@ -2436,15 +2436,15 @@
       "pr": 18691
     },
     ".agents/scripts/pulse-issue-reconcile.sh": {
-      "at": "2026-04-21T02:53:13Z",
-      "hash": "63d03bd188bf99df81f6be3e4f221bed8776b70c",
-      "passes": 19,
+      "at": "2026-04-21T17:21:45Z",
+      "hash": "21800e662cf2217416a875f7d95eb920541f94fe",
+      "passes": 20,
       "pr": 18690
     },
     ".agents/scripts/pulse-merge.sh": {
-      "at": "2026-04-21T06:16:56Z",
-      "hash": "26397ad089dc0c262ad713a4e6038fad9cf9effc",
-      "passes": 20,
+      "at": "2026-04-21T17:21:45Z",
+      "hash": "c752fe07423e4ccd13cb48dbe308e97f69e8405f",
+      "passes": 21,
       "pr": 18829
     },
     ".agents/scripts/pulse-prefetch.sh": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-21T16:31:51Z",
-      "hash": "4f81188bd5fdd474c1a4654d7044f85ce9337c8a",
-      "passes": 75,
+      "at": "2026-04-21T17:22:06Z",
+      "hash": "fab3a23c9293c2991c853a2c128eb70b96d47e67",
+      "passes": 76,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-21T16:31:51Z",
-      "hash": "c9d2852953e0307c13a46064df0fb34dd800c21b",
-      "passes": 96,
+      "at": "2026-04-21T17:22:06Z",
+      "hash": "6e1d18b651a932fa915c2f981250f39dc52f0685",
+      "passes": 97,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-21T16:31:51Z",
-      "hash": "f7770ea25158c21922fe0da3771adbd04bca9796",
-      "passes": 93,
+      "at": "2026-04-21T17:22:06Z",
+      "hash": "ecf90c4f582aa160fddade3a6ec1a8f69aa39a68",
+      "passes": 94,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
