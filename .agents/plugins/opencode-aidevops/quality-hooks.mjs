@@ -108,36 +108,20 @@ function isBashTool(tool) {
 }
 
 // ---------------------------------------------------------------------------
-// Signature footer gate
+// Signature footer gate (GH#12805, t1755, t2685)
 // ---------------------------------------------------------------------------
+// Implementation extracted to quality-hooks-signature.mjs (t2685) to keep
+// this module below the qlty file-complexity ratchet. Re-exports preserve
+// the existing public API so callers and tests don't have to change imports.
 
-/**
- * Check signature footer gate on gh write commands (GH#12805, t1755).
- * @param {string} cmd - Bash command string
- * @param {Function} log - Quality logger function
- */
-function checkSignatureFooterGate(cmd, log) {
-  const ghWritePattern = /\bgh\s+(pr\s+create|issue\s+(create|comment))\b/;
-  const hasGhWriteCommand = cmd.split("\n").some((line) => {
-    const trimmed = line.trim();
-    if (trimmed.startsWith("#")) return false;
-    if (/\bgit\s+commit\b/.test(trimmed)) return false;
-    return ghWritePattern.test(trimmed);
-  });
-
-  if (!hasGhWriteCommand) return;
-
-  const isMachineProtocol =
-    /DISPATCH_CLAIM|KILL_WORKER|DISPATCH_ACK|<!-- MERGE_SUMMARY -->/.test(cmd);
-  const hasDirectFooter =
-    cmd.includes("aidevops.sh") || cmd.includes("gh-signature-helper");
-  const hasFooterVar =
-    /\$\{?\w*(?:footer|FOOTER|signature|SIGNATURE)\w*\}?/i.test(cmd);
-
-  if (!isMachineProtocol && !hasDirectFooter && !hasFooterVar) {
-    log("WARN", `Signature footer missing in: ${cmd.substring(0, 200)}`);
-  }
-}
+export {
+  SIG_MARKER,
+  isGhWriteCommand,
+  isMachineProtocolCommand,
+  hasTrustedSignatureSignal,
+  tryRepairSignature,
+  checkSignatureFooterGate,
+} from "./quality-hooks-signature.mjs";
 
 // ---------------------------------------------------------------------------
 // Pattern tracking
@@ -249,7 +233,9 @@ function handleToolBefore(ctx, log, input, output) {
   }).catch(() => {});
 
   if (isBashTool(input.tool)) {
-    checkSignatureFooterGate(output.args?.command || "", log);
+    // t2685: pass scriptsDir + output so the hook can repair (mutate
+    // output.args.command) or block (throw) as appropriate.
+    checkSignatureFooterGate(output.args?.command || "", log, ctx.scriptsDir, output);
   }
 
   if (!isWriteOrEditTool(input.tool)) return;
