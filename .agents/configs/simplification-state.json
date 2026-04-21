@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-21T20:07:19Z",
-      "hash": "6fbca76b16c0b5eb94f1989e044d93dbcbb7bd0a",
-      "passes": 44,
+      "at": "2026-04-21T22:32:56Z",
+      "hash": "9e3f9acc343dca1ee14cd82ed2426e1e64a27304",
+      "passes": 45,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -1982,9 +1982,9 @@
       "pr": 15514
     },
     ".agents/scripts/commands/log-issue-aidevops.md": {
-      "at": "2026-04-21T19:33:02Z",
-      "hash": "26cc3daa74ad1624468e1239b44c5edaf7b5cd69",
-      "passes": 7,
+      "at": "2026-04-21T22:33:03Z",
+      "hash": "2943100670dbf524e518289490087bf34e658886",
+      "passes": 8,
       "pr": 11007
     },
     ".agents/scripts/commands/memory-log.md": {
@@ -2322,9 +2322,9 @@
       "pr": 18706
     },
     ".agents/scripts/issue-sync-lib.sh": {
-      "at": "2026-04-21T20:34:39Z",
-      "hash": "6071f480f4b291bee601541f7c57a0e85421b6eb",
-      "passes": 14,
+      "at": "2026-04-21T22:33:04Z",
+      "hash": "8092c804fc6f56acca66ecd7774d2d58d727fe46",
+      "passes": 15,
       "pr": 16471
     },
     ".agents/scripts/linters-local.sh": {
@@ -2556,9 +2556,9 @@
       "pr": 18808
     },
     ".agents/scripts/stats-quality-sweep.sh": {
-      "at": "2026-04-19T19:49:21Z",
-      "hash": "91cf86de8603aa66652621ca81fe44ec18b04b27",
-      "passes": 6,
+      "at": "2026-04-21T22:33:06Z",
+      "hash": "d9acef0e7c8c3e84ea0a28228625c81281c1aa1b",
+      "passes": 7,
       "pr": 18810
     },
     ".agents/scripts/tabby-helper.sh": {
@@ -2627,9 +2627,9 @@
       "pr": 17393
     },
     ".agents/scripts/worktree-helper.sh": {
-      "at": "2026-04-21T19:33:05Z",
-      "hash": "7157f10358f93110622ba3aae72bfb93a327c181",
-      "passes": 8,
+      "at": "2026-04-21T22:33:06Z",
+      "hash": "34f8bd64a27cdcc5278eefd3722aaa588e4679e6",
+      "passes": 9,
       "pr": 19087
     },
     ".agents/seo.md": {
@@ -7229,9 +7229,9 @@
       "pr": 18318
     },
     ".agents/workflows/log-issue-aidevops.md": {
-      "at": "2026-04-21T19:33:24Z",
-      "hash": "26cc3daa74ad1624468e1239b44c5edaf7b5cd69",
-      "passes": 4,
+      "at": "2026-04-21T22:33:25Z",
+      "hash": "2943100670dbf524e518289490087bf34e658886",
+      "passes": 5,
       "pr": 18148
     },
     ".agents/workflows/memory-log.md": {
@@ -7486,9 +7486,9 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-21T21:02:58Z",
-      "hash": "31ce2b9bacc1305e1be63cdb51b1d3d43af31ca4",
-      "passes": 79,
+      "at": "2026-04-21T22:33:26Z",
+      "hash": "8816353aba9699aeed45852ff4a738f76c1ae8bb",
+      "passes": 80,
       "pr": 15490
     },
     "aidevops.sh": {
