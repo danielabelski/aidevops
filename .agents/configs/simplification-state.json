@@ -2316,15 +2316,15 @@
       "pr": 18843
     },
     ".agents/scripts/issue-sync-helper.sh": {
-      "at": "2026-04-20T17:46:45Z",
-      "hash": "98040bfec17b5a269a5cf236a83c5db9d709001c",
-      "passes": 20,
+      "at": "2026-04-21T20:34:39Z",
+      "hash": "81e695b70fb9da1d5caf444779775125a2e8e5a9",
+      "passes": 21,
       "pr": 18706
     },
     ".agents/scripts/issue-sync-lib.sh": {
-      "at": "2026-04-21T05:49:29Z",
-      "hash": "1d84bc667a366bf450a0763f938e9780c044f342",
-      "passes": 13,
+      "at": "2026-04-21T20:34:39Z",
+      "hash": "6071f480f4b291bee601541f7c57a0e85421b6eb",
+      "passes": 14,
       "pr": 16471
     },
     ".agents/scripts/linters-local.sh": {
@@ -7486,9 +7486,9 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-21T19:33:26Z",
-      "hash": "46600fbc8d2f48c73fc2767d67f59b8c60b20c75",
-      "passes": 77,
+      "at": "2026-04-21T20:35:03Z",
+      "hash": "869d01a96152e0c39ffad891c03f6136aaa39f40",
+      "passes": 78,
       "pr": 15490
     },
     "aidevops.sh": {
