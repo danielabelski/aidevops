@@ -2940,3 +2940,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2740 auto-file next phase child when prior phase PR merges for parent-task issues (Gap C) ref:GH#20476
 
 - [ ] t2741 add aidevops parent-status CLI helper for decomposition inspection (Gap D) ref:GH#20477
+
+- [ ] t2743 Fix shared-gh-wrappers REST fallback to work in zsh (drops labels+assignees silently) #auto-dispatch #framework ref:GH#20480
