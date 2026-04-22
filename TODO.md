@@ -2902,4 +2902,4 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2722 Phase 1 inventory of auto-dispatch references ref:GH#20410
 
-- [ ] t2724 route session-start framework status to TUI toast instead of message context ref:GH#20412
+- [x] t2724 route session-start framework status to TUI toast instead of message context ref:GH#20412 pr:#20420 completed:2026-04-22
