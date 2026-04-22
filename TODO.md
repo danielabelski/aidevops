@@ -2912,4 +2912,4 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2727 consolidate greeting toasts into single emit (opencode TUI shows only one) #bug ref:GH#20431 pr:#20432 completed:2026-04-22
 
-- [ ] t2728 toast UX polish — strip runtime-identity, add aidevops contributions subcommand, backtick commands #bug ref:GH#20433
+- [x] t2728 toast UX polish — strip runtime-identity, add aidevops contributions subcommand, backtick commands #bug ref:GH#20433 pr:#20434 completed:2026-04-22
