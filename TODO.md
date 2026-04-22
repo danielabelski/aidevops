@@ -2949,4 +2949,4 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2745 Add pre-push guard to catch duplicate TODO entries from issue-sync orphan seed #auto-dispatch #framework ref:GH#20484 pr:#20499 completed:2026-04-22
 
-- [ ] t2746 preserve worker assignee on merged PR for audit-trail visibility in issues list #framework ref:GH#20520
+- [x] t2746 preserve worker assignee on merged PR for audit-trail visibility in issues list #framework ref:GH#20520 pr:#20525 completed:2026-04-22
