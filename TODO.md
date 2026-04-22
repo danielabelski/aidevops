@@ -2951,4 +2951,4 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2746 preserve worker assignee on merged PR for audit-trail visibility in issues list #framework ref:GH#20520 pr:#20525 completed:2026-04-22
 
-- [ ] t2748 fix(scanner): post-merge-review-scanner emits issues without auto-dispatch + tier labels #auto-dispatch #bug #framework ref:GH#20530
+- [x] t2748 fix(scanner): post-merge-review-scanner emits issues without auto-dispatch + tier labels #auto-dispatch #bug #framework ref:GH#20530 pr:#20533 completed:2026-04-22
