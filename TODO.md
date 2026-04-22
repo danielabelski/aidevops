@@ -2917,3 +2917,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2729 fire greeting update-check async so session.created handler returns immediately #bug ref:GH#20436
 
 - [x] t2730 restore runtime-identity line in generated opencode AGENTS.md #bug ref:GH#20437 pr:#20438 completed:2026-04-22
+
+- [ ] t2731 unfilter runtime-identity line from opencode toast (revert t2728 filter) #bug ref:GH#20446
