@@ -2921,3 +2921,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t2731 unfilter runtime-identity line from opencode toast (revert t2728 filter) #bug ref:GH#20446 pr:#20447 completed:2026-04-22
 
 - [ ] t2732 SonarCloud S1481/S1066/S100 false-positive inventory and classification #auto-dispatch #quality-debt #research #sonarcloud ref:GH#20453
+
+- [ ] t2733 SonarCloud S1481/S1066/S100 config-level rule exclusions #auto-dispatch #quality-debt #sonarcloud ref:GH#20454
