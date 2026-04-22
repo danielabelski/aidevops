@@ -2924,4 +2924,4 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2733 SonarCloud S1481/S1066/S100 config-level rule exclusions #auto-dispatch #quality-debt #sonarcloud ref:GH#20454 pr:#20459 completed:2026-04-22
 
-- [ ] t2734 SonarCloud residual hits — per-site NOSONAR pragmas and exemption inventory #auto-dispatch #quality-debt #sonarcloud ref:GH#20455
+- [x] t2734 SonarCloud residual hits — per-site NOSONAR pragmas and exemption inventory #auto-dispatch #quality-debt #sonarcloud ref:GH#20455 pr:#20461 completed:2026-04-22
