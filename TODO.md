@@ -2909,3 +2909,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t2725 fix toast greeting update-check timeout (5s to 15s) #auto-dispatch #bug ref:GH#20423 pr:#20424 completed:2026-04-22
 
 - [ ] t2726 compress build.txt and AGENTS.md via progressive disclosure ref:GH#20429
+
+- [ ] t2727 consolidate greeting toasts into single emit (opencode TUI shows only one) #bug ref:GH#20431
