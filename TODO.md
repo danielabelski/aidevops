@@ -2937,7 +2937,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2738 extend _gh_auto_link_sub_issue to honour 'Parent:' line at create-time ref:GH#20473 pr:#20474 completed:2026-04-22
 
-- [ ] t2739 extend REST fallback to sub-issue backfill node-ID resolution (Gap B) ref:GH#20475
+- [x] t2739 extend REST fallback to sub-issue backfill node-ID resolution (Gap B) ref:GH#20475 pr:#20491 completed:2026-04-22
 
 - [ ] t2740 auto-file next phase child when prior phase PR merges for parent-task issues (Gap C) ref:GH#20476
 
