@@ -2955,7 +2955,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2749 Dispatch consolidation children same-cycle via Phase 2 fill-floor pass #auto-dispatch #bug #framework #pulse ref:GH#20553
 
-- [ ] t2751 fix phase-nudge grep -c counter stacking '0\n0' on parent-task issues ref:GH#20555
+- [x] t2751 fix phase-nudge grep -c counter stacking '0\n0' on parent-task issues ref:GH#20555 pr:#20573 completed:2026-04-23
 
 - [x] t2750 Move cleanup_worktrees to async background job to stop blocking pulse cycles #auto-dispatch #bug #framework #pulse ref:GH#20554 pr:#20569 completed:2026-04-23
 
