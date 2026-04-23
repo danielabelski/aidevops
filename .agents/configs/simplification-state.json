@@ -2298,9 +2298,9 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "at": "2026-04-20T17:46:45Z",
-      "hash": "c2aad0bc7a75d0b6080bbf651f1aa0f43b0cf47e",
-      "passes": 23,
+      "at": "2026-04-23T00:44:19Z",
+      "hash": "fa64431095272f5c440c585a7b5bcb1fd4439c53",
+      "passes": 24,
       "pr": 15086
     },
     ".agents/scripts/headless-runtime-lib.sh": {
@@ -7660,10 +7660,10 @@
       "passes": 3
     },
     ".agents/reference/review-bot-gate.md": {
-      "hash": "ae2df8de819de600ea1bfc9866e8efee763e5a54",
-      "at": "2026-04-21T06:16:53Z",
+      "hash": "2c5222fd59ce393959874d8ab40ee1ae67d575bf",
+      "at": "2026-04-23T00:44:13Z",
       "pr": 20122,
-      "passes": 2
+      "passes": 3
     },
     ".agents/reference/pre-commit-hooks.md": {
       "hash": "33fba09013c3e7d3de3b0aeec3e773c35cecdd6e",
