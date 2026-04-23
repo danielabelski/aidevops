@@ -2953,7 +2953,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2748 fix(scanner): post-merge-review-scanner emits issues without auto-dispatch + tier labels #auto-dispatch #bug #framework ref:GH#20530 pr:#20533 completed:2026-04-22
 
-- [ ] t2749 Dispatch consolidation children same-cycle via Phase 2 fill-floor pass #auto-dispatch #bug #framework #pulse ref:GH#20553
+- [x] t2749 Dispatch consolidation children same-cycle via Phase 2 fill-floor pass #auto-dispatch #bug #framework #pulse ref:GH#20553 pr:#20571 completed:2026-04-23
 
 - [x] t2751 fix phase-nudge grep -c counter stacking '0\n0' on parent-task issues ref:GH#20555 pr:#20573 completed:2026-04-23
 
