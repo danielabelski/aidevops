@@ -7772,6 +7772,18 @@
       "at": "2026-04-23T21:03:26Z",
       "pr": 20552,
       "passes": 1
+    },
+    ".agents/scripts/pulse-dirty-pr-sweep.sh": {
+      "hash": "54001b728008db7386a6b189b54dc8d0de0160fe",
+      "at": "2026-04-23T22:05:35Z",
+      "pr": 20618,
+      "passes": 1
+    },
+    ".agents/scripts/pulse-dispatch-worker-launch.sh": {
+      "hash": "cae4deb3c7418edc80bd068666933a39b32c6aff",
+      "at": "2026-04-23T22:05:35Z",
+      "pr": 20617,
+      "passes": 1
     }
   },
   "setup-modules/agent-deploy.sh": {
