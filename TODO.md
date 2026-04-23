@@ -2968,3 +2968,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2755 robust parent-task phase-lifecycle automation (B/C/D of t2751 systemic fix) #parent ref:GH#20559
 
 - [ ] t2756 investigate systemic no_work worker stall cluster (201 issues, 4 repos) #parent ref:GH#20560
+
+- [ ] t2757 pulse-dispatch-worker-launch.sh: detach workers via setsid to survive pulse restart #auto-dispatch #bug #framework #pulse ref:GH#20561
