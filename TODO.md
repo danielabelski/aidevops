@@ -2971,7 +2971,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2757 pulse-dispatch-worker-launch.sh: detach workers via setsid to survive pulse restart #auto-dispatch #bug #framework #pulse ref:GH#20561 pr:#20568 completed:2026-04-23
 
-- [ ] t2758 pulse-dispatch-worker-launch.sh: pre-warm opencode DB per-worker to shorten cold-start vulnerability window #auto-dispatch #bug #framework #pulse ref:GH#20562
+- [x] t2758 pulse-dispatch-worker-launch.sh: pre-warm opencode DB per-worker to shorten cold-start vulnerability window #auto-dispatch #bug #framework #pulse ref:GH#20562 pr:#20570 completed:2026-04-23
 
 - [ ] t2759 setup-modules/schedulers.sh: preserve user env overrides in generated plists across framework updates #auto-dispatch #enhancement #framework ref:GH#20563
 
