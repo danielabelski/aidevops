@@ -3033,7 +3033,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2803 brief-template: add Complexity Impact section to prevent function-complexity gate surprises #auto-dispatch ref:GH#20738
 
-- [ ] t2804 pulse: diagnose launch_recovery:no_worker_process dispatch stalls (#20702 evidence) #parent ref:GH#20740
+- [x] t2804 pulse: diagnose launch_recovery:no_worker_process dispatch stalls (#20702 evidence) #parent ref:GH#20740 pr:#20767 completed:2026-04-24
 
 - [x] t2805 pulse-merge: rebase MERGEABLE PRs with CI failures before routing to fix-worker #auto-dispatch #bug #framework #pulse ref:GH#20743 pr:#20752 completed:2026-04-24
 
