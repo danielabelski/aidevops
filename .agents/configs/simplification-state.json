@@ -2621,9 +2621,9 @@
       "pr": 17353
     },
     ".agents/scripts/worker-watchdog.sh": {
-      "at": "2026-04-20T09:02:07Z",
-      "hash": "a3959c10fd8b8c0a064558dfc28d68c08ea61995",
-      "passes": 8,
+      "at": "2026-04-24T11:06:14Z",
+      "hash": "ffcfbcc0c9222c486964e633270aa9ca88c2d2a1",
+      "passes": 9,
       "pr": 17393
     },
     ".agents/scripts/worktree-helper.sh": {
