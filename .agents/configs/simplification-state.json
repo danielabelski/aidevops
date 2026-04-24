@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-24T01:44:42Z",
-      "hash": "7e1b9c32b3a23738bf749f771f6e16f6548d8989",
-      "passes": 51,
+      "at": "2026-04-24T02:32:58Z",
+      "hash": "6cdbeb15136a2b7635739298ddac9a1937b1792f",
+      "passes": 52,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -2436,9 +2436,9 @@
       "pr": 18691
     },
     ".agents/scripts/pulse-issue-reconcile.sh": {
-      "at": "2026-04-21T17:21:45Z",
-      "hash": "21800e662cf2217416a875f7d95eb920541f94fe",
-      "passes": 20,
+      "at": "2026-04-24T02:33:58Z",
+      "hash": "f97edbcdc312818caa82fb383ab02cc21be39d80",
+      "passes": 21,
       "pr": 18690
     },
     ".agents/scripts/pulse-merge.sh": {
@@ -2615,9 +2615,9 @@
       "passes": 1
     },
     ".agents/scripts/worker-lifecycle-common.sh": {
-      "at": "2026-04-19T19:49:22Z",
-      "hash": "8334e61684c800d3c352e35c246741408f28ea35",
-      "passes": 10,
+      "at": "2026-04-24T02:34:03Z",
+      "hash": "c8146f37924331ab87ac7aaa477b3c98c77a016c",
+      "passes": 11,
       "pr": 17353
     },
     ".agents/scripts/worker-watchdog.sh": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-24T01:48:06Z",
-      "hash": "7c0a730e5cbaacc172d0004138a2609034c8faab",
-      "passes": 94,
+      "at": "2026-04-24T02:35:05Z",
+      "hash": "f2fde93b44c76d5baab6ac8c207111c86cbbe712",
+      "passes": 95,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-24T01:48:06Z",
-      "hash": "aba3db57eef20e94894f55207ade094adddf7207",
-      "passes": 104,
+      "at": "2026-04-24T02:35:05Z",
+      "hash": "af443b4cf7f8061e2fae9158de238bf951fa5f6c",
+      "passes": 105,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-24T01:48:07Z",
-      "hash": "501b75b834014243bf2eae595ee9e82233ffc99a",
-      "passes": 100,
+      "at": "2026-04-24T02:35:06Z",
+      "hash": "cc3c47fa2858ab351b4c9f8cef87621cb473d97d",
+      "passes": 101,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
