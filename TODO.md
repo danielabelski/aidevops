@@ -2980,3 +2980,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2772 pulse: route pulse-*.sh gh reads through REST-fallback wrappers (Phase 1 of #20622) #auto-dispatch #bug #framework #pulse ref:GH#20642
 
 - [ ] t2773 pulse: route reconcile sub-stages through pulse-prefetch-cache (Phase 2 of #20622) #auto-dispatch #bug #framework #pulse ref:GH#20658
+
+- [ ] t2775 pulse: per-repo pulse_interval throttle for contributor-role repos (Phase 3 of #20622) #auto-dispatch #framework #pulse ref:GH#20660
