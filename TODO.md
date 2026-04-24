@@ -2999,7 +2999,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2783 pulse: post remediation comment when maintainer manually removes NMR label (ever-NMR block) #auto-dispatch #enhancement #framework #pulse ref:GH#20682 pr:#20693 completed:2026-04-24
 
-- [ ] t2788 Extend _parse_phases_section to accept narrative bold-heading form (Phase 1 of #20559) #auto-dispatch ref:GH#20702
+- [x] t2788 Extend _parse_phases_section to accept narrative bold-heading form (Phase 1 of #20559) #auto-dispatch ref:GH#20702 pr:#20736 completed:2026-04-24
 
 - [ ] t2786 Add phase-declaration-aware guard to _try_close_parent_tracker (Phase 2 of #20559) #auto-dispatch ref:GH#20703
 
