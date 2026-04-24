@@ -2394,33 +2394,33 @@
       "pr": 17590
     },
     ".agents/scripts/pulse-ancillary-dispatch.sh": {
-      "at": "2026-04-19T19:49:18Z",
-      "hash": "addd94dd0e7fccf14ec501f96df233e13bb7635f",
-      "passes": 6,
+      "at": "2026-04-24T09:20:47Z",
+      "hash": "06fa8a112b68ac2459b0c88b6e4224a401a702d1",
+      "passes": 7,
       "pr": 18657
     },
     ".agents/scripts/pulse-cleanup.sh": {
-      "at": "2026-04-21T01:47:21Z",
-      "hash": "6e567a21bfea0c931332a1ea91dc6719f08f30e3",
-      "passes": 8,
+      "at": "2026-04-24T09:20:47Z",
+      "hash": "b84564bc7c1b08516febe40b105eb0bc1ff2fdef",
+      "passes": 9,
       "pr": 18704
     },
     ".agents/scripts/pulse-dep-graph.sh": {
-      "at": "2026-04-21T17:21:45Z",
-      "hash": "3645105eeb19b5662eb5692335a5c35f90d45f7d",
-      "passes": 4,
+      "at": "2026-04-24T09:20:47Z",
+      "hash": "a431aea97d536f9babb395e793bea2d617c22205",
+      "passes": 5,
       "pr": 18796
     },
     ".agents/scripts/pulse-dispatch-core.sh": {
-      "at": "2026-04-21T02:20:10Z",
-      "hash": "01ce84fa41b46ac981876f5411a6ff203d17ae78",
-      "passes": 14,
+      "at": "2026-04-24T09:20:48Z",
+      "hash": "ad1de19ac19c5152e604e3aa9d7b0abfc87f53fc",
+      "passes": 15,
       "pr": 18832
     },
     ".agents/scripts/pulse-dispatch-engine.sh": {
-      "at": "2026-04-23T21:02:18Z",
-      "hash": "5ac052c50b48fb29ec006f727d6fc543be8b46a7",
-      "passes": 16,
+      "at": "2026-04-24T09:20:48Z",
+      "hash": "c79af7f869b8700e972b26a697bcdb0340e46629",
+      "passes": 17,
       "pr": 18799
     },
     ".agents/scripts/pulse-fast-fail.sh": {
@@ -2436,51 +2436,51 @@
       "pr": 18691
     },
     ".agents/scripts/pulse-issue-reconcile.sh": {
-      "at": "2026-04-24T05:04:38Z",
-      "hash": "c4e04f65bfa8f4bc36c349bffa29c48755f233d4",
-      "passes": 22,
+      "at": "2026-04-24T09:20:49Z",
+      "hash": "7a913b8eabd152021b8bb6f572183db2e9c25a0f",
+      "passes": 23,
       "pr": 18690
     },
     ".agents/scripts/pulse-merge.sh": {
-      "at": "2026-04-22T20:14:53Z",
-      "hash": "58f9694393fb660ab93e00a4ce6dce9e6997e3ee",
-      "passes": 22,
+      "at": "2026-04-24T09:20:49Z",
+      "hash": "7f7dacd3c7defaa2ba5332745786f04c34c5b06a",
+      "passes": 23,
       "pr": 18829
     },
     ".agents/scripts/pulse-prefetch.sh": {
-      "at": "2026-04-24T05:04:38Z",
-      "hash": "b77d35ca898602d4ce22d18546e1890377508fae",
-      "passes": 7,
+      "at": "2026-04-24T09:20:49Z",
+      "hash": "49ca89e17d6ed2cbdbe1742501d26984442a2839",
+      "passes": 8,
       "pr": 18995
     },
     ".agents/scripts/pulse-quality-debt.sh": {
-      "at": "2026-04-14T08:25:19Z",
-      "hash": "04957bb5580d2f45b0926bd22b2310916b1ab0da",
-      "passes": 3,
+      "at": "2026-04-24T09:20:49Z",
+      "hash": "78b47acf4c1b1de242ababaad1c0742a775ebb9b",
+      "passes": 4,
       "pr": 18681
     },
     ".agents/scripts/pulse-simplification-state.sh": {
-      "at": "2026-04-19T19:19:44Z",
-      "hash": "571a81aa4a1de753aad5a700a6117ba0b1ec9679",
-      "passes": 9,
+      "at": "2026-04-24T09:20:49Z",
+      "hash": "18d1fcd82f8bd3d9253ab0e3643042bb227314a4",
+      "passes": 10,
       "pr": 18680
     },
     ".agents/scripts/pulse-simplification.sh": {
-      "at": "2026-04-21T04:11:18Z",
-      "hash": "d53ed11209a7eb67b26fba47a15efe232abd1f69",
-      "passes": 15,
+      "at": "2026-04-24T09:20:50Z",
+      "hash": "0f2bdc938eb18ebff67571b38ed970c554b802c7",
+      "passes": 16,
       "pr": 18653
     },
     ".agents/scripts/pulse-triage.sh": {
-      "at": "2026-04-23T21:02:20Z",
-      "hash": "082881ea3ad426c1ead3cfac7411d3e7a0f463cc",
-      "passes": 17,
+      "at": "2026-04-24T09:20:50Z",
+      "hash": "c144e5548040be6950665edf2e1490141c501434",
+      "passes": 18,
       "pr": 18655
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "at": "2026-04-24T01:45:52Z",
-      "hash": "25bdf09e18293447e6e09168ec8aa12bb0645294",
-      "passes": 29,
+      "at": "2026-04-24T09:20:50Z",
+      "hash": "20ce9f640f5a53f1adca3adeae8ad53a8de37801",
+      "passes": 30,
       "pr": 18689
     },
     ".agents/scripts/quality-feedback-findings-lib.sh": {
@@ -2615,9 +2615,9 @@
       "passes": 1
     },
     ".agents/scripts/worker-lifecycle-common.sh": {
-      "at": "2026-04-24T02:34:03Z",
-      "hash": "c8146f37924331ab87ac7aaa477b3c98c77a016c",
-      "passes": 11,
+      "at": "2026-04-24T09:20:52Z",
+      "hash": "01da9899e2fd2539ab095a6e859bb8a59cb7b46f",
+      "passes": 12,
       "pr": 17353
     },
     ".agents/scripts/worker-watchdog.sh": {
@@ -7486,9 +7486,9 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-24T05:05:12Z",
-      "hash": "cfb117ab97b1cae44b6a223a117cdd3ed88f6444",
-      "passes": 96,
+      "at": "2026-04-24T09:21:41Z",
+      "hash": "26ec5e1484237b23889a76677607fb55e280adf7",
+      "passes": 97,
       "pr": 15490
     },
     "aidevops.sh": {
@@ -7708,10 +7708,10 @@
       "passes": 3
     },
     ".agents/scripts/pulse-diagnose-helper.sh": {
-      "hash": "ae573cfbc0cc27ebc135c06de43ed3f9d4bee4e1",
-      "at": "2026-04-23T21:02:18Z",
+      "hash": "218b12e06ee09dced1e74b9103305013263833da",
+      "at": "2026-04-24T09:20:48Z",
       "pr": 20414,
-      "passes": 2
+      "passes": 3
     },
     ".agents/scripts/pulse-routines.sh": {
       "hash": "8cd1496ba47e9d9aab51c70d25d0c091fbb35c4d",
@@ -7768,16 +7768,16 @@
       "passes": 2
     },
     ".agents/scripts/shared-gh-wrappers-rest-fallback.sh": {
-      "hash": "054aad5d4cb1ee3ddef342ddb9637ce7bbad521e",
-      "at": "2026-04-23T21:03:26Z",
+      "hash": "9fd48a0f9d888b05cd98ebecf72ed0a4c9484e25",
+      "at": "2026-04-24T09:20:51Z",
       "pr": 20552,
-      "passes": 1
+      "passes": 2
     },
     ".agents/scripts/pulse-dirty-pr-sweep.sh": {
-      "hash": "54001b728008db7386a6b189b54dc8d0de0160fe",
-      "at": "2026-04-23T22:05:35Z",
+      "hash": "f5054075c41c723e1f28cacf41958d13fe01a60c",
+      "at": "2026-04-24T09:20:48Z",
       "pr": 20618,
-      "passes": 1
+      "passes": 2
     },
     ".agents/scripts/pulse-dispatch-worker-launch.sh": {
       "hash": "ebbcf8da6d35250ab3bd21bb49057259e7ad1f8f",
