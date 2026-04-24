@@ -3049,7 +3049,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2811 Release interactive claim on Ref/For-keyword planning PR merges (claim-stamp leak) #auto-dispatch #bug #chore #framework ref:GH#20757 pr:#20760 completed:2026-04-24
 
-- [ ] t2812 Phase 1: collect and classify launch_recovery:no_worker_process events from pulse logs #auto-dispatch #investigation #pulse ref:GH#20763
+- [x] t2812 Phase 1: collect and classify launch_recovery:no_worker_process events from pulse logs #auto-dispatch #investigation #pulse ref:GH#20763 pr:#20770 completed:2026-04-24
 
 - [ ] t2813 Phase 2: identify root cause of no_worker_process dispatch failures #investigation #pulse blocked-by:t2812 ref:GH#20764
 
