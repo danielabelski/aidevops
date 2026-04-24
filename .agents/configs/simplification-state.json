@@ -2298,9 +2298,9 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "at": "2026-04-23T21:02:15Z",
-      "hash": "fa50f88ad1b4101438b2bca17ceb0965e97bf154",
-      "passes": 25,
+      "at": "2026-04-24T11:49:59Z",
+      "hash": "9a5bd712d5aa9c8f8374646e5e6489b691d8540f",
+      "passes": 26,
       "pr": 15086
     },
     ".agents/scripts/headless-runtime-lib.sh": {
@@ -2478,9 +2478,9 @@
       "pr": 18655
     },
     ".agents/scripts/pulse-wrapper.sh": {
-      "at": "2026-04-24T09:20:50Z",
-      "hash": "20ce9f640f5a53f1adca3adeae8ad53a8de37801",
-      "passes": 30,
+      "at": "2026-04-24T11:50:01Z",
+      "hash": "00ef20e760d3681fc3496ef63c496bf365d069a5",
+      "passes": 31,
       "pr": 18689
     },
     ".agents/scripts/quality-feedback-findings-lib.sh": {
@@ -7486,9 +7486,9 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-24T09:21:41Z",
-      "hash": "26ec5e1484237b23889a76677607fb55e280adf7",
-      "passes": 97,
+      "at": "2026-04-24T11:50:22Z",
+      "hash": "e0a23494113e05a896a59df3de9d3fc83eea5991",
+      "passes": 98,
       "pr": 15490
     },
     "aidevops.sh": {
@@ -7784,6 +7784,30 @@
       "at": "2026-04-24T01:45:51Z",
       "pr": 20617,
       "passes": 2
+    },
+    ".agents/reference/dispatch-blockers.md": {
+      "hash": "4d0309651c77e3b2bb904c79c2394ecc65e63801",
+      "at": "2026-04-24T11:50:22Z",
+      "pr": 20700,
+      "passes": 1
+    },
+    ".agents/reference/plist-env-overrides.md": {
+      "hash": "a16fd4432e834319a35cbff0b83155924fa2ce42",
+      "at": "2026-04-24T11:50:22Z",
+      "pr": 20699,
+      "passes": 1
+    },
+    ".agents/reference/reusable-workflows.md": {
+      "hash": "1ada72a6d1d9292ff8a755216135e5ee9936a3f2",
+      "at": "2026-04-24T11:50:22Z",
+      "pr": 20698,
+      "passes": 1
+    },
+    ".agents/reference/pulse-wrapper-churn-investigation.md": {
+      "hash": "c483bb156bea80d70625002d02a39166f30baa05",
+      "at": "2026-04-24T11:50:22Z",
+      "pr": 20697,
+      "passes": 1
     }
   },
   "setup-modules/agent-deploy.sh": {
