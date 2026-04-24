@@ -3010,3 +3010,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2789 claim-task-id.sh: apply status:available by default so new issues are dispatchable immediately #auto-dispatch #bug #framework ref:GH#20713
 
 - [ ] t2791 t2789: test-status-default-with-desc #auto-dispatch ref:GH#20714
+
+- [ ] t2793 t2789: test-no-duplicates #auto-dispatch ref:GH#20716
+
+- [ ] t2792 t2789: test-explicit-status-queued #auto-dispatch ref:GH#20715
