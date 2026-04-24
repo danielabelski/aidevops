@@ -2961,7 +2961,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2763 phase 1 of t2762 — safe_grep_count helper + counter-stack ratchet guard #auto-dispatch ref:GH#20594 pr:#20621 completed:2026-04-23
 
-- [ ] t2762 systemic sweep — grep -c counter-stacking bug + recurrence guard #parent ref:GH#20581
+- [x] t2762 systemic sweep — grep -c counter-stacking bug + recurrence guard #parent ref:GH#20581 pr:#20719 completed:2026-04-24
 
 - [ ] t2756 investigate systemic no_work worker stall cluster (201 issues, 4 repos) #parent ref:GH#20560
 
