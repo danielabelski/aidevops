@@ -3007,7 +3007,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2788 Extend _parse_phases_section to accept narrative bold-heading form (Phase 1 of #20559) #auto-dispatch ref:GH#20702
 
-- [ ] t2789 claim-task-id.sh: apply status:available by default so new issues are dispatchable immediately #auto-dispatch #bug #framework ref:GH#20713
+- [x] t2789 claim-task-id.sh: apply status:available by default so new issues are dispatchable immediately #auto-dispatch #bug #framework ref:GH#20713 pr:#20720 completed:2026-04-24
 
 - [ ] t2791 t2789: test-status-default-with-desc #auto-dispatch ref:GH#20714
 
