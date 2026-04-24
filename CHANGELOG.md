@@ -10,6 +10,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.9.0] - 2026-04-24
+
+### Added
+
+- decompose _dlw_nohup_launch into focused helpers (GH#20617) (#20619)
+
+### Changed
+
+- Maintenance: mark t2777 complete (pr:#20664 completed:2026-04-24) [skip ci]
+- refactor framework workflows to reusable-workflow pattern (Phase 3) (#20664)
+- Documentation: file GH#20633 decomposition brief (parent #20622, phases 2-4 filed) (#20663)
+- Maintenance: mark t2768 complete (pr:#20659 completed:2026-04-24) [skip ci]
+- pulse: consolidate circuit breaker threshold into single conf file (#20659)
+- Maintenance: sync ref:GH#20661 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20660 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20658 to TODO.md [skip ci]
+- align Linux/cron interval label with launchd modulo-60 logic (#20654)
+- fix phase parsing — description strip order and child_ref line-end anchor (#20653)
+- harden awk if-pattern in extract_block test helper (#20650)
+- fix _state_json unbound variable in enrich single-task path (#20646)
+- Maintenance: mark t2767 complete (pr:#20643 completed:2026-04-23) [skip ci]
+- Maintenance: file 5 pulse concurrency backlog tasks (t2768-t2772) (#20644)
+- Maintenance: sync ref:GH#20642 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20641 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20640 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20639 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20638 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20634 to TODO.md [skip ci]
+- Maintenance: mark t2763 complete (pr:#20621 completed:2026-04-23) [skip ci]
+- Maintenance: update simplification state registry
+- Refactor: decompose _dirty_pr_action_rebase into focused helpers (#20620)
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- use explicit empty-string guards for PGID pipeline fallbacks (#20657)
+- restore stderr suppression and clear node-ID cache per repo (#20655)
+- harden _handle_stale_llm_lock — portability, PID reuse guard, consistency (GH#20626) (#20651)
+- parameterize fallback global_config_path in generate-runtime-config (#20652)
+- add tier:standard to base label_list for NMR-path issues (#20647)
+- commit-and-pr partial-success recovery t2767 (#20643)
+- broaden counter-stack regex, use process substitution, harden safe_grep_count (#20645)
+- invert stat probe order to GNU-first for Linux compat (GH#20615) (#20635)
+
 ## [3.8.95] - 2026-04-23
 
 ### Added
