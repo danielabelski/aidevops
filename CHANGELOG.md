@@ -10,6 +10,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.3] - 2026-04-24
+
+### Changed
+
+- Maintenance: mark t2807 complete (pr:#20749 completed:2026-04-24) [skip ci]
+- align design-md agent with google-labs DESIGN.md spec v0.1.0 (#20749)
+- refresh t1305 plan status — #14740 closed-stale, PR #14741 sole live ref (#20754)
+- Maintenance: sync ref:GH#20755 to TODO.md [skip ci]
+- migrate review-bot-gate.yml to reusable-workflow pattern (#20748)
+- Maintenance: sync ref:GH#20753 to TODO.md [skip ci]
+- Maintenance: mark t2802 complete (pr:#20742 completed:2026-04-24) [skip ci]
+- explicit origin/<default> base for new worktrees + scope-leak detection in conflict-feedback (#20742)
+- Maintenance: sync ref:GH#20750 to TODO.md [skip ci]
+- Refactor: split prompt-guard-helper.sh into focused sub-libraries (#20746)
+- Maintenance: sync ref:GH#20747 to TODO.md [skip ci]
+- Maintenance: mark t2797 complete (pr:#20733 completed:2026-04-24) [skip ci]
+- add backfill-status-available.sh for pre-t2789 status label heal (#20733)
+- Maintenance: sync ref:GH#20734 to TODO.md [skip ci]
+- Maintenance: mark t2800 complete (pr:#20744 completed:2026-04-24) [skip ci]
+- claim-task-id: pre-flight label validation with exit 3 before counter advance (#20744)
+- Maintenance: sync ref:GH#20743 to TODO.md [skip ci]
+- Maintenance: mark t2788 complete (pr:#20736 completed:2026-04-24) [skip ci]
+- Maintenance: mark t2801 complete (pr:#20739 completed:2026-04-24) [skip ci]
+- extend _parse_phases_section for bold-heading form (Phase 1 of #20559) (#20736)
+- Maintenance: sync ref:GH#20740 to TODO.md [skip ci]
+- tighten isGhWriteCommand to eliminate heredoc/quoted-arg false positives (#20739)
+- Maintenance: sync ref:GH#20738 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20737 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20735 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20734 to TODO.md [skip ci]
+- Maintenance: update simplification state registry
+- Maintenance: mark t2796 complete (pr:#20726 completed:2026-04-24) [skip ci]
+- Maintenance: sync ref:GH#20732 to TODO.md [skip ci]
+- classify zero-output worker exit as worker_noop to trigger cascade (#20726)
+- Maintenance: sync ref:GH#20730 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20728 to TODO.md [skip ci]
+- Maintenance: update simplification state registry
+- Maintenance: mark t2789 complete (pr:#20720 completed:2026-04-24) [skip ci]
+- apply status:available by default in claim-task-id.sh (#20720)
+- Maintenance: mark t2762 complete (pr:#20719 completed:2026-04-24) [skip ci]
+- sweep all grep -c counter-stacking violations to zero (#20719)
+- Maintenance: sync ref:GH#20721 to TODO.md [skip ci]
+- Maintenance: mark t2776 complete (pr:#20711 completed:2026-04-24) [skip ci]
+- consolidate reconcile sub-stages into single-pass iterator (Phase 4 of #20622) (#20711)
+
+### Fixed
+
+- address gemini review feedback for check-workflows-helper.sh (#20724)
+- use Bash parameter expansion and proper error handling in phase extractor (#20725)
+
 ## [3.10.2] - 2026-04-24
 
 ### Added
