@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.0] - 2026-04-24
+
+### Changed
+
+- Maintenance: mark t2779 complete (pr:#20673 completed:2026-04-24) [skip ci]
+- aidevops sync-workflows — opt-in resync (Phase 2) (#20673)
+- Maintenance: mark t2771 complete (pr:#20668 completed:2026-04-24) [skip ci]
+- add deterministic phase-extractor for well-formed parent-task bodies (#20668)
+- Maintenance: mark t2769 complete (pr:#20669 completed:2026-04-24) [skip ci]
+- per-issue no_work circuit breaker — NMR after N consecutive failures (#20669)
+- Maintenance: mark t2778 complete (pr:#20666 completed:2026-04-24) [skip ci]
+- aidevops check-workflows — drift detector (Phase 1) (#20666)
+- Maintenance: update simplification state registry
+
 ## [3.9.0] - 2026-04-24
 
 ### Added
