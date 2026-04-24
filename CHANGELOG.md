@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.1] - 2026-04-24
+
+### Changed
+
+- Maintenance: sync ref:GH#20682 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20681 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20680 to TODO.md [skip ci]
+- Maintenance: mark t2773 complete (pr:#20667 completed:2026-04-24) [skip ci]
+- route reconcile sub-stages through pulse-prefetch-cache (Phase 2 of #20622) (#20667)
+- Maintenance: sync ref:GH#20674 to TODO.md [skip ci]
+- Maintenance: update simplification state registry
+
 ## [3.10.0] - 2026-04-24
 
 ### Changed
