@@ -2436,9 +2436,9 @@
       "pr": 18691
     },
     ".agents/scripts/pulse-issue-reconcile.sh": {
-      "at": "2026-04-24T02:33:58Z",
-      "hash": "f97edbcdc312818caa82fb383ab02cc21be39d80",
-      "passes": 21,
+      "at": "2026-04-24T05:04:38Z",
+      "hash": "c4e04f65bfa8f4bc36c349bffa29c48755f233d4",
+      "passes": 22,
       "pr": 18690
     },
     ".agents/scripts/pulse-merge.sh": {
@@ -2448,9 +2448,9 @@
       "pr": 18829
     },
     ".agents/scripts/pulse-prefetch.sh": {
-      "at": "2026-04-20T02:49:51Z",
-      "hash": "645d90502635d066009922d6a0692d360b197fd1",
-      "passes": 6,
+      "at": "2026-04-24T05:04:38Z",
+      "hash": "b77d35ca898602d4ce22d18546e1890377508fae",
+      "passes": 7,
       "pr": 18995
     },
     ".agents/scripts/pulse-quality-debt.sh": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-24T02:35:05Z",
-      "hash": "f2fde93b44c76d5baab6ac8c207111c86cbbe712",
-      "passes": 95,
+      "at": "2026-04-24T05:05:12Z",
+      "hash": "cfb117ab97b1cae44b6a223a117cdd3ed88f6444",
+      "passes": 96,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-24T02:35:05Z",
-      "hash": "af443b4cf7f8061e2fae9158de238bf951fa5f6c",
-      "passes": 105,
+      "at": "2026-04-24T05:05:12Z",
+      "hash": "f97f99ae3d184c6cd2e067139c474b267e4a570c",
+      "passes": 106,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-24T02:35:06Z",
-      "hash": "cc3c47fa2858ab351b4c9f8cef87621cb473d97d",
-      "passes": 101,
+      "at": "2026-04-24T05:05:12Z",
+      "hash": "6bbd9e260cf8e988e36aa19d9b46d8208c4b627d",
+      "passes": 102,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
