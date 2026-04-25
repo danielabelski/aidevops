@@ -3065,7 +3065,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2821 policy: dispatch-path tasks default to #parent + no-auto-dispatch for interactive implementation ref:GH#20827
 
-- [ ] t2820 pulse: extend no_work reclassification to worker_failed using Phase 3 log-tail data ref:GH#20826
+- [x] t2820 pulse: extend no_work reclassification to worker_failed using Phase 3 log-tail data ref:GH#20826 pr:#20855 completed:2026-04-25
 
 - [x] t2819 pulse: pre-dispatch tier override for self-hosting dispatch-path tasks #auto-dispatch ref:GH#20825 pr:#20844 completed:2026-04-25
 
