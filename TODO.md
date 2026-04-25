@@ -3110,3 +3110,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2843 P0a: knowledge plane directory contract + provisioning (parent t2840) #enhancement #framework ref:GH#20895
 
 - [ ] t2844 P0a: knowledge plane directory contract + provisioning #enhancement #framework ref:GH#20896
+
+- [ ] t2845 P0c: knowledge review gate routine + NMR integration #enhancement #framework ref:GH#20897
