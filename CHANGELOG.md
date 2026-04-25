@@ -10,6 +10,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.11.1] - 2026-04-25
+
+### Added
+
+- dispatch-path default to #parent + no-auto-dispatch for interactive implementation (t2821) (#20854)
+- add pre-dispatch self-hosting detector for dispatch-path tasks (t2819) (#20844)
+
+### Changed
+
+- Maintenance: sync ref:GH#20870 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20868 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20867 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20866 to TODO.md [skip ci]
+- validate PR title prefix against canonical issue mapping in _compose_pr_title (#20862)
+- Maintenance: mark t2821 complete (pr:#20854 completed:2026-04-25) [skip ci]
+- scope self-hosting scan to implementation sections; paginate idempotency check (#20861)
+- write no-changes report to --output-md when no .sh/.py files changed (#20860)
+- Maintenance: mark t2820 complete (pr:#20855 completed:2026-04-25) [skip ci]
+- pulse: extend no_work reclassification to worker_failed using Phase 3 log-tail data (#20855)
+- Maintenance: mark t2827 complete (pr:#20848 completed:2026-04-25) [skip ci]
+- diff-scoped scan in complexity-regression-helper.sh to fix 60s pre-push timeout (#20848)
+- fix no_worker_process root cause + add regression test (#20849)
+- Maintenance: mark t2819 complete (pr:#20844 completed:2026-04-25) [skip ci]
+- Maintenance: mark t2825 complete (pr:#20837 completed:2026-04-25) [skip ci]
+- idempotent task-ID prefix in commit-and-pr (#20837)
+- Maintenance: mark t2823 complete (pr:#20839 completed:2026-04-25) [skip ci]
+- auto-emit blocked-by from predecessor references in claim-task-id.sh (#20839)
+- Maintenance: mark t2826 complete (pr:#20841 completed:2026-04-25) [skip ci]
+- retarget test-label-invariants WORKFLOW_FILE to issue-sync-reusable.yml (#20841)
+- Documentation: GH-20835 Phase 1 diagnostic findings — complexity guard 98s timeout identified (#20843)
+- Maintenance: sync ref:GH#20842 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20840 to TODO.md [skip ci]
+
+### Fixed
+
+- case-insensitive extraction + normalisation in _detect_predecessor_refs (#20863)
+
 ## [3.11.0] - 2026-04-25
 
 ### Added
