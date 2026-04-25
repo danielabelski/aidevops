@@ -3069,7 +3069,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2819 pulse: pre-dispatch tier override for self-hosting dispatch-path tasks #auto-dispatch ref:GH#20825
 
-- [ ] t2823 auto-emit blocked-by from predecessor references in claim-task-id.sh #auto-dispatch #bug ref:GH#20834
+- [x] t2823 auto-emit blocked-by from predecessor references in claim-task-id.sh #auto-dispatch #bug ref:GH#20834 pr:#20839 completed:2026-04-25
 
 - [ ] t2825 idempotent task-ID prefix in commit-and-pr (PR title double-prefix fix) #bug ref:GH#20836
 
