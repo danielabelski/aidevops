@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-25T14:54:07Z",
-      "hash": "3adb911764e05a82f5d00ec2ab0478075ac2ba21",
-      "passes": 54,
+      "at": "2026-04-25T16:26:57Z",
+      "hash": "726b273e1093d7e2f3b9aa4b415f7fb68a05d58d",
+      "passes": 55,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -2238,9 +2238,9 @@
       "pr": 16879
     },
     ".agents/scripts/dispatch-dedup-helper.sh": {
-      "at": "2026-04-21T19:33:03Z",
-      "hash": "d2deaf083f2290c13d582202ab3015f3db9faf02",
-      "passes": 18,
+      "at": "2026-04-25T16:27:27Z",
+      "hash": "e76f747f3e9e740a445dde447f796526c7290b9b",
+      "passes": 19,
       "pr": 18917
     },
     ".agents/scripts/email-agent-helper.sh": {
@@ -2436,9 +2436,9 @@
       "pr": 18691
     },
     ".agents/scripts/pulse-issue-reconcile.sh": {
-      "at": "2026-04-25T14:54:19Z",
-      "hash": "938531d502380e035891f641eba1fb936d6a68e1",
-      "passes": 25,
+      "at": "2026-04-25T16:27:30Z",
+      "hash": "f7a31ef0525b36c4e48cfd979f5e3d43980e79be",
+      "passes": 26,
       "pr": 18690
     },
     ".agents/scripts/pulse-merge.sh": {
@@ -7486,15 +7486,15 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-25T14:54:49Z",
-      "hash": "d96ccf5efc4271e1ef10c41c415cacb074463758",
-      "passes": 101,
+      "at": "2026-04-25T16:28:54Z",
+      "hash": "e09d50b4757cb23b5ea117c7335ccf23cb462228",
+      "passes": 102,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-04-25T14:54:49Z",
-      "hash": "70eebf57f0ff2c382f21017a92f2ee540aaf0565",
-      "passes": 108,
+      "at": "2026-04-25T16:28:54Z",
+      "hash": "e5f5d5a1d1b031af02b9cd2c523d8813e99b2ed1",
+      "passes": 109,
       "pr": 19029
     },
     "setup-modules/agent-deploy.sh": {
@@ -7504,9 +7504,9 @@
       "pr": 19203
     },
     "setup.sh": {
-      "at": "2026-04-25T14:54:49Z",
-      "hash": "9b4255feece87d155300fe26f73db603422e7aec",
-      "passes": 104,
+      "at": "2026-04-25T16:28:54Z",
+      "hash": "d1b57f26cc90531cfeeffa298c7036e155d33ab0",
+      "passes": 105,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7732,10 +7732,10 @@
       "passes": 1
     },
     ".agents/reference/auto-dispatch.md": {
-      "hash": "193a212f9d9c4d17957a1776bfdd9d3c302aee15",
-      "at": "2026-04-25T14:54:13Z",
+      "hash": "4b1ff93ac0f43463acecd517f88551871bef33ba",
+      "at": "2026-04-25T16:27:14Z",
       "pr": 20441,
-      "passes": 3
+      "passes": 4
     },
     ".agents/reference/repos-json-fields.md": {
       "hash": "060decf6aeb3f36e2812017d8271809534463fad",
@@ -7786,10 +7786,10 @@
       "passes": 3
     },
     ".agents/reference/dispatch-blockers.md": {
-      "hash": "4d0309651c77e3b2bb904c79c2394ecc65e63801",
-      "at": "2026-04-24T11:50:22Z",
+      "hash": "a9d78357a5125b66aabc3092007c4648e5c73319",
+      "at": "2026-04-25T16:27:16Z",
       "pr": 20700,
-      "passes": 1
+      "passes": 2
     },
     ".agents/reference/plist-env-overrides.md": {
       "hash": "a16fd4432e834319a35cbff0b83155924fa2ce42",
