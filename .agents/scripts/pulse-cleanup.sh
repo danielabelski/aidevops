@@ -800,11 +800,14 @@ recover_failed_launch_state() {
 	# t1934: Unlock issue and linked PRs (locked at dispatch time)
 	unlock_issue_after_worker "$issue_number" "$repo_slug"
 
-	# Record the launch failure in the fast-fail counter (t1888)
-	# Pass crash_type through to fast_fail_record → escalate_issue_tier
-	# for crash-type-aware escalation (overwhelmed = immediate, no_work = default)
-	fast_fail_record "$issue_number" "$repo_slug" "$failure_reason" "anthropic" "$crash_type" || true
-
+	# Record the launch failure in the fast-fail counter (t1888).
+	# t2815: no_worker_process = infra failure; map to no_work so escalate_issue_tier
+	# short-circuits at the t2387 guard and skips tier escalation.
+	local effective_crash_type="$crash_type"
+	if [[ "$failure_reason" == "no_worker_process" && -z "$effective_crash_type" ]]; then
+		effective_crash_type="no_work"
+	fi
+	fast_fail_record "$issue_number" "$repo_slug" "$failure_reason" "anthropic" "$effective_crash_type" || true
 	# t1959: Wire global circuit breaker for launch-class failures only.
 	# Stale timeouts and in-execution failures have their own per-issue backoff
 	# and should not trip a global halt. Only true launch failures signal
@@ -819,7 +822,7 @@ recover_failed_launch_state() {
 		;;
 	esac
 
-	echo "[pulse-wrapper] Launch recovery reset #${issue_number} (${repo_slug}) after ${failure_reason} crash_type=${crash_type:-unclassified}: removed self assignee + status:queued" >>"$LOGFILE"
+	echo "[pulse-wrapper] Launch recovery reset #${issue_number} (${repo_slug}) after ${failure_reason} crash_type=${effective_crash_type:-unclassified}: removed self assignee + status:queued" >>"$LOGFILE"
 	return 0
 }
 
