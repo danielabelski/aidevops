@@ -3120,3 +3120,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2848 P0.5c: Ollama integration + local LLM substrate #enhancement #framework ref:GH#20901
 
 - [ ] t2849 P1a: kind-aware enrichment + structured field extraction #enhancement #framework ref:GH#20902
+
+- [ ] t2850 P1c: PageIndex tree generation across corpus #enhancement #framework ref:GH#20903
