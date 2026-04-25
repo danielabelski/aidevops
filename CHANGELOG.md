@@ -10,6 +10,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.11.3] - 2026-04-25
+
+### Changed
+
+- Maintenance: mark t2842 complete (pr:#20898 completed:2026-04-25) [skip ci]
+- add manual single-issue dispatch CLI (#20887)
+- full-loop-helper: run project validators before push (close worker-CI-failure gap) (#20898)
+- Maintenance: sync ref:GH#20910 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20909 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20908 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20906 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20905 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20904 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20903 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20902 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20901 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20900 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20899 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20897 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20896 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20895 to TODO.md [skip ci]
+- Maintenance: mark t2838 complete (pr:#20890 completed:2026-04-25) [skip ci]
+- periodic parent-task sub-issue backfill + --parent-issue flag (#20890)
+- Maintenance: sync ref:GH#20894 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20893 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20892 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20889 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20888 to TODO.md [skip ci]
+- Maintenance: mark t2834 complete (pr:#20883 completed:2026-04-25) [skip ci]
+- add reusable LOC badge workflow + canonical README badge template (#20883)
+- Maintenance: mark t2829 complete (pr:#20886 completed:2026-04-25) [skip ci]
+- enforce age check in pulse is_running short-circuit (#20886)
+- Maintenance: update simplification state registry
+
 ## [3.11.2] - 2026-04-25
 
 ### Changed
