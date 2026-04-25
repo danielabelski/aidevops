@@ -3154,3 +3154,11 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2865 pulse canonical-worktree conflict auto-recovery #framework #interactive #no-auto-dispatch #priority:medium #pulse #reliability ref:GH#20922
 
 - [ ] t2870 _campaigns/ plane — marketing assets, intel, inspiration for ads + organic campaigns #enhancement #framework #parent ref:GH#20929
+
+- [ ] t2869 P2d — pulse digest of stale inbox items + weekly review surface #auto-dispatch #enhancement #framework ref:GH#20933
+
+- [ ] t2868 P2c — inbox triage routine: sensitivity gate → classification → routing #auto-dispatch #enhancement #framework ref:GH#20932
+
+- [ ] t2867 P2b — inbox capture CLI + watch folder + audit log #auto-dispatch #enhancement #framework ref:GH#20931
+
+- [ ] t2866 P2a — _inbox/ directory contract + per-repo provisioning #auto-dispatch #enhancement #framework ref:GH#20930
