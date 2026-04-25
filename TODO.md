@@ -3063,7 +3063,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2818 fix(lifecycle): detect worker_branch_orphan — pushed branch without PR is currently misclassified as worker_complete #auto-dispatch #bug ref:GH#20819 pr:#20833 completed:2026-04-25
 
-- [ ] t2821 policy: dispatch-path tasks default to #parent + no-auto-dispatch for interactive implementation ref:GH#20827
+- [x] t2821 policy: dispatch-path tasks default to #parent + no-auto-dispatch for interactive implementation ref:GH#20827 pr:#20854 completed:2026-04-25
 
 - [x] t2820 pulse: extend no_work reclassification to worker_failed using Phase 3 log-tail data ref:GH#20826 pr:#20855 completed:2026-04-25
 
