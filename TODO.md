@@ -3170,3 +3170,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2873 comment out OpenCode→Claude Code substitution after empirical A/B verification ref:GH#20964
 
 - [ ] t2874 structured tag format for knowledge planes (Markdoc-style peer parent) #enhancement #framework #parent ref:GH#20966
+
+- [ ] t2876 gh PATH shim: privacy-scan layer to fail-closed on private-slug references when posting to public repos #auto-dispatch #framework #security ref:GH#20970
