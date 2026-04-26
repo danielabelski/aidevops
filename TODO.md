@@ -3216,3 +3216,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t2893 harness gh signature-gate JS hook errors with misleading message when --body-file is created in same bash call #bug #enhancement #framework ref:GH#21030 pr:#21032 completed:2026-04-26
 
 - [ ] t2892 credential-scrub regex lacks word-boundary anchor — corrupts identifiers like ta[redacted-credential] / task-decompose / task-runner when worker output writes to disk; actively damaging code in awardsapp/develop #bug #framework #priority:high #security ref:GH#21026
+
+- [ ] t2899 Fix branch_orphan false-positive: workers complete on main, work discarded #bug #parent ref:GH#21040
