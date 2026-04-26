@@ -3228,3 +3228,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2897 pulse per-runner zero-attempt failure circuit breaker ref:GH#21047
 
 - [ ] t2902 Stop recurring GraphQL budget exhaustion despite REST fallback (t2574, t2689) #bug ref:GH#21043
+
+- [ ] t2904 Cache assignment graph + classify errors in preflight_ownership_reconcile #bug #framework #performance #pulse ref:GH#21050
+
+- [ ] t2903 Move complexity_scan from pulse dispatch preflight to standalone launchd plist #bug #framework #pulse ref:GH#21049
