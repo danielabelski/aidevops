@@ -3292,3 +3292,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t2927 fix(pulse): FOOTPRINT_OVERLAP cache leaks closed-issue defers — invalidate when issue closes #auto-dispatch #bug #framework #pulse ref:GH#21103 pr:#21117 completed:2026-04-26
 
 - [ ] t2931 fix t2855 post-merge review: 6 correctness bugs in email polling #bug #framework ref:GH#21122
+
+- [ ] t2932 feat(dispatch): peer-productivity-monitor for adaptive compete/collaborate switching ref:GH#21125
