@@ -3243,3 +3243,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2909 Auto-release path leaves status:in-review and self-assignment on GitHub #bug ref:GH#21057
 
 - [ ] t2910 Cache generate-runtime-config.sh on input hash (saves 135s/cycle) #auto-dispatch #bug #framework #performance #setup ref:GH#21059
+
+- [ ] t2912 Detect wedged auto-update lock holder and force-release after stale threshold #auto-dispatch #bug #framework #reliability ref:GH#21061
+
+- [ ] t2911 Add structured per-stage timing log to setup.sh non-interactive path #auto-dispatch #enhancement #framework #observability #setup ref:GH#21060
