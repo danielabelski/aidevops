@@ -3290,3 +3290,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2928 fix(observability): SQLite archive.project schema column-count mismatch in pulse log #auto-dispatch #bug #framework #observability ref:GH#21104
 
 - [x] t2927 fix(pulse): FOOTPRINT_OVERLAP cache leaks closed-issue defers — invalidate when issue closes #auto-dispatch #bug #framework #pulse ref:GH#21103 pr:#21117 completed:2026-04-26
+
+- [ ] t2931 fix t2855 post-merge review: 6 correctness bugs in email polling #bug #framework ref:GH#21122
