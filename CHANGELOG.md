@@ -10,9 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.11.11] - 2026-04-26
+
 ### Changed
 
-- Lower pulse GraphQL circuit-breaker threshold from 0.30 to 0.05 (t2896, GH#21034). REST fallback (t2689) makes the 30% reserve redundant; restores original t2690 emergency-floor value, recovers ~25% of dispatch budget.
+- Maintenance: mark t2896 complete (pr:#21036 completed:2026-04-26) [skip ci]
+- lower pulse GraphQL circuit-breaker threshold from 0.30 to 0.05 (#21036)
+- Maintenance: mark t2873 complete (pr:#20965 completed:2026-04-26) [skip ci]
+- Maintenance: sync ref:GH#21026 to TODO.md [skip ci]
+- comment out OpenCode→Claude Code substitution after A/B verification (#20965)
+- anchor credential-scrub regex to word boundary (#21031)
+- add TODO entry for slow task-id-guard check-pr mode (#21035)
+- Maintenance: mark t2891 complete (pr:#21028 completed:2026-04-26) [skip ci]
 
 ## [3.11.10] - 2026-04-26
 
