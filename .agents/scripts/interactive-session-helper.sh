@@ -38,7 +38,7 @@
 #   hand — the slash command and CLI exist as fallbacks only.
 #
 # Usage:
-#   interactive-session-helper.sh claim <issue> <slug> [--worktree PATH]
+#   interactive-session-helper.sh claim <issue> <slug> [--worktree PATH] [--implementing]
 #   interactive-session-helper.sh release <issue> <slug> [--unassign]
 #   interactive-session-helper.sh lockdown <issue> <slug> [--worktree PATH]
 #   interactive-session-helper.sh unlock <issue> <slug> [--unassign]
@@ -151,6 +151,67 @@ _isc_has_in_review() {
 	local json
 	json=$(gh issue view "$issue" --repo "$slug" --json labels 2>/dev/null) || return 2
 	if printf '%s' "$json" | jq -e '(.labels // []) | any(.name == "status:in-review")' >/dev/null 2>&1; then
+		return 0
+	fi
+	return 1
+}
+
+# Generic label probe — returns 0 if the issue carries the named label, 1 if
+# absent, 2 if the gh lookup failed. Caller MUST use a direct `if` conditional
+# (not bare call + $? capture) to avoid the same set -e propagation foot-gun
+# documented above for `_isc_has_in_review` (GH#18786).
+#
+# Used by `_isc_cmd_claim` to honour the t2218 auto-dispatch carve-out at the
+# manual-claim entry point (GH#20946) and could be reused by other callers
+# that need to probe a specific label without parsing the full label JSON.
+_isc_has_label() {
+	local issue="$1"
+	local slug="$2"
+	local label="$3"
+	local json
+	json=$(gh issue view "$issue" --repo "$slug" --json labels 2>/dev/null) || return 2
+	if printf '%s' "$json" | jq -e --arg name "$label" '(.labels // []) | any(.name == $name)' >/dev/null 2>&1; then
+		return 0
+	fi
+	return 1
+}
+
+# Single-pass auto-dispatch carve-out probe (GH#20946 PR #20977 review).
+# Combines the two-call (`auto-dispatch` AND NOT `parent-task`) probe into one
+# `gh issue view` round-trip. Addresses two review findings together:
+#   - gemini-code-assist: redundant gh+jq calls in the claim hot path
+#   - augmentcode: the prior two-call form's inner `if !` branch conflated
+#     rc=1 (parent-task absent → carve-out applies) with rc=2 (gh lookup
+#     failed → caller intent unknown), failing CLOSED on transient errors
+#     and contradicting the outer fail-OPEN comment.
+#
+# Returns:
+#   0  carve-out applies — has `auto-dispatch` AND lacks `parent-task`. Caller
+#      MUST refuse to claim; self-assign would create a permanent dispatch
+#      block per the t1996/t2218 invariant (see _has_active_claim in
+#      dispatch-dedup-helper.sh).
+#   1  carve-out does NOT apply — auto-dispatch absent OR parent-task present.
+#      Caller proceeds with the normal claim path.
+#   2  lookup failed (gh offline, network, auth). Caller falls through and
+#      proceeds with the claim — fail-OPEN. A spurious carve-out skip on a
+#      transient error would be just as harmful as a missed carve-out;
+#      proceeding matches the offline gate at the top of `_isc_cmd_claim`.
+#
+# `if [[ $implementing -eq 0 ]] && _isc_carve_out_required ...; then` is the
+# canonical caller form — only enters the skip branch on rc=0; rc=1 and rc=2
+# both fall through. The `&&` short-circuit also consumes any non-zero return
+# through a conditional context, protecting against set -e propagation
+# (GH#18786 sibling class).
+_isc_carve_out_required() {
+	local issue="$1"
+	local slug="$2"
+	local json
+	json=$(gh issue view "$issue" --repo "$slug" --json labels 2>/dev/null) || return 2
+	if printf '%s' "$json" | jq -e '
+		(.labels // []) |
+		(any(.name == "auto-dispatch")) and
+		(any(.name == "parent-task") | not)
+	' >/dev/null 2>&1; then
 		return 0
 	fi
 	return 1
@@ -340,6 +401,28 @@ EOF
 #   $1 = issue number
 #   $2 = repo slug (owner/repo)
 #   [--worktree PATH] = optional worktree path to record in the stamp
+#   [--implementing] = opt in to claim an `auto-dispatch`-tagged issue
+#                      that the caller intends to implement themselves.
+#                      Without this flag, the helper refuses to claim
+#                      auto-dispatch issues so the pulse can dispatch a
+#                      worker (see auto-dispatch carve-out below).
+#
+# Auto-dispatch carve-out (GH#20946):
+#   Calling claim on an `auto-dispatch`-tagged issue WITHOUT `--implementing`
+#   is a no-op — it warns and exits 0. Three creation-time entry points already
+#   skip self-assign on auto-dispatch (t2218, t2132, t2157/t2406); this probe
+#   extends the same invariant to the manual `claim` subcommand. Without the
+#   probe, claim would create the (origin:interactive + assignee + status:in-review)
+#   combination that `_has_active_claim` in dispatch-dedup-helper.sh treats as an
+#   active claim, permanently blocking pulse dispatch (t1996/GH#18352).
+#
+#   `parent-task` issues are exempt from the probe — they're decomposition
+#   trackers the maintainer needs to own, and `parent-task` already blocks
+#   dispatch via `PARENT_TASK_BLOCKED` upstream of the auto-dispatch path.
+#
+#   Use `--implementing` when the AGENTS.md "Implementing a #auto-dispatch
+#   task interactively" mandate applies — i.e. when the agent legitimately
+#   intends to take the issue itself instead of letting a worker pick it up.
 #
 # Behaviour:
 #   - Offline gh: warn-and-continue (exit 0). A collision with a pulse worker
@@ -351,7 +434,7 @@ EOF
 #
 # Exit: 0 always (warn-and-continue contract).
 _isc_cmd_claim() {
-	local issue="" slug="" worktree_path=""
+	local issue="" slug="" worktree_path="" implementing=0
 
 	# Parse positional + flags
 	while [[ $# -gt 0 ]]; do
@@ -363,6 +446,10 @@ _isc_cmd_claim() {
 			;;
 		--worktree=*)
 			worktree_path="${arg#--worktree=}"
+			shift
+			;;
+		--implementing)
+			implementing=1
 			shift
 			;;
 		-h | --help)
@@ -384,7 +471,7 @@ _isc_cmd_claim() {
 
 	if [[ -z "$issue" || -z "$slug" ]]; then
 		_isc_err "claim: <issue> and <slug> are required"
-		_isc_err "usage: interactive-session-helper.sh claim <issue> <slug> [--worktree PATH]"
+		_isc_err "usage: interactive-session-helper.sh claim <issue> <slug> [--worktree PATH] [--implementing]"
 		return 2
 	fi
 
@@ -407,17 +494,26 @@ _isc_cmd_claim() {
 		return 0
 	fi
 
-	# Idempotency: if already in-review, just refresh the stamp and exit.
-	# NOTE: `_isc_has_in_review` legitimately returns non-zero ("label absent"
-	# = 1, "lookup failed" = 2). Under `set -e`, a bare call followed by
-	# `local rc=$?` capture kills this function before `rc=$?` runs — because
-	# the unchecked non-zero return propagates up through the parent function.
-	# Use a direct `if` conditional so the return is consumed by the branch,
-	# which `set -e` treats as a tested condition and does not propagate.
-	# Sibling bug class: GH#18770 (pulse self-check), GH#18784 (aidevops.sh getent).
+	# Idempotency: if already in-review, refresh stamp and exit. The `if`
+	# conditional consumes any non-zero return so set -e doesn't propagate
+	# rc=2 (lookup failed) up the call stack — see _isc_has_in_review header
+	# for the full set -e foot-gun (GH#18770/GH#18784/GH#18786 sibling class).
 	if _isc_has_in_review "$issue" "$slug"; then
 		_isc_info "claim: #$issue already has status:in-review — refreshing stamp"
 		_isc_write_stamp "$issue" "$slug" "$worktree_path" "$user"
+		return 0
+	fi
+
+	# Auto-dispatch carve-out (GH#20946): refuse to claim auto-dispatch issues
+	# unless --implementing was passed or the issue is also a parent-task.
+	# `_isc_carve_out_required` does both label checks in one gh round-trip and
+	# fails OPEN on rc=2 (lookup failed) — the `&&` short-circuit only enters
+	# the skip branch on rc=0, so rc=1 (no carve-out) and rc=2 (lookup failed)
+	# both fall through to the normal claim path. See PR #20977 review thread
+	# (augmentcode rc=2 + gemini consolidation findings) for context.
+	if [[ $implementing -eq 0 ]] && _isc_carve_out_required "$issue" "$slug"; then
+		_isc_warn "claim: #$issue carries 'auto-dispatch' without 'parent-task' — skipping to avoid permanent dispatch block (t2218 invariant; GH#20946)"
+		_isc_warn "if you intend to implement #$issue yourself instead of letting a worker pick it up, re-run with: claim $issue $slug --implementing"
 		return 0
 	fi
 
@@ -1453,9 +1549,15 @@ _isc_cmd_help() {
 interactive-session-helper.sh - Interactive issue-ownership primitive (t2056)
 
 USAGE:
-  interactive-session-helper.sh claim <issue> <slug> [--worktree PATH]
+  interactive-session-helper.sh claim <issue> <slug> [--worktree PATH] [--implementing]
       Apply status:in-review + self-assign + write crash-recovery stamp.
       Idempotent. Offline gh → warn-and-continue (exit 0).
+      Auto-dispatch carve-out (GH#20946): refuses to claim issues tagged
+      'auto-dispatch' unless --implementing is passed or the issue is also
+      tagged 'parent-task'. Without the carve-out, claim creates a
+      permanent dispatch block (t1996/GH#18352). Use --implementing when
+      you intend to implement the issue yourself instead of letting a
+      worker pick it up.
 
   interactive-session-helper.sh release <issue> <slug> [--unassign]
       Transition status:in-review → status:available, delete stamp.
