@@ -3230,7 +3230,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2903 Move complexity_scan from pulse dispatch preflight to standalone launchd plist #bug #framework #pulse ref:GH#21049
 
-- [ ] t2904 Cache assignment graph + classify errors in preflight_ownership_reconcile #bug #framework #performance #pulse ref:GH#21050
+- [x] t2904 Cache assignment graph + classify errors in preflight_ownership_reconcile #bug #framework #performance #pulse ref:GH#21050 pr:#21073 completed:2026-04-26
 
 - [ ] t2905 Audit prefetch_state cost vs downstream savings (184s/cycle) #bug #framework #performance #pulse ref:GH#21051
 
