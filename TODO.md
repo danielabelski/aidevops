@@ -3267,3 +3267,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t2921 fix worker-watchdog find_workers regex broken by alternation pattern (t2421 regression) #auto-dispatch ref:GH#21091 pr:#21092 completed:2026-04-26
 
 - [ ] t2922 fix(pulse-merge): bypass phantom pending checks for owner+origin:worker auto-merge #auto-dispatch #bug #framework ref:GH#21097
+
+- [ ] t2923 feat(worker): push WIP commits to origin on worker exit/kill — prevent abandoned work #auto-dispatch #enhancement #framework ref:GH#21098
