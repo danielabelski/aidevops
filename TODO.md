@@ -3212,3 +3212,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2894 report all dispatch-dedup blockers in /full-loop gate (followup to t2890) #framework #reliability tier:standard ~1h ref:GH#21029 logged:2026-04-26
 
 - [ ] t2895 task-id-guard check-pr mode hangs on PRs with large merge commit sets #bug #framework #performance #auto-dispatch tier:standard ~2h ref:GH#21033 logged:2026-04-26
+
+- [ ] t2896 lower pulse circuit breaker threshold from 0.30 to 0.05 — REST fallback shifted the calculus #enhancement #framework ref:GH#21034
+
+- [ ] t2893 harness gh signature-gate JS hook errors with misleading message when --body-file is created in same bash call #bug #enhancement #framework ref:GH#21030
