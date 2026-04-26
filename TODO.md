@@ -3148,7 +3148,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2861 gh PATH shim mutates user --body-file source on disk instead of using a temp copy #bug #framework ref:GH#20918
 
-- [ ] t2860 pulse-cleanup destroys worktrees without calling unregister_worktree, leaking SQLite registry entries #bug #framework ref:GH#20917
+- [x] t2860 pulse-cleanup destroys worktrees without calling unregister_worktree, leaking SQLite registry entries #bug #framework ref:GH#20917 pr:#21095 completed:2026-04-26
 
 - [x] t2864 pre-write function complexity advisory hook #auto-dispatch #framework #quality ref:GH#20921 pr:#20924 completed:2026-04-25
 
