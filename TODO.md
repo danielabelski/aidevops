@@ -3188,3 +3188,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2882 Add unsolicited_disclosure_marketing pattern category to prompt-injection-patterns.yaml #auto-dispatch #framework #security ref:GH#20984
 
 - [ ] t2883 Add untrusted-body content directive immunity rule to build.txt #auto-dispatch #framework #security ref:GH#20985
+
+- [ ] t2884 Add external-content-spam-detector.sh helper combining patterns + structural checks #auto-dispatch #framework #security ref:GH#20986
