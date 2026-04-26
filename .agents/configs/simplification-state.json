@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-04-26T13:08:45Z",
-      "hash": "d8290e3ef46442e602d289f32b974d86581aa4d3",
-      "passes": 60,
+      "at": "2026-04-26T14:23:33Z",
+      "hash": "5e780160061a960b629e76a1b8593b8823dea959",
+      "passes": 61,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -820,9 +820,9 @@
       "pr": 15249
     },
     ".agents/hooks/task-id-collision-guard.sh": {
-      "at": "2026-04-21T13:07:09Z",
-      "hash": "d90861ec1e14d4aa478e0043a8670768a004c771",
-      "passes": 8,
+      "at": "2026-04-26T14:23:36Z",
+      "hash": "7441a7bffda4dcd1df09936720629846d79571e3",
+      "passes": 9,
       "pr": 18718
     },
     ".agents/legal.md": {
@@ -7486,9 +7486,9 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-04-26T13:09:18Z",
-      "hash": "81285ed0ffc8901cb3d70ff46087e03bffe77f94",
-      "passes": 114,
+      "at": "2026-04-26T14:24:07Z",
+      "hash": "756e347b7428e45176076685ab536e68f17b1908",
+      "passes": 115,
       "pr": 15490
     },
     "aidevops.sh": {
