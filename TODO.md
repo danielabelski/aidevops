@@ -3226,7 +3226,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2901 Reduce pulse cycle duration below launchd interval to stop cascading skips and force-kills #bug #parent ref:GH#21042
 
-- [ ] t2902 Stop recurring GraphQL budget exhaustion despite REST fallback (t2574, t2689) #bug ref:GH#21043
+- [x] t2902 Stop recurring GraphQL budget exhaustion despite REST fallback (t2574, t2689) #bug ref:GH#21043 pr:#21053 completed:2026-04-26
 
 - [ ] t2903 Move complexity_scan from pulse dispatch preflight to standalone launchd plist #bug #framework #pulse ref:GH#21049
 
