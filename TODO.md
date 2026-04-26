@@ -3282,7 +3282,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2924 perf(pulse): filter non-dispatchable labels at candidate-build time, not dispatch time #auto-dispatch #enhancement #framework ref:GH#21099 pr:#21109 completed:2026-04-26
 
-- [ ] t2926 setup.sh: auto-install util-linux on macOS so setsid is available for worker PGID isolation #auto-dispatch #bug #framework #setup ref:GH#21102
+- [x] t2926 setup.sh: auto-install util-linux on macOS so setsid is available for worker PGID isolation #auto-dispatch #bug #framework #setup ref:GH#21102 pr:#21115 completed:2026-04-26
 
 - [ ] t2929 perf(pulse): preflight_cleanup_and_ledger 60-133s — stagger and parallelize git fetches #auto-dispatch #enhancement #framework #performance #pulse ref:GH#21105
 
