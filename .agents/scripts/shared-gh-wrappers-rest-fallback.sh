@@ -32,14 +32,26 @@ _SHARED_GH_WRAPPERS_REST_FALLBACK_LOADED=1
 # Threshold below which we route reads/writes through REST instead of GraphQL.
 # Env override: AIDEVOPS_GH_REST_FALLBACK_THRESHOLD
 #
-# Tuning rationale (t2744): the original default of 10 only engaged after
-# 99.8% of the GraphQL budget was already spent — by which point in-flight
-# operations were already failing. Raising to 1000 (20% remaining) routes
-# read-heavy traffic through the separate 5000/hr REST core pool while
-# GraphQL still has reserve for ops without REST equivalents (a small set
-# of GraphQL-only mutations). Splitting load across pools roughly doubles
-# effective capacity in steady state.
-_GH_REST_FALLBACK_THRESHOLD="${AIDEVOPS_GH_REST_FALLBACK_THRESHOLD:-1000}"
+# Tuning rationale:
+#   t2574 (default 10):   only engaged after 99.8% of the GraphQL budget was
+#                         spent — by then in-flight ops were already failing.
+#   t2744 (default 1000): proactive fallback at 20% remaining. Routes read-
+#                         heavy traffic through the 5000/hr REST core pool
+#                         while GraphQL keeps reserve for GraphQL-only
+#                         mutations. Doubles steady-state capacity.
+#   t2902 (default 1500): raised again. Operational data over 4.5 days on
+#                         the marcusquinn runtime: 47 lifetime circuit-breaker
+#                         fires (~10/day) AND GraphQL still hit 0/5000. The
+#                         1000-point reserve was consumed faster than expected
+#                         because `gh search` calls in pulse-batch-prefetch
+#                         (per-owner per-cycle) were not routed through this
+#                         threshold — they bypassed the wrappers entirely.
+#                         t2902 wires those call sites in (see
+#                         pulse-batch-prefetch-helper.sh) AND raises the
+#                         threshold to give earlier headroom (1500 = 30%
+#                         remaining). Pair: instrumentation + earlier
+#                         fallback. Trivial revert: set back to 1000 here.
+_GH_REST_FALLBACK_THRESHOLD="${AIDEVOPS_GH_REST_FALLBACK_THRESHOLD:-1500}"
 
 #######################################
 # Build the `-F` value for `gh api` that uploads a file's contents as the
@@ -165,6 +177,7 @@ _gh_rest_normalize_issue_ref() {
 # mirroring `gh issue create`. Returns underlying gh api exit code.
 #######################################
 _gh_issue_create_rest() {
+	gh_record_call rest 2>/dev/null || true
 	local title=""
 	local body=""
 	local body_file=""
@@ -251,6 +264,7 @@ _gh_issue_create_rest() {
 # Emits the new comment html_url on stdout. Returns underlying gh api exit code.
 #######################################
 _gh_issue_comment_rest() {
+	gh_record_call rest 2>/dev/null || true
 	local num_or_url=""
 	local repo=""
 	local body=""
@@ -327,6 +341,7 @@ _gh_issue_comment_rest() {
 # is not affected by GraphQL exhaustion.
 #######################################
 _gh_issue_edit_rest() {
+	gh_record_call rest 2>/dev/null || true
 	local num_or_url=""
 	local repo=""
 	local title=""
@@ -544,6 +559,7 @@ _gh_pr_autodetect_base() {
 # default branch respectively (see _gh_pr_autodetect_head/base above).
 #######################################
 _gh_pr_create_rest() {
+	gh_record_call rest 2>/dev/null || true
 	local title=""
 	local head=""
 	local base=""
@@ -660,6 +676,7 @@ _gh_pr_create_rest() {
 # Returns the underlying gh api exit code.
 #######################################
 _rest_issue_view() {
+	gh_record_call rest 2>/dev/null || true
 	local num_or_url=""
 	local repo=""
 	local jq_expr=""
@@ -717,6 +734,7 @@ _rest_issue_view() {
 # Returns the underlying gh api exit code.
 #######################################
 _rest_pr_list() {
+	gh_record_call rest 2>/dev/null || true
 	local repo=""
 	local state="open"
 	local limit=30
@@ -790,6 +808,7 @@ _rest_pr_list() {
 # Returns the underlying gh api exit code.
 #######################################
 _rest_issue_list() {
+	gh_record_call rest 2>/dev/null || true
 	local repo=""
 	local state="open"
 	local limit=30
