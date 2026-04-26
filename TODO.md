@@ -3277,3 +3277,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2922 fix(pulse-merge): bypass phantom pending checks for owner+origin:worker auto-merge #auto-dispatch #bug #framework ref:GH#21097
 
 - [ ] t2923 feat(worker): push WIP commits to origin on worker exit/kill — prevent abandoned work #auto-dispatch #enhancement #framework ref:GH#21098
+
+- [ ] t2925 feat(security): auto-detect and close bounty-hunter spam PRs from external authors #auto-dispatch #framework #security ref:GH#21100
+
+- [ ] t2924 perf(pulse): filter non-dispatchable labels at candidate-build time, not dispatch time #auto-dispatch #enhancement #framework ref:GH#21099
