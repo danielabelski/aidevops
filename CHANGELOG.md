@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.11.5] - 2026-04-26
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Maintenance: mark t2871 complete (pr:#20945 completed:2026-04-26) [skip ci]
+- pulse-canonical-recovery: switch to local advisory channel (privacy fix) (#20945)
+- Maintenance: sync ref:GH#20944 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#20942 to TODO.md [skip ci]
+
 ## [3.11.4] - 2026-04-26
 
 ### Changed
