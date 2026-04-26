@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.11.10] - 2026-04-26
+
+### Changed
+
+- add binary validator + auto-heal to active setup_opencode_cli (#21028)
+- Maintenance: mark t2890 complete (pr:#21027 completed:2026-04-26) [skip ci]
+- align /full-loop gate with pulse dispatch primitives (#21027)
+- decompose knowledge planes MVP into 20 children + 2 peer parents (campaigns, tag format) (planning-only) (#20913)
+- Maintenance: update simplification state registry
+- auto-decomposer skip already-decomposed parents and recent maintainer activity (#21021)
+- Maintenance: sync ref:GH#20983 to TODO.md [skip ci]
+
 ## [3.11.9] - 2026-04-26
 
 ### Changed
