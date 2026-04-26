@@ -3139,7 +3139,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2858 P6b: aidevops case chase (template-only, opt-in auto-send) #enhancement #framework ref:GH#20912
 
-- [ ] t2859 fix unbound ORPHAN_WORKTREE_GRACE_SECS in pulse-cleanup.sh — destroys live worktrees #bug #framework ref:GH#20914
+- [x] t2859 fix unbound ORPHAN_WORKTREE_GRACE_SECS in pulse-cleanup.sh — destroys live worktrees #bug #framework ref:GH#20914 pr:#20915 completed:2026-04-26
 
 - [ ] t2861 gh PATH shim mutates user --body-file source on disk instead of using a temp copy #bug #framework ref:GH#20918
 
