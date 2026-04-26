@@ -3302,3 +3302,9 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t2933 harden approve_collaborator_pr: defense-in-depth + regression test (GH#17671 follow-up) #auto-dispatch #security ref:GH#21132 pr:#21133 completed:2026-04-26
 
 - [ ] t2934 harden pulse-merge against admin --admin bypass on external-contributor PRs #auto-dispatch #bug #security ref:GH#21134
+
+- [ ] t2938 convert file-size pre-commit gate from absolute count to ratchet-based #auto-dispatch #refactor ref:GH#21147
+
+- [ ] t2936 split files exceeding 1500 lines into focused sub-modules #parent #refactor ref:GH#21146
+
+- [ ] t2935 Block GitHub user internet-dot — drive-by spam author of GH#17671 #security ref:GH#21145
