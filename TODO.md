@@ -3284,7 +3284,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2973 t2907 Phase 1: Audit all worktree-removal call sites and classify each path #auto-dispatch #bug #framework ref:GH#21272
 
-- [ ] t2974 t2907 Phase 2: Fix missing registry checks and path-shape assertions at worktree-removal call sites #auto-dispatch #bug #framework ref:GH#21274
+- [x] t2974 t2907 Phase 2: Fix missing registry checks and path-shape assertions at worktree-removal call sites #auto-dispatch #bug #framework ref:GH#21274 pr:#21343 completed:2026-04-27
 
 - [ ] t2976 t2907 Phase 3: Add canonical audit logging at every worktree-removal event and regression test #auto-dispatch #bug #framework ref:GH#21275
 
