@@ -3157,7 +3157,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2857 P6a: aidevops case draft agent (RAG, human-gated, provenance) #enhancement #framework ref:GH#20911 blocked-by:t2851,t2852,t2853,t2850,t2847,t2848 pr:#21194 completed:2026-04-27
 
-- [ ] t2858 P6b: aidevops case chase (template-only, opt-in auto-send) #enhancement #framework ref:GH#20912 blocked-by:t2851,t2852,t2853,t2850,t2847,t2848
+- [x] t2858 P6b: aidevops case chase (template-only, opt-in auto-send) #enhancement #framework ref:GH#20912 blocked-by:t2851,t2852,t2853,t2850,t2847,t2848 pr:#21216 completed:2026-04-27
 
 - [x] t2859 fix unbound ORPHAN_WORKTREE_GRACE_SECS in pulse-cleanup.sh — destroys live worktrees #bug #framework ref:GH#20914 pr:#20915 completed:2026-04-26
 
