@@ -3439,3 +3439,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3000 dispatch-single-issue-helper: apply status:in-progress + claim stamp + ledger reg post-launch #bug #framework ref:GH#21429
 
 - [ ] t3001 Add gh-status-helper for incident detection + incident recovery runbook #auto-dispatch #enhancement ref:GH#21431
+
+- [ ] t3002 pulse-wrapper singleton lock fails across launchd / aidevops-update concurrency #auto-dispatch #bug #pulse ref:GH#21433
