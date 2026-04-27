@@ -3436,7 +3436,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2999 dispatch-ledger-helper: stale-lock recovery (24-day-old lock disabled all registration) #bug #framework ref:GH#21427 pr:#21428 completed:2026-04-27
 
-- [ ] t3000 dispatch-single-issue-helper: apply status:in-progress + claim stamp + ledger reg post-launch #bug #framework ref:GH#21429
+- [x] t3000 dispatch-single-issue-helper: apply status:in-progress + claim stamp + ledger reg post-launch #bug #framework ref:GH#21429 pr:#21430 completed:2026-04-27
 
 - [ ] t3001 Add gh-status-helper for incident detection + incident recovery runbook #auto-dispatch #enhancement ref:GH#21431
 
