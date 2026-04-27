@@ -10,6 +10,162 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.1] - 2026-04-27
+
+### Added
+
+- make worktree pre-creation failures observable (t2981) (#21359)
+- add markdoc-extract.sh — tag-stripped text + JSON tags sidecar (t2970, GH#21258) (#21358)
+- add badges CLI subcommand + init hook + cross-repo drift detection (t2975) (#21340)
+- convert file-size gate from absolute count to ratchet-based (t2938) (#21346)
+- t2968 Markdoc schema conformance validator + pre-commit hook + CI gate (#21350)
+- Ollama chat/embed/health/privacy-check + bundle + tests (#21217)
+- atomic stamp on _auto_assign_issue + parent-task skip (#21207)
+- case draft agent with RAG, provenance, and cross-case firewall (#21194)
+- peer-productivity-monitor — observe origin:worker claims for broken-peer detection (#21193)
+
+### Changed
+
+- Maintenance: mark t2986 complete (pr:#21378 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2986 complete (pr:#21378 completed:2026-04-27) [skip ci]
+- Maintenance: sync ref:GH#21377 to TODO.md [skip ci]
+- Maintenance: mark t2984 complete (pr:#21374 completed:2026-04-27) [skip ci]
+- time-budget early-exit for reconcile_issues_single_pass (#21374)
+- Maintenance: sync ref:GH#21375 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21373 to TODO.md [skip ci]
+- add canonical audit logging at every worktree-removal event (#21372)
+- Maintenance: mark t2983 complete (pr:#21371 completed:2026-04-27) [skip ci]
+- Fix C — resolve V6 headless contract worktree contradiction (#21371)
+- tighten return type hints in email_poll.py helper functions (#21368)
+- Maintenance: mark t2977 complete (pr:#21366 completed:2026-04-27) [skip ci]
+- t2874 Phase 6: knowledge search tag-attribute filters + case-scoped draft RAG (#21366)
+- Maintenance: mark t2981 complete (pr:#21359 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2974 complete (pr:#21343 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2972 complete (pr:#21365 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2970 complete (pr:#21358 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2851 complete (pr:#21245 completed:2026-04-27) [skip ci]
+- guard nohup log redirection against unwritable path (#21236)
+- add ownership guards and fixture path-shape assertions at worktree-removal call sites (#21343)
+- PageIndex Phase 5 — lift Markdoc tag attributes into tree node metadata (#21365)
+- Maintenance: mark t2915 complete (pr:#21292 completed:2026-04-27) [skip ci]
+- decompose knowledge_index_helpers.py to reduce qlty smells to 0 (#21246)
+- case dossier contract + aidevops case open (#21245)
+- split schedulers.sh (2754→539 lines) into 3 focused sub-libraries (#21342)
+- fix line-continuation regex bug in stage-wiring test (#21292)
+- Maintenance: mark t2979 complete (pr:#21360 completed:2026-04-27) [skip ci]
+- Maintenance: ratchet QLTY_SMELL_THRESHOLD 37→34 (-3) [skip ci]
+- decompose email_poll.py to eliminate 4 qlty smells (#21361)
+- gh comment renderer — strip/annotate Markdoc tags in PR/issue output (#21360)
+- Maintenance: mark t2969 complete (pr:#21351 completed:2026-04-27) [skip ci]
+- _campaigns/ P6 — performance integration + learnings promotion (#21351)
+- Maintenance: mark t2971 complete (pr:#21357 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2980 complete (pr:#21352 completed:2026-04-27) [skip ci]
+- t2874 Phase 4: source.md migration tool and backwards-compat reader (#21357)
+- Maintenance: mark t2938 complete (pr:#21346 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2968 complete (pr:#21350 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2831 complete (pr:#21347 completed:2026-04-27) [skip ci]
+- Maintenance: sync ref:GH#20980 to TODO.md [skip ci]
+- Maintenance: mark t2879 complete (pr:#21244 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2839 complete (pr:#21249 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2837 complete (pr:#21242 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2907 complete (pr:#21278 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2854 complete (pr:#21265 completed:2026-04-27) [skip ci]
+- Add watchdog hard-kill threshold to bound worker_stall_continue drain (#21271)
+- Maintenance: decompose #21040 — add t2980 investigation child (Resolves #21220)
+- pulse: per-repo adaptive cadence (hot/warm/cold tiers)
+- decompose t2874 Markdoc tag format into 7 phase children
+- Maintenance: decompose t2936 into 53 file-split children (Resolves #21156)
+- docs(README): add per-repo platform setup section pointing to /setup-git (#21244)
+- Maintenance: mark t2961 complete (pr:#21241 completed:2026-04-27) [skip ci]
+- dispatch-issue CLI status PID liveness + model inference alignment (#21249)
+- fix: validator robustness — timeout guard, git add -u, mktemp portability, detection alignment
+- fix batch jq delimiter, missing input redirection, and base64 portability in reconcile_issues_single_pass (#21241)
+- fix generate-runtime-config.sh stat portability and redundant hash recompute (#21237)
+- Maintenance: mark t2894 complete (pr:#21243 completed:2026-04-27) [skip ci]
+- document BSD awk and ratchet hazards in reference docs (#21242)
+- Maintenance: decompose t2907 (#21055) into 3 child phases — add t2973/t2974/t2976 to TODO.md (For #21055, Resolves #21219) (#21278)
+- add .eml/.emlx ingestion handler (kind=email) for knowledge plane
+- Maintenance: add t2962-t2969 _campaigns/ phase children to TODO.md (For #20929, Resolves #20963)
+- Maintenance: add t2961 to TODO.md ref:GH#21166 [skip ci]
+- fix review followup for t2902 instrumentation — printf builtin, slash-guard, prefetch dedup
+- enumerate all dispatch-dedup blockers in /full-loop gate
+- fix: use AGENTS_DIR for pulse helper path in cmd_update
+- Maintenance: mark t2947 complete (pr:#21234 completed:2026-04-27) [skip ci]
+- fix observability.mjs command injection and staleness robustness
+- fix orphan branch exit-code fallback in _handle_worker_branch_orphan
+- reduce FAST_FAIL_AGE_OUT_SECONDS default 86400→3600 (1h)
+- Maintenance: mark t2952 complete (pr:#21225 completed:2026-04-27) [skip ci]
+- qlty smell threshold history entry + deferred refactor follow-up issues (#21225)
+- Maintenance: mark t2853 complete (pr:#21221 completed:2026-04-27) [skip ci]
+- case milestone + deadline alarming routine (P4c) (#21221)
+- Maintenance: mark t2858 complete (pr:#21216 completed:2026-04-27) [skip ci]
+- case chase — template-only opt-in SMTP chaser for cases (#21216)
+- Maintenance: mark t2843 complete (pr:#21218 completed:2026-04-27) [skip ci]
+- knowledge CLI add/list/search + platform abstraction layer (#21218)
+- Maintenance: mark t2849 complete (pr:#21214 completed:2026-04-27) [skip ci]
+- kind-aware enrichment + structured field extraction (#21214)
+- Maintenance: mark t2848 complete (pr:#21217 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2949 complete (pr:#21211 completed:2026-04-27) [skip ci]
+- reduce parent-task advisory nudge threshold 24h→4h with env-controlled constants (#21211)
+- Maintenance: mark t2943 complete (pr:#21207 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2948 complete (pr:#21209 completed:2026-04-27) [skip ci]
+- reduce idle interactive PR handover threshold 24h→4h (IDLE_INTERACTIVE_HANDOVER_SECONDS) (#21209)
+- Maintenance: mark t2950 complete (pr:#21210 completed:2026-04-27) [skip ci]
+- raise MAX_WORKERS_CAP ceiling 32→64 in pulse-wrapper-config.sh (#21210)
+- Maintenance: sync GitHub issue refs to TODO.md [skip ci]
+- Maintenance: mark t2955 complete (pr:#21205 completed:2026-04-27) [skip ci]
+- cache _is_task_committed_to_main result via dispatch-blocked label (#21205)
+- Maintenance: mark t2954 complete (pr:#21204 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2953 complete (pr:#21203 completed:2026-04-27) [skip ci]
+- fix(_ff_with_lock): detect and clear orphan lockdirs with no owner.pid (#21203)
+- Maintenance: mark t2857 complete (pr:#21194 completed:2026-04-27) [skip ci]
+- Maintenance: sync ref:GH#21200 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21199 to TODO.md [skip ci]
+- fix settings namespace divergence: read orchestration.pulse_interval_seconds with supervisor.* fallback + schema + migration (#21196)
+- Maintenance: sync ref:GH#21197 to TODO.md [skip ci]
+- Maintenance: mark t2946 complete (pr:#21191 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2951 complete (pr:#21192 completed:2026-04-27) [skip ci]
+- Maintenance: scrub external account name from t2925 TODO entry (#21188)
+- fix settings namespace divergence: read orchestration.pulse_interval_seconds with supervisor.* fallback + schema + migration (#21191)
+- fix bounty-spam-auto-close gate — verdict-string instead of unreachable RC check (#21192)
+- Maintenance: mark t2846 complete (pr:#21195 completed:2026-04-27) [skip ci]
+- sensitivity classification schema + detector (#21195)
+- Maintenance: sync ref:GH#21186 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21181 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21180 to TODO.md [skip ci]
+- Maintenance: mark t2911 complete (pr:#21158 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2850 complete (pr:#21161 completed:2026-04-27) [skip ci]
+- add per-stage timing log to setup.sh non-interactive path (#21158)
+- PageIndex tree generation across corpus (#21161)
+- Maintenance: mark t2942 complete (pr:#21159 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2937 complete (pr:#21178 completed:2026-04-27) [skip ci]
+- reduce STAMPLESS_INTERACTIVE_AGE_THRESHOLD default from 24h to 1h (#21159)
+- make maintainer-gate.yml reusable + wire into check/sync-workflows (#21178)
+- Maintenance: mark t2944 complete (pr:#21165 completed:2026-04-27) [skip ci]
+- fix bash 3.2 heredoc-in-$() in bounty-spam-detector.sh (#21165)
+- Maintenance: sync ref:GH#21162 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21160 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21157 to TODO.md [skip ci]
+
+### Fixed
+
+- suppress 5 shellcheck false positives blocking release preflight (#21378)
+- robust version check and reduce redundant --version I/O in canary (#21369)
+- last-line read, ERE escaping, single-pass full-slug matching (#21367)
+- bias age-check failure toward reclaim path in is_running short-circuit (GH#20962) (#21281)
+- complexity advisory parser — one-liner and next-line brace (GH#20956) (#21282)
+- canonical caller templates use explicit secret pass-through (GH#20976) (#21345)
+- add mktemp -t template for BSD/macOS portability in probe functions (#21260)
+- GH#20954 — use jq fallback operator and SCRIPT_DIR in framework-routing-helper (#21279)
+- _pcr_sanitise_path path-boundary check prevents shared-prefix username leak (#21259)
+- add issue) dispatch case and help line to aidevops.sh (#21266)
+- remove stale line number ref from t2841 comment in pulse-issue-reconcile (#21262)
+- address gemini review feedback on t2913 gh-wrapper timeout changes
+- t2898-brief code samples — INTERVAL_MINUTES scope, arg preservation, idempotent stall check
+- nvm path discovery + product validation in pulse runtime resolver
+- use verdict string instead of RC in auto-close gate (#21190)
+- add setup_peer_productivity_monitor to interactive flow (#21164)
+
 ## [3.13.0] - 2026-04-27
 
 ### Added
