@@ -3421,3 +3421,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t2992 post-update cache priming routine to eliminate first-cycle stage cost #auto-dispatch #enhancement #framework ref:GH#21395 pr:#21398 completed:2026-04-27
 
 - [ ] t2991 fix subagent permission.task entries (4 broken keys + missing Product allowlist) #auto-dispatch ref:GH#21394
+
+- [ ] t2993 fix(task-id-guard): word-boundary regex to avoid false positives on subagent names like context7 #auto-dispatch ref:GH#21402
