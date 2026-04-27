@@ -3386,3 +3386,21 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t2955 cache _is_task_committed_to_main result via dispatch-blocked label — eliminate per-cycle scan on 224 issues #auto-dispatch #bug #enhancement #framework ref:GH#21200 pr:#21205 completed:2026-04-27
 
 - [x] t2961 fix batch jq delimiter (join("|")), missing input redirection, and base64 portability in reconcile_issues_single_pass #worker #bug #framework ref:GH#21166 pr:#21241 completed:2026-04-27
+
+- [ ] t2983 resolve V6 headless contract worktree contradiction (Fix C from t2980) #auto-dispatch ref:GH#21355
+
+- [ ] t2982 fix worker output classification to follow worker (Mode B/C from t2980) #auto-dispatch ref:GH#21354
+
+- [ ] t2981 fix worker dispatch silent pre-creation failure (Mode A from t2980) #auto-dispatch ref:GH#21353
+
+- [ ] t2979 t2874 Phase 7: gh comment renderer — strip/annotate Markdoc tags in PR/issue output #auto-dispatch #enhancement #framework ref:GH#21269
+
+- [ ] t2977 t2874 Phase 6: retrieval consumer — tag-attribute filtering for knowledge search + case draft #auto-dispatch #enhancement #framework ref:GH#21267
+
+- [ ] t2972 t2874 Phase 5: PageIndex consumer — lift Markdoc tag attributes into tree node metadata #auto-dispatch #enhancement #framework ref:GH#21264
+
+- [ ] t2971 t2874 Phase 4: source.md migration — port P0a text.txt+meta.json to tagged source.md #auto-dispatch #enhancement #framework ref:GH#21261
+
+- [ ] t2970 t2874 Phase 3: Markdoc extractor — tag-stripped text + JSON tags sidecar #auto-dispatch #enhancement #framework ref:GH#21258
+
+- [ ] t2966 t2874 Phase 1: Markdoc tag schema — define namespace and 7 JSON schemas #auto-dispatch #enhancement #framework ref:GH#21254
