@@ -3132,7 +3132,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2845 P0c: knowledge review gate routine + NMR integration #enhancement #framework ref:GH#20897 pr:#21140 completed:2026-04-26
 
-- [ ] t2846 P0.5a: sensitivity classification schema + detector #enhancement #framework ref:GH#20899 blocked-by:t2844
+- [x] t2846 P0.5a: sensitivity classification schema + detector #enhancement #framework ref:GH#20899 blocked-by:t2844 pr:#21195 completed:2026-04-27
 
 - [x] t2847 P0.5b: LLM routing helper + audit log #enhancement #framework ref:GH#20900 blocked-by:t2844 pr:#21138 completed:2026-04-26
 
