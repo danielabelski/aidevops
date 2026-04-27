@@ -10,6 +10,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.2] - 2026-04-27
+
+### Added
+
+- t2964 — add competitive sensitivity tier + _campaigns/intel/ enforcement (#21400)
+
+### Changed
+
+- Maintenance: mark t2989 complete (pr:#21385 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2962 complete (pr:#21396 completed:2026-04-27) [skip ci]
+- per-candidate timeout in dispatch_deterministic_fill_floor (#21385)
+- _campaigns/ directory contract + sub-folder structure (#21396)
+- Maintenance: mark t2992 complete (pr:#21398 completed:2026-04-27) [skip ci]
+- pre-warm pulse caches before restart to eliminate first-cycle stage cost (#21398)
+- Maintenance: mark t2964 complete (pr:#21400 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2963 complete (pr:#21393 completed:2026-04-27) [skip ci]
+- campaign CLI P2 — new/list/status/archive + campaign-id provisioning (#21393)
+- Maintenance: mark t2985 complete (pr:#21392 completed:2026-04-27) [skip ci]
+- batch _action_oimp_single search per-repo to eliminate per-issue gh API calls (#21392)
+- Maintenance: sync ref:GH#21394 to TODO.md [skip ci]
+- Maintenance: update simplification state registry
+- split pulse-issue-reconcile.sh into 3 focused files (2527→1640 lines) (#21388)
+- fix reconcile_issues_single_pass budget regression (540s→360s) (#21384)
+- Maintenance: sync ref:GH#21383 to TODO.md [skip ci]
+- Maintenance: mark t2987 complete (pr:#21382 completed:2026-04-27) [skip ci]
+- add pattern-aware conflict resolution guidance to conflict-feedback brief (#21382)
+- Maintenance: file t2988 P0 — t2984 regression, dedupe t2987 entry (Ref #21380)
+- Maintenance: file t2987 — pattern-aware conflict resolution guidance (Ref #21379)
+- Maintenance: sync ref:GH#21379 to TODO.md [skip ci]
+
 ## [3.13.1] - 2026-04-27
 
 ### Added
