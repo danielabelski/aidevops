@@ -10,6 +10,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.4] - 2026-04-28
+
+### Changed
+
+- Documentation: changelog v3.13.4 — t2999/t3000/t3001 trilogy + t2995/t2996/t2997 [skip ci]
+- Maintenance: mark t3001 complete (pr:#21432 completed:2026-04-27) [skip ci]
+- Maintenance: mark t3000 complete (pr:#21430 completed:2026-04-27) [skip ci]
+- Maintenance: mark t2999 complete (pr:#21428 completed:2026-04-27) [skip ci]
+- gh-status-helper for incident detection + recovery runbook (#21432)
+- dispatch-single-issue-helper: apply pulse-parity ceremony pre-launch (#21430)
+- dispatch-ledger-helper stale-lock recovery (#21428)
+- Maintenance: sync ref:GH#21433 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21431 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21429 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21427 to TODO.md [skip ci]
+- Maintenance: mark t2996 complete (pr:#21410 completed:2026-04-27) [skip ci]
+- perf: t2996 reduce dispatch_with_dedup gh-call count from 10-15 to 1-3 (#21410)
+- Maintenance: mark t2997 complete (pr:#21421 completed:2026-04-27) [skip ci]
+- fix BSD-incompatible mktemp templates (XXXXXX before .ext) (#21421)
+- Maintenance: mark t2995 complete (pr:#21424 completed:2026-04-27) [skip ci]
+- Maintenance: sync ref:GH#21408 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21407 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21406 to TODO.md [skip ci]
+
+### Fixed
+
+- distinguish file-size-debt dedup lookup-failure from no-match (#21424)
+
 ## [3.13.4] - 2026-04-27
 
 ### Fixed
