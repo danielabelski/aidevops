@@ -175,31 +175,121 @@ _is_pulse_installed() {
 	return 1
 }
 
+# t2954: Sweep Node version manager install roots (nvm, volta, fnm) for
+# an opencode binary. Linux runners overwhelmingly install Node via nvm,
+# which the legacy fixed-paths sweep in step 4b misses entirely — the
+# alex-solovyev runner (Apr 2026, 9-day dispatch outage) is the canonical
+# failure mode. Most-recent Node version wins (sort -rV). Each candidate
+# is product-validated when the validator is in scope; nvm/volta/fnm can
+# all host either anomalyco/opencode (from `npm i -g opencode`) or the
+# Anthropic claude CLI (from `npm i -g @anthropic-ai/claude-code`) under
+# the same `opencode` bin name, so validation is mandatory.
+# $1 = "1" if _setup_validate_opencode_binary is callable, else "0".
+# Returns 0 + prints path on hit, 1 on miss.
+_sweep_nvm_volta_fnm_for_opencode() {
+	local _have_validator="${1:-0}"
+	local _root _version_dir _candidate
+	for _root in \
+		"$HOME/.nvm/versions/node" \
+		"$HOME/.volta/tools/image/node" \
+		"$HOME/.local/share/fnm/node-versions"; do
+		[[ -d "$_root" ]] || continue
+		while IFS= read -r _version_dir; do
+			# nvm + volta: <ver>/bin/opencode; fnm: <ver>/installation/bin/opencode
+			for _candidate in \
+				"$_version_dir/bin/opencode" \
+				"$_version_dir/installation/bin/opencode"; do
+				[[ -x "$_candidate" ]] || continue
+				if [[ "$_have_validator" -eq 1 ]] && \
+					! _setup_validate_opencode_binary "$_candidate"; then
+					continue
+				fi
+				printf '%s' "$_candidate"
+				return 0
+			done
+		done < <(find "$_root" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -rV)
+	done
+	return 1
+}
+
+# t2954: Legacy fixed-install-paths sweep for an opencode binary. Used as
+# a last-resort discovery when persistence, runtime registry, live PATH,
+# and the Node-version-manager sweep all came up empty. Each candidate
+# is product-validated when the validator is in scope; the claude entries
+# remain in the list for documentation but always fail validation and
+# are skipped (they were the alex-solovyev silent-product-swap source).
+# $1 = "1" if _setup_validate_opencode_binary is callable, else "0".
+# Returns 0 + prints path on hit, 1 on miss.
+_sweep_legacy_install_paths_for_opencode() {
+	local _have_validator="${1:-0}"
+	local _candidate
+	for _candidate in \
+		/opt/homebrew/bin/opencode \
+		/usr/local/bin/opencode \
+		/home/linuxbrew/.linuxbrew/bin/opencode \
+		"$HOME/.npm-global/bin/opencode" \
+		"$HOME/.local/bin/opencode" \
+		"$HOME/.bun/bin/opencode" \
+		/opt/homebrew/bin/claude \
+		/usr/local/bin/claude \
+		"$HOME/.local/bin/claude"; do
+		[[ -x "$_candidate" ]] || continue
+		if [[ "$_have_validator" -eq 1 ]] && \
+			! _setup_validate_opencode_binary "$_candidate"; then
+			continue
+		fi
+		printf '%s' "$_candidate"
+		return 0
+	done
+	return 1
+}
+
+# t2954: Persist a resolved runtime path with product validation. Persisting
+# an unvalidated path is exactly how the alex-solovyev runner locked in
+# its 9-day dispatch outage — claude was persisted as OPENCODE_BIN and
+# every subsequent canary fired `config_error` against the 1h negative
+# cache. With validation, a wrong-product result silently no-ops the
+# write and the next resolver run gets a fresh shot at finding a real
+# opencode binary.
+# $1 = path to persist; $2 = persistence file path; $3 = "1"/"0" validator-available flag.
+_persist_pulse_runtime_path() {
+	local _bin="${1:-}" _file="${2:-}" _have_validator="${3:-0}"
+	[[ -n "$_bin" ]] && [[ -x "$_bin" ]] || return 0
+	if [[ "$_have_validator" -eq 1 ]]; then
+		_setup_validate_opencode_binary "$_bin" || return 0
+	fi
+	mkdir -p "$(dirname "$_file")" 2>/dev/null || true
+	printf '%s\n' "$_bin" >"$_file" 2>/dev/null || true
+	return 0
+}
+
 _resolve_pulse_runtime_binary() {
-	# GH#18439 Bug 2: Persist the resolved binary path across setup.sh
-	# invocations. aidevops-auto-update.timer runs setup.sh under systemd's
-	# minimal PATH, so re-resolving from live `$PATH` alone yields the
-	# legacy macOS-biased `/opt/homebrew/bin/opencode` fallback on Linux.
-	# Reading from persistence first (populated during an interactive
-	# setup.sh run with a rich `$PATH`) prevents the auto-update cycle
-	# from silently degrading the service file.
+	# GH#18439 + t2954. Persist the resolved binary across setup.sh
+	# invocations so aidevops-auto-update.timer (systemd minimal PATH)
+	# does not silently regenerate cron with the legacy macOS fallback,
+	# AND validate every accepted candidate so the wrong product (claude
+	# CLI under the opencode bin name) cannot silently take the slot.
 	local _persisted_file="$HOME/.config/aidevops/scheduler-runtime-bin"
 	local opencode_bin=""
+	local _have_validator=0
+	declare -F _setup_validate_opencode_binary >/dev/null 2>&1 && _have_validator=1
 
-	# 1. Prefer persisted path if it still points at an executable file.
+	# 1. Persisted path (validated). Drop+re-resolve on validation failure.
 	if [[ -f "$_persisted_file" ]]; then
 		local _persisted
 		_persisted=$(head -n1 "$_persisted_file" 2>/dev/null || true)
 		if [[ -n "$_persisted" ]] && [[ -x "$_persisted" ]]; then
-			printf '%s' "$_persisted"
-			return 0
+			if [[ "$_have_validator" -eq 0 ]] || \
+				_setup_validate_opencode_binary "$_persisted"; then
+				printf '%s' "$_persisted"
+				return 0
+			fi
 		fi
 	fi
 
-	# 2. Try runtime-registry lookup via live PATH.
+	# 2. Runtime-registry lookup via live PATH.
 	if type rt_list_headless &>/dev/null; then
-		local _sched_rt_id=""
-		local _sched_bin=""
+		local _sched_rt_id="" _sched_bin=""
 		while IFS= read -r _sched_rt_id; do
 			_sched_bin=$(rt_binary "$_sched_rt_id") || continue
 			if [[ -n "$_sched_bin" ]] && command -v "$_sched_bin" &>/dev/null; then
@@ -209,45 +299,20 @@ _resolve_pulse_runtime_binary() {
 		done < <(rt_list_headless)
 	fi
 
-	# 3. Direct PATH lookup for the default runtime.
-	if [[ -z "$opencode_bin" ]]; then
-		opencode_bin=$(command -v opencode 2>/dev/null || true)
-	fi
+	# 3. Direct PATH lookup.
+	[[ -z "$opencode_bin" ]] && opencode_bin=$(command -v opencode 2>/dev/null || true)
 
-	# 4. OS-aware common-install-location sweep. Used when live `$PATH` is
-	# minimal (systemd-spawned setup.sh) and persistence hasn't been
-	# seeded yet. Covers Homebrew (macOS + Linuxbrew), /usr/local, npm
-	# global, Python/uv pipx-style `.local/bin`, and bun.
-	if [[ -z "$opencode_bin" ]]; then
-		local _candidate
-		for _candidate in \
-			/opt/homebrew/bin/opencode \
-			/usr/local/bin/opencode \
-			/home/linuxbrew/.linuxbrew/bin/opencode \
-			"$HOME/.npm-global/bin/opencode" \
-			"$HOME/.local/bin/opencode" \
-			"$HOME/.bun/bin/opencode" \
-			/opt/homebrew/bin/claude \
-			/usr/local/bin/claude \
-			"$HOME/.local/bin/claude"; do
-			if [[ -x "$_candidate" ]]; then
-				opencode_bin="$_candidate"
-				break
-			fi
-		done
-	fi
+	# 4a. Node version manager sweep (nvm, volta, fnm). Linux-friendly.
+	[[ -z "$opencode_bin" ]] && opencode_bin=$(_sweep_nvm_volta_fnm_for_opencode "$_have_validator" || true)
 
-	# 5. Last-resort legacy fallback (preserves pre-GH#18439 behaviour so
-	# setup.sh never exits the resolver empty-handed).
+	# 4b. Legacy fixed-install-paths sweep (Homebrew, npm-global, bun, .local/bin).
+	[[ -z "$opencode_bin" ]] && opencode_bin=$(_sweep_legacy_install_paths_for_opencode "$_have_validator" || true)
+
+	# 5. Last-resort legacy fallback (pre-GH#18439 behaviour).
 	[[ -z "$opencode_bin" ]] && opencode_bin="/opt/homebrew/bin/opencode"
 
-	# Persist the resolved path for subsequent non-interactive invocations
-	# (auto-update timer, cron regeneration). Only write when we actually
-	# found a real executable — don't persist the legacy fallback.
-	if [[ -x "$opencode_bin" ]]; then
-		mkdir -p "$(dirname "$_persisted_file")" 2>/dev/null || true
-		printf '%s\n' "$opencode_bin" >"$_persisted_file" 2>/dev/null || true
-	fi
+	# Persist (validated). Wrong-product results silently no-op the write.
+	_persist_pulse_runtime_path "$opencode_bin" "$_persisted_file" "$_have_validator"
 
 	printf '%s' "$opencode_bin"
 	return 0
