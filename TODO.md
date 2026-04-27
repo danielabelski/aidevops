@@ -3326,7 +3326,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2946 settings namespace divergence: orchestration.* schema completely unread, supervisor.* read but undocumented #auto-dispatch #bug #enhancement #framework ref:GH#21180 pr:#21191 completed:2026-04-27
 
-- [ ] t2950 raise MAX_WORKERS_CAP ceiling 32→64 in pulse-wrapper-config.sh #auto-dispatch #enhancement #framework ref:GH#21185
+- [x] t2950 raise MAX_WORKERS_CAP ceiling 32→64 in pulse-wrapper-config.sh #auto-dispatch #enhancement #framework ref:GH#21185 pr:#21210 completed:2026-04-27
 
 - [ ] t2949 reduce parent-task advisory nudge threshold 24h→4h #auto-dispatch #enhancement #framework ref:GH#21184
 
