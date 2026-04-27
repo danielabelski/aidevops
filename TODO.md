@@ -3178,7 +3178,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2853 P4c: case milestone + deadline alarming routine (parent t2840) #enhancement #framework ref:GH#20906 blocked-by:t2844,t2843,t2846 pr:#21221 completed:2026-04-27
 
-- [ ] t2854 P5a: .eml ingestion handler (kind=email) #enhancement #framework ref:GH#20908 blocked-by:t2844,t2843,t2849
+- [x] t2854 P5a: .eml ingestion handler (kind=email) #enhancement #framework ref:GH#20908 blocked-by:t2844,t2843,t2849 pr:#21265 completed:2026-04-27
 
 - [x] t2855 P5b: IMAP polling routine + mailboxes.json registry #enhancement #framework ref:GH#20909 blocked-by:t2844,t2843,t2849 pr:#21112 completed:2026-04-26
 
