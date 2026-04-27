@@ -3334,7 +3334,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2948 reduce idle interactive PR handover threshold 24h→4h (AGENTS.md t2189) #auto-dispatch #enhancement #framework ref:GH#21183 pr:#21209 completed:2026-04-27
 
-- [ ] t2947 reduce pulse-fast-fail FAST_FAIL_AGE_OUT_SECONDS default 86400→3600 (1h) #auto-dispatch #enhancement #framework ref:GH#21182
+- [x] t2947 reduce pulse-fast-fail FAST_FAIL_AGE_OUT_SECONDS default 86400→3600 (1h) #auto-dispatch #enhancement #framework ref:GH#21182 pr:#21234 completed:2026-04-27
 
 - [x] t2951 bounty-spam-auto-close.yml never fires close: cmd_score rc=0 contract collides with workflow rc=1 gate #auto-dispatch #bug #security ref:GH#21181 pr:#21192 completed:2026-04-27
 
