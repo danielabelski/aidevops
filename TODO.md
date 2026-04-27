@@ -3428,7 +3428,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2994 move pulse cache priming hook into pulse-wrapper.sh boot path #auto-dispatch #bug #enhancement #framework ref:GH#21404 pr:#21405 completed:2026-04-27
 
-- [ ] t2995 Scanner intermittently creates duplicate file-size-debt issues despite dedup logic #auto-dispatch #bug #framework ref:GH#21406
+- [x] t2995 Scanner intermittently creates duplicate file-size-debt issues despite dedup logic #auto-dispatch #bug #framework ref:GH#21406 pr:#21424 completed:2026-04-27
 
 - [ ] t2996 dispatch_with_dedup hits t2989 30s timeout consistently — too many serial gh calls #auto-dispatch #bug #framework ref:GH#21407
 
