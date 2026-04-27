@@ -3323,3 +3323,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t2943 follow-up to t2942: claim-task-id.sh should atomically create interactive-claim stamp on self-assign #auto-dispatch #enhancement #framework ref:GH#21160
 
 - [x] t2944 hotfix: bash 3.2 syntax error in bounty-spam-detector.sh blocks all macOS CI #auto-dispatch #bug #framework ref:GH#21162 pr:#21165 completed:2026-04-27
+
+- [ ] t2946 settings namespace divergence: orchestration.* schema completely unread, supervisor.* read but undocumented #auto-dispatch #bug #enhancement #framework ref:GH#21180
