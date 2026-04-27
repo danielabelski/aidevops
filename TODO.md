@@ -3328,7 +3328,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2950 raise MAX_WORKERS_CAP ceiling 32→64 in pulse-wrapper-config.sh #auto-dispatch #enhancement #framework ref:GH#21185 pr:#21210 completed:2026-04-27
 
-- [ ] t2949 reduce parent-task advisory nudge threshold 24h→4h #auto-dispatch #enhancement #framework ref:GH#21184
+- [x] t2949 reduce parent-task advisory nudge threshold 24h→4h #auto-dispatch #enhancement #framework ref:GH#21184 pr:#21211 completed:2026-04-27
 
 - [x] t2948 reduce idle interactive PR handover threshold 24h→4h (AGENTS.md t2189) #auto-dispatch #enhancement #framework ref:GH#21183 pr:#21209 completed:2026-04-27
 
