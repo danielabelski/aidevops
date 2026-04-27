@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.3] - 2026-04-27
+
+### Changed
+
+- Maintenance: mark t2991 complete (pr:#21397 completed:2026-04-27) [skip ci]
+- fix subagent permission.task entries (4 broken keys + missing Product allowlist) (#21397)
+- Maintenance: mark t2994 complete (pr:#21405 completed:2026-04-27) [skip ci]
+- move cache priming from lifecycle-helper into pulse-wrapper main (#21405)
+- Maintenance: sync ref:GH#21404 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21402 to TODO.md [skip ci]
+
 ## [3.13.2] - 2026-04-27
 
 ### Added
