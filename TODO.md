@@ -3330,7 +3330,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2949 reduce parent-task advisory nudge threshold 24h→4h #auto-dispatch #enhancement #framework ref:GH#21184
 
-- [ ] t2948 reduce idle interactive PR handover threshold 24h→4h (AGENTS.md t2189) #auto-dispatch #enhancement #framework ref:GH#21183
+- [x] t2948 reduce idle interactive PR handover threshold 24h→4h (AGENTS.md t2189) #auto-dispatch #enhancement #framework ref:GH#21183 pr:#21209 completed:2026-04-27
 
 - [ ] t2947 reduce pulse-fast-fail FAST_FAIL_AGE_OUT_SECONDS default 86400→3600 (1h) #auto-dispatch #enhancement #framework ref:GH#21182
 
