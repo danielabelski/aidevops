@@ -855,18 +855,24 @@ _validate_opencode_binary() {
 }
 
 #######################################
-# t2887: Search common installation paths for a real anomalyco/opencode binary.
+# t2887/t2954: Search common installation paths for a real anomalyco/opencode
+# binary. Used as a self-heal when $OPENCODE_BIN_DEFAULT resolves to the
+# wrong binary (alex-solovyev's runner: `opencode` first on PATH returned
+# claude CLI). Echoes the first candidate that passes _validate_opencode_binary;
+# returns 0 on success, 1 if no valid binary found. Caller plumbs the result
+# through (export OPENCODE_BIN, set local _effective_opencode_bin) since
+# $OPENCODE_BIN_DEFAULT is `readonly`.
 #
-# Used as a self-heal when $OPENCODE_BIN_DEFAULT resolves to the wrong
-# binary (e.g. alex-solovyev's runner where `opencode` first on PATH
-# returns claude CLI). Echoes the first candidate that passes
-# _validate_opencode_binary; returns 0 on success, 1 if no valid binary
-# found. Caller is responsible for plumbing the result through (export
-# OPENCODE_BIN, set local _effective_opencode_bin) -- $OPENCODE_BIN_DEFAULT
-# itself is `readonly` and cannot be reassigned.
+# t2954 (Apr 2026): Node version manager paths (nvm, volta, fnm) added.
+# nvm is overwhelmingly the most common Node manager on Linux; the
+# absence of nvm here mirrored the gap in setup-modules/schedulers.sh
+# and silently broke dispatch for ~9 days on alex-solovyev's runner
+# every time the persisted scheduler-runtime-bin file got dropped or
+# the canary fired against a freshly missing binary.
 #######################################
 _find_alternative_opencode_binary() {
-	local candidates=(
+	# Fixed install paths (Homebrew, npm-global, Snap, etc.).
+	local fixed_candidates=(
 		"/opt/homebrew/bin/opencode"
 		"/usr/local/bin/opencode"
 		"${HOME}/.local/bin/opencode"
@@ -874,12 +880,35 @@ _find_alternative_opencode_binary() {
 		"/snap/bin/opencode"
 	)
 	local candidate
-	for candidate in "${candidates[@]}"; do
+	for candidate in "${fixed_candidates[@]}"; do
 		if [[ -x "$candidate" ]] && _validate_opencode_binary "$candidate"; then
 			printf '%s\n' "$candidate"
 			return 0
 		fi
 	done
+
+	# t2954: Node version manager sweep (nvm, volta, fnm). Newest version
+	# wins (sort -rV) so users on multiple Node versions get the most-
+	# recent opencode build by default.
+	local nvm_root version_dir
+	for nvm_root in \
+		"${HOME}/.nvm/versions/node" \
+		"${HOME}/.volta/tools/image/node" \
+		"${HOME}/.local/share/fnm/node-versions"; do
+		[[ -d "$nvm_root" ]] || continue
+		while IFS= read -r version_dir; do
+			# nvm + volta: <ver>/bin/opencode; fnm: <ver>/installation/bin/opencode
+			for candidate in \
+				"$version_dir/bin/opencode" \
+				"$version_dir/installation/bin/opencode"; do
+				if [[ -x "$candidate" ]] && _validate_opencode_binary "$candidate"; then
+					printf '%s\n' "$candidate"
+					return 0
+				fi
+			done
+		done < <(find "$nvm_root" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -rV)
+	done
+
 	return 1
 }
 
