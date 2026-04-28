@@ -391,96 +391,46 @@ _cross_review_judge_score() {
 #######################################
 
 # Parse arguments for cmd_cross_review
+# Bash 3.2 compatible: printf -v for scalar writes, ${!var} for reads.
 _cross_review_parse_args() {
-	local -n cr_prompt="$1"
-	local -n cr_models="$2"
-	local -n cr_workdir="$3"
-	local -n cr_timeout="$4"
-	local -n cr_output="$5"
-	local -n cr_score="$6"
-	local -n cr_judge="$7"
-	local -n cr_version="$8"
-	local -n cr_file="$9"
+	local _r_prompt="$1" _r_models="$2" _r_workdir="$3" _r_timeout="$4"
+	local _r_output="$5" _r_score="$6" _r_judge="$7" _r_version="$8" _r_file="$9"
 	shift 9
-
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
 		--prompt)
-			[[ $# -lt 2 ]] && {
-				print_error "--prompt requires a value"
-				return 1
-			}
-			cr_prompt="$2"
-			shift 2
-			;;
+			[[ $# -lt 2 ]] && { print_error "--prompt requires a value"; return 1; }
+			printf -v "$_r_prompt" '%s' "$2"; shift 2 ;;
 		--models)
-			[[ $# -lt 2 ]] && {
-				print_error "--models requires a value"
-				return 1
-			}
-			cr_models="$2"
-			shift 2
-			;;
+			[[ $# -lt 2 ]] && { print_error "--models requires a value"; return 1; }
+			printf -v "$_r_models" '%s' "$2"; shift 2 ;;
 		--workdir)
-			[[ $# -lt 2 ]] && {
-				print_error "--workdir requires a value"
-				return 1
-			}
-			cr_workdir="$2"
-			shift 2
-			;;
+			[[ $# -lt 2 ]] && { print_error "--workdir requires a value"; return 1; }
+			printf -v "$_r_workdir" '%s' "$2"; shift 2 ;;
 		--timeout)
-			[[ $# -lt 2 ]] && {
-				print_error "--timeout requires a value"
-				return 1
-			}
-			cr_timeout="$2"
-			shift 2
-			;;
+			[[ $# -lt 2 ]] && { print_error "--timeout requires a value"; return 1; }
+			printf -v "$_r_timeout" '%s' "$2"; shift 2 ;;
 		--output)
-			[[ $# -lt 2 ]] && {
-				print_error "--output requires a value"
-				return 1
-			}
-			cr_output="$2"
-			shift 2
-			;;
+			[[ $# -lt 2 ]] && { print_error "--output requires a value"; return 1; }
+			printf -v "$_r_output" '%s' "$2"; shift 2 ;;
 		--score)
-			cr_score=true
-			shift
-			;;
+			printf -v "$_r_score" '%s' true; shift ;;
 		--judge)
-			[[ $# -lt 2 ]] && {
-				print_error "--judge requires a value"
-				return 1
-			}
-			cr_judge="$2"
-			if [[ ! "$cr_judge" =~ ^[A-Za-z0-9._-]+$ ]]; then
-				print_error "Invalid judge model identifier: $cr_judge (only alphanumeric, dots, hyphens, underscores)"
+			[[ $# -lt 2 ]] && { print_error "--judge requires a value"; return 1; }
+			local _judge_val="$2"
+			if [[ ! "$_judge_val" =~ ^[A-Za-z0-9._-]+$ ]]; then
+				print_error "Invalid judge model identifier: $_judge_val (only alphanumeric, dots, hyphens, underscores)"
 				return 1
 			fi
-			shift 2
-			;;
+			printf -v "$_r_judge" '%s' "$_judge_val"; shift 2 ;;
 		--prompt-version)
-			[[ $# -lt 2 ]] && {
-				print_error "--prompt-version requires a value"
-				return 1
-			}
-			cr_version="$2"
-			shift 2
-			;;
+			[[ $# -lt 2 ]] && { print_error "--prompt-version requires a value"; return 1; }
+			printf -v "$_r_version" '%s' "$2"; shift 2 ;;
 		--prompt-file)
-			[[ $# -lt 2 ]] && {
-				print_error "--prompt-file requires a value"
-				return 1
-			}
-			cr_file="$2"
-			shift 2
-			;;
+			[[ $# -lt 2 ]] && { print_error "--prompt-file requires a value"; return 1; }
+			printf -v "$_r_file" '%s' "$2"; shift 2 ;;
 		*)
-			print_error "Unknown option: $1"
-			return 1
-			;;
+			print_error "Unknown option: $1"; return 1 ;;
 		esac
 	done
 	return 0
@@ -676,15 +626,16 @@ cmd_cross_review() {
 }
 
 # Dispatch all models in parallel and wait for completion.
-# Populates the nameref array with validated model names.
-# Args: arg1=runner_helper arg2=prompt arg3=timeout arg4=workdir arg5=output_dir arg6=nameref_array arg7+=model_array
+# Populates the array (passed by name) with validated model names.
+# Args: arg1=runner_helper arg2=prompt arg3=timeout arg4=workdir arg5=output_dir arg6=array_name arg7+=model_array
+# Bash 3.2 compatible: uses eval for array ops instead of local -n nameref.
 _cross_review_dispatch_all() {
 	local runner_helper="$1"
 	local prompt="$2"
 	local review_timeout="$3"
 	local workdir="$4"
 	local output_dir="$5"
-	local -n _da_model_names="$6"
+	local _r_model_names="$6"
 	shift 6
 	local -a model_array=("$@")
 
@@ -698,7 +649,7 @@ _cross_review_dispatch_all() {
 			continue
 		fi
 		local runner_name="cross-review-${model_tier}-$$"
-		_da_model_names+=("$model_tier")
+		eval "${_r_model_names}+=(\"\$model_tier\")"
 		local resolved_model
 		resolved_model=$(resolve_model_tier "$model_tier")
 		echo "  Dispatching to ${model_tier} (${resolved_model})..."
@@ -709,10 +660,11 @@ _cross_review_dispatch_all() {
 
 	echo ""
 	echo "Waiting for ${#pids[@]} models to respond..."
-	local wait_args=()
-	local i
+	local -a wait_args=()
+	local i _name
 	for i in "${!pids[@]}"; do
-		wait_args+=("${pids[$i]}" "${_da_model_names[$i]}")
+		eval "_name=\${${_r_model_names}[$i]}"
+		wait_args+=("${pids[$i]}" "$_name")
 	done
 	local wait_output
 	wait_output=$(_cross_review_wait_results "$output_dir" "${wait_args[@]}")
