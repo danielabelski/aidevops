@@ -3468,3 +3468,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3014 t3014: Saturate fill-floor to 24 workers — raise parallelism cap + reduce per-candidate ceremony #bug ref:GH#21551
 
 - [ ] t3015 t3015: Architectural rename — split dispatch_floor + dispatch_max (Option B sweep, follows t3014) #refactor ref:GH#21555
+
+- [ ] t3016 test-pulse-wrapper-canary.sh fails 2/4 after #21553 split (Code Quality Analysis red on main) #auto-dispatch #bug ref:GH#21557
