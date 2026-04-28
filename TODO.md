@@ -3491,4 +3491,4 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3027 P0 — pulse burns GraphQL budget on idle cycles (1456/2065 today, 70%) — add orchestration-level idle backoff + budget-aware throttle #auto-dispatch #bug ref:GH#21584
 
-- [ ] t3028 fix: setup.sh fails when caller exports SCRIPT_DIR (schedulers.sh module path bug) #auto-dispatch #bug ref:GH#21586
+- [x] t3028 fix: setup.sh fails when caller exports SCRIPT_DIR (schedulers.sh module path bug) #auto-dispatch #bug ref:GH#21586 pr:#21588 completed:2026-04-28
