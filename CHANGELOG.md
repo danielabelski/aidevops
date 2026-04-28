@@ -10,6 +10,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.7] - 2026-04-28
+
+### Added
+
+- split add-skill-helper.sh into orchestrator + 3 sub-libraries (#21565)
+- split memory/maintenance.sh into focused sub-modules (GH#21332) (#21564)
+- split stats-quality-sweep.sh into focused sub-modules (#21562)
+
+### Changed
+
+- Maintenance: mark t3018 complete (pr:#21572 completed:2026-04-28) [skip ci]
+- self-heal stale rate-limit stamp when no live pulse lock holder (#21572)
+- split contributor-activity-helper.sh into focused sub-modules (#21574)
+- split shared-gh-wrappers.sh into focused sub-modules (#21561)
+- Maintenance: mark t3017 complete (pr:#21569 completed:2026-04-28) [skip ci]
+- add aidevops circuit-breaker CLI subcommand (#21569)
+- Maintenance: sync ref:GH#21570 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21567 to TODO.md [skip ci]
+- Maintenance: mark t3014 complete (pr:#21554 completed:2026-04-28) [skip ci]
+- default fill-floor parallelism to effective_slots (#21554)
+- Refactor: split pulse-triage.sh into orchestrator + 3 sub-libraries (#21558)
+- Refactor: split interactive-session-helper.sh into orchestrator + 4 sub-libraries (GH#21320) (#21559)
+- Maintenance: sync ref:GH#21557 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21555 to TODO.md [skip ci]
+- split pulse-wrapper.sh into bootstrap+cycle sub-libraries (#21553)
+- Refactor: split issue-sync-lib.sh (1645 lines) into orchestrator + 3 sub-modules (#21552)
+- Maintenance: sync ref:GH#21551 to TODO.md [skip ci]
+- Maintenance: mark t3012 complete (pr:#21550 completed:2026-04-28) [skip ci]
+- fix bash 3.2 violations in compare-models-scoring-lib + document-creation-helper (#21550)
+- Maintenance: sync ref:GH#21549 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21540 to TODO.md [skip ci]
+
+### Fixed
+
+- evaluate source check at top-level + seed canary test config (#21566)
+- correct t2980 typo to t2983 in fatal error message (#21548)
+- GH#21505 clear _VALIDATE_OC_VERSION on early return, reuse cached version in canary failure path (#21545)
+
 ## [3.13.6] - 2026-04-28
 
 ### Added
