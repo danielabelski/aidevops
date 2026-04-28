@@ -10,6 +10,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.6] - 2026-04-28
+
+### Added
+
+- split mail-helper.sh into orchestrator + 3 sub-libraries (#21529)
+- t2965 _campaigns/ P4 — asset binary integration (30MB routing + thumbnail previews) (#21523)
+
+### Changed
+
+- Refactor: split upstream-watch-helper.sh into focused sub-modules (#21530)
+- Refactor: split anti-detect-helper.sh into focused sub-modules (#21528)
+- Performance: batch jq/grep invocations in knowledge search helpers (#21539)
+- strip framework task IDs from consumer-repo commit/PR bodies in sync-workflows-helper and badges-sync-helper (#21534)
+- add fallback guards for audit-worktree-removal-helper sourcing (#21532)
+- split conversation-helper.sh into focused sub-modules (#21526)
+- split linters-local.sh into focused sub-modules (#21527)
+- Maintenance: mark t2976 complete (pr:#21521 completed:2026-04-28) [skip ci]
+- document intentional scope of worktree-removal audit tests (#21521)
+- Maintenance: mark t3011 complete (pr:#21524 completed:2026-04-28) [skip ci]
+- fix bash 3.2 compat — convert local -n namerefs in compare-models libs (#21524)
+
+### Fixed
+
+- use jq optional operator .incidents[]? to handle null/missing key (#21533)
+- use grep -oE in _dt_json_field to avoid greedy-prefix matching (#21538)
+- drop broken TSV transport in _resolve_wf_canonical, add classifier regression tests (#21537)
+- add fallback stubs before audit-worktree-removal-helper.sh source to guard set -u (#21525)
+- use title not description in _ensure_todo_entry_written (#21535)
+- auto-create blocked-by:tNNN labels in pre-flight validation (GH#21474) (#21536)
+- pass source_pdf to build_headingless_result and simplify redundant conditional (#21531)
+
 ## [3.13.5] - 2026-04-28
 
 ### Changed
