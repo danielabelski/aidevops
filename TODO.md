@@ -3478,3 +3478,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3019 Auto-install commit-msg task-id guard during setup.sh #auto-dispatch #bug ref:GH#21575
 
 - [ ] t3020 Add brief-filename guard to block unclaimed t-IDs in todo/tasks/tNNN-brief.md #auto-dispatch #bug ref:GH#21576
+
+- [ ] t3021 Detect Anthropic 429 within first 30s, exit cleanly instead of 20-min retry zombie #auto-dispatch #bug ref:GH#21578
