@@ -3488,3 +3488,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3025 fix jq null-input flood in dispatch-dedup-helper.sh tier extraction #auto-dispatch #bug ref:GH#21582
 
 - [ ] t3024 reconcile pulse lock-file paths between status helper and pulse-wrapper.sh #auto-dispatch #bug ref:GH#21581
+
+- [ ] t3027 P0 — pulse burns GraphQL budget on idle cycles (1456/2065 today, 70%) — add orchestration-level idle backoff + budget-aware throttle #auto-dispatch #bug ref:GH#21584
