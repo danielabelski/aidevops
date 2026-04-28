@@ -3455,7 +3455,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3009 perf: speed slow preflight stages (preflight_capacity_and_labels=204s, ownership_reconcile=535s, reconcile_issues_single_pass=368s) #auto-dispatch #bug ref:GH#21470 pr:#21487 completed:2026-04-28
 
-- [ ] t3006 framework: add capture-don't-advise + turn-end brevity + proactive memory rules to AGENTS.md ref:GH#21472
+- [x] t3006 framework: add capture-don't-advise + turn-end brevity + proactive memory rules to AGENTS.md ref:GH#21472 pr:#21478 completed:2026-04-28
 
 - [x] t3010 fix: pulse pile-up under launchctl when cycle exceeds StartInterval #auto-dispatch #bug ref:GH#21471 pr:#21486 completed:2026-04-28
 
