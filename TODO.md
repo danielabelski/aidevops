@@ -3474,3 +3474,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t3017 Add 'aidevops circuit-breaker' CLI subcommand for one-line copy/paste reset #auto-dispatch #enhancement ref:GH#21567 pr:#21569 completed:2026-04-28
 
 - [x] t3018 Self-heal stale rate-limit stamp when no live pulse lock holder (post-#21557 defense in depth) #auto-dispatch #bug #enhancement ref:GH#21570 pr:#21572 completed:2026-04-28
+
+- [ ] t3019 Auto-install commit-msg task-id guard during setup.sh #auto-dispatch #bug ref:GH#21575
