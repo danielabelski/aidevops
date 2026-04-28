@@ -3465,7 +3465,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3013 t3013: Fix _pulse_pids false positive — filter pgrep to non-pulse-parent processes #auto-dispatch #bug ref:GH#21549
 
-- [ ] t3014 t3014: Saturate fill-floor to 24 workers — raise parallelism cap + reduce per-candidate ceremony #bug ref:GH#21551
+- [x] t3014 t3014: Saturate fill-floor to 24 workers — raise parallelism cap + reduce per-candidate ceremony #bug ref:GH#21551 pr:#21554 completed:2026-04-28
 
 - [ ] t3015 t3015: Architectural rename — split dispatch_floor + dispatch_max (Option B sweep, follows t3014) #refactor ref:GH#21555
 
