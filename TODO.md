@@ -3461,6 +3461,6 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3011 Fix bash 3.2 compat violations blocking v3.13.6 release #auto-dispatch #bug ref:GH#21513 pr:#21524 completed:2026-04-28
 
-- [ ] t3012 t3012: Fix remaining bash 3.2 violations in compare-models-scoring-lib + document-creation-helper #auto-dispatch #bug ref:GH#21540
+- [x] t3012 t3012: Fix remaining bash 3.2 violations in compare-models-scoring-lib + document-creation-helper #auto-dispatch #bug ref:GH#21540 pr:#21550 completed:2026-04-28
 
 - [ ] t3013 t3013: Fix _pulse_pids false positive — filter pgrep to non-pulse-parent processes #auto-dispatch #bug ref:GH#21549
