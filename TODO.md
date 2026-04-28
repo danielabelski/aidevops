@@ -3460,3 +3460,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t3010 fix: pulse pile-up under launchctl when cycle exceeds StartInterval #auto-dispatch #bug ref:GH#21471 pr:#21486 completed:2026-04-28
 
 - [x] t3011 Fix bash 3.2 compat violations blocking v3.13.6 release #auto-dispatch #bug ref:GH#21513 pr:#21524 completed:2026-04-28
+
+- [ ] t3012 t3012: Fix remaining bash 3.2 violations in compare-models-scoring-lib + document-creation-helper #auto-dispatch #bug ref:GH#21540
