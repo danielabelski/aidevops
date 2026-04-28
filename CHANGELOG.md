@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.5] - 2026-04-28
+
+### Changed
+
+- Maintenance: mark t3003 complete (pr:#21435 completed:2026-04-28) [skip ci]
+- adaptive per-candidate dispatch timeout (#21435)
+- Maintenance: sync ref:GH#21434 to TODO.md [skip ci]
+
 ## [3.13.4] - 2026-04-28
 
 ### Changed
