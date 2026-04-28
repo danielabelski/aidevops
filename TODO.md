@@ -3458,3 +3458,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3006 framework: add capture-don't-advise + turn-end brevity + proactive memory rules to AGENTS.md ref:GH#21472
 
 - [x] t3010 fix: pulse pile-up under launchctl when cycle exceeds StartInterval #auto-dispatch #bug ref:GH#21471 pr:#21486 completed:2026-04-28
+
+- [ ] t3011 Fix bash 3.2 compat violations blocking v3.13.6 release #auto-dispatch #bug ref:GH#21513
