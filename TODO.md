@@ -3451,7 +3451,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3008 fix: concurrent git worktree add races on .git/config lock #auto-dispatch #bug ref:GH#21469 pr:#21484 completed:2026-04-28
 
-- [ ] t3007 fix: dual origin label bug — dispatch-single-issue-helper.sh ceremony #auto-dispatch #bug ref:GH#21468
+- [x] t3007 fix: dual origin label bug — dispatch-single-issue-helper.sh ceremony #auto-dispatch #bug ref:GH#21468 pr:#21485 completed:2026-04-28
 
 - [x] t3009 perf: speed slow preflight stages (preflight_capacity_and_labels=204s, ownership_reconcile=535s, reconcile_issues_single_pass=368s) #auto-dispatch #bug ref:GH#21470 pr:#21487 completed:2026-04-28
 
