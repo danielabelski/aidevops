@@ -3492,3 +3492,17 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3027 P0 — pulse burns GraphQL budget on idle cycles (1456/2065 today, 70%) — add orchestration-level idle backoff + budget-aware throttle #auto-dispatch #bug ref:GH#21584
 
 - [x] t3028 fix: setup.sh fails when caller exports SCRIPT_DIR (schedulers.sh module path bug) #auto-dispatch #bug ref:GH#21586 pr:#21588 completed:2026-04-28
+
+- [ ] t3035 orphan worker reaper for workers whose parent pulse died #auto-dispatch #enhancement #pulse ref:GH#21604
+
+- [ ] t3034 360s ceiling timeout investigation — per-stage ceremony instrumentation #auto-dispatch #enhancement #pulse ref:GH#21603
+
+- [ ] t3033 pulse-wrapper self-respawn-on-source-mtime-change #auto-dispatch #enhancement #pulse ref:GH#21602
+
+- [ ] t3032 pulse-health.json reconciliation against actual process count #auto-dispatch #bug #pulse ref:GH#21601
+
+- [ ] t3031 fix dispatch counter accounting (subshell stdout pollution at engine.sh:902) #auto-dispatch #bug #pulse ref:GH#21600
+
+- [ ] t3030 pulse singleton invariant regression — 4-37 instances despite GH#21433 closed #auto-dispatch #bug #model:opus-4-7 #pulse ref:GH#21599
+
+- [ ] t3029 parent: pulse observability + pipeline hygiene initiative #enhancement #parent #pulse ref:GH#21598
