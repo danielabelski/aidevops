@@ -3534,7 +3534,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3048 fix claim-task-id.sh phantom issue number from stderr capture (root cause for #21736, #21737) #auto-dispatch #bug ref:GH#21748
 
-- [ ] t3049 auto-clear stale-recovery NMR when a subsequent worker produces an approved PR #auto-dispatch #bug ref:GH#21752
+- [x] t3049 auto-clear stale-recovery NMR when a subsequent worker produces an approved PR #auto-dispatch #bug ref:GH#21752 pr:#21768 completed:2026-04-29
 
 - [ ] t3050 consolidator must skip parents whose work is already merged via children #auto-dispatch #bug ref:GH#21753
 
