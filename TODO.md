@@ -3237,7 +3237,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2879 docs(README): add per-repo platform setup section pointing to /setup-git #auto-dispatch #documentation #framework ref:GH#20980 pr:#21244 completed:2026-04-27
 
-- [ ] t2880 feat(setup-debt): detect cross-account secrets:inherit pattern in issue-sync.yml #auto-dispatch #enhancement #framework ref:GH#20981
+- [x] t2880 feat(setup-debt): detect cross-account secrets:inherit pattern in issue-sync.yml #auto-dispatch #enhancement #framework ref:GH#20981 pr:#21664 completed:2026-04-29
 
 - [ ] t2881 Harden against external scanner-spam reports filed as 'responsible disclosure' #framework #parent #security ref:GH#20983
 
