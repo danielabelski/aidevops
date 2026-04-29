@@ -10,6 +10,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.9] - 2026-04-29
+
+### Added
+
+- orphan worker reaper for workers whose parent pulse died (#21624)
+
+### Changed
+
+- Maintenance: mark t3040 complete (pr:#21638 completed:2026-04-29) [skip ci]
+- drop t2955 already-committed cache from dispatch hot path (#21638)
+- Maintenance: sync ref:GH#21629 to TODO.md [skip ci]
+- add screenshot-import-helper.sh for macOS U+202F filename bug
+- Maintenance: mark t3033 complete (pr:#21619 completed:2026-04-29) [skip ci]
+- pulse-wrapper self-respawn on source mtime change (#21619)
+- Maintenance: mark t3034 complete (pr:#21620 completed:2026-04-29) [skip ci]
+- add per-stage ceremony timing instrumentation for dispatch pipeline (#21620)
+- Maintenance: mark t3013 complete (pr:#21612 completed:2026-04-29) [skip ci]
+- Maintenance: mark t3031 complete (pr:#21610 completed:2026-04-29) [skip ci]
+- fix _pulse_pids false positive — filter pgrep to non-pulse-parent processes (#21612)
+- seal _dff_dispatch_loop_parallel subshell stdout to fix dispatch counter (#21610)
+- Maintenance: sync ref:GH#21616 to TODO.md [skip ci]
+- Maintenance: mark t3032 complete (pr:#21614 completed:2026-04-29) [skip ci]
+- reconcile pulse-health.json workers_active with dispatch ledger (#21614)
+- Maintenance: mark t3021 complete (pr:#21615 completed:2026-04-29) [skip ci]
+- detect Anthropic 429 within first 30s, exit cleanly (GH#21578) (#21615)
+- Maintenance: mark t3020 complete (pr:#21613 completed:2026-04-29) [skip ci]
+- add brief-filename-guard pre-commit hook to block unclaimed t-IDs in brief filenames (#21613)
+
+### Fixed
+
+- stat -f Linux compat in pulse-wrapper-cycle.sh (GH#21618) (#21621)
+
 ## [3.13.8] - 2026-04-29
 
 ### Added
