@@ -3504,7 +3504,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3031 fix dispatch counter accounting (subshell stdout pollution at engine.sh:902) #auto-dispatch #bug #pulse ref:GH#21600 pr:#21610 completed:2026-04-29
 
-- [ ] t3030 pulse singleton invariant regression — 4-37 instances despite GH#21433 closed #auto-dispatch #bug #model:opus-4-7 #pulse ref:GH#21599
+- [x] t3030 pulse singleton invariant regression — 4-37 instances despite GH#21433 closed #auto-dispatch #bug #model:opus-4-7 #pulse ref:GH#21599 pr:#21663 completed:2026-04-29
 
 - [ ] t3029 parent: pulse observability + pipeline hygiene initiative #enhancement #parent #pulse ref:GH#21598
 
