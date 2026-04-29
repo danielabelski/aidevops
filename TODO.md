@@ -3398,7 +3398,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t2983 resolve V6 headless contract worktree contradiction (Fix C from t2980) #auto-dispatch ref:GH#21355 pr:#21371 completed:2026-04-27
 
-- [ ] t2982 fix worker output classification to follow worker (Mode B/C from t2980) #auto-dispatch ref:GH#21354
+- [x] t2982 fix worker output classification to follow worker (Mode B/C from t2980) #auto-dispatch ref:GH#21354 pr:#21727 completed:2026-04-29
 
 - [x] t2981 fix worker dispatch silent pre-creation failure (Mode A from t2980) #auto-dispatch ref:GH#21353 pr:#21359 completed:2026-04-27
 
