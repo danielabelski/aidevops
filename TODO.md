@@ -3500,7 +3500,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3033 pulse-wrapper self-respawn-on-source-mtime-change #auto-dispatch #enhancement #pulse ref:GH#21602
 
-- [ ] t3032 pulse-health.json reconciliation against actual process count #auto-dispatch #bug #pulse ref:GH#21601
+- [x] t3032 pulse-health.json reconciliation against actual process count #auto-dispatch #bug #pulse ref:GH#21601 pr:#21614 completed:2026-04-29
 
 - [ ] t3031 fix dispatch counter accounting (subshell stdout pollution at engine.sh:902) #auto-dispatch #bug #pulse ref:GH#21600
 
