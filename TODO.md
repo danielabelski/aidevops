@@ -3510,7 +3510,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3036 fix: pulse-merge-routine never installs and crashes when invoked — green PRs sit unmerged for 30+ hours #auto-dispatch #bug #parent ref:GH#21616
 
-- [ ] t3040 dispatch_with_dedup: drop t2955 already-committed cache, trust worker t2046 discovery ref:GH#21629
+- [x] t3040 dispatch_with_dedup: drop t2955 already-committed cache, trust worker t2046 discovery ref:GH#21629 pr:#21638 completed:2026-04-29
 
 - [ ] t3039 Make claim-task-id.sh issue creation REST-aware under GraphQL exhaustion #auto-dispatch #bug ref:GH#21627
 
