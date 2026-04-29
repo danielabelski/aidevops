@@ -10,6 +10,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.8] - 2026-04-29
+
+### Added
+
+- split full-loop-helper.sh into orchestrator + 3 sub-libraries (#21594)
+- split smartlead-helper.sh into focused sub-modules (#21590)
+- split security-posture-helper.sh into orchestrator + 2 sub-libraries (#21592)
+
+### Changed
+
+- Maintenance: update simplification state registry
+- support multiple heading variants for completion section
+- route gh issue view through wrapper + top-of-cycle GraphQL skip (#21606)
+- Maintenance: mark t3027 complete (pr:#21596 completed:2026-04-29) [skip ci]
+- idle backoff + budget-aware throttle + telemetry fixes for pulse cycle (#21596)
+- Maintenance: sync ref:GH#21608 to TODO.md [skip ci]
+- split generate-runtime-config.sh into focused sub-modules (#21591)
+- Refactor: split pulse-merge.sh into focused sub-modules (GH#21301) (#21595)
+- Refactor: split pulse-simplification.sh into focused sub-modules (GH#21306) (#21593)
+- Refactor: split contest-helper.sh (1639 lines) into orchestrator + 5 sub-libraries (#21589)
+- Maintenance: mark t3028 complete (pr:#21588 completed:2026-04-28) [skip ci]
+- Maintenance: mark t3025 complete (pr:#21587 completed:2026-04-28) [skip ci]
+- Maintenance: sync ref:GH#21586 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21583 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21581 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21580 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21579 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21578 to TODO.md [skip ci]
+- Maintenance: mark t2830 complete (pr:#21577 completed:2026-04-28) [skip ci]
+- pulse: L1 events-ETag tickle layer above batch prefetch (#21577)
+- Maintenance: sync ref:GH#21576 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21575 to TODO.md [skip ci]
+
+### Fixed
+
+- guard jq startswith() against null inputs (t3025) (#21597)
+- repoint approve_collaborator_pr extract to pulse-merge-gates.sh (#21609)
+- make SCRIPT_DIR resolution unconditional in schedulers.sh (#21588)
+- floor per-candidate fill_floor timeout at 360s to unblock dispatch (#21585)
+
 ## [3.13.7] - 2026-04-28
 
 ### Added
