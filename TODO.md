@@ -3539,3 +3539,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3050 consolidator must skip parents whose work is already merged via children #auto-dispatch #bug ref:GH#21753
 
 - [ ] t3051 fix worker exit classifier so SIGTERM/zero-session kills don't masquerade as clean (root cause for #21707 cycle) #auto-dispatch #bug #refactor ref:GH#21754
+
+- [ ] t3052 extend t2449 worker-briefed auto-merge gate to honour cryptographic approval as OWNER/MEMBER bypass #auto-dispatch #bug ref:GH#21755
