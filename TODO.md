@@ -3509,3 +3509,11 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3029 parent: pulse observability + pipeline hygiene initiative #enhancement #parent #pulse ref:GH#21598
 
 - [ ] t3036 fix: pulse-merge-routine never installs and crashes when invoked — green PRs sit unmerged for 30+ hours #auto-dispatch #bug #parent ref:GH#21616
+
+- [ ] t3040 dispatch_with_dedup: drop t2955 already-committed cache, trust worker t2046 discovery ref:GH#21629
+
+- [ ] t3039 Make claim-task-id.sh issue creation REST-aware under GraphQL exhaustion #auto-dispatch #bug ref:GH#21627
+
+- [ ] t3038 Webhook-driven pulse-merge for sub-30s green-to-merged latency #auto-dispatch #enhancement #model:opus-4-7 ref:GH#21626
+
+- [ ] t3037 Extend gh PATH shim with GraphQL->REST routing under low budget #auto-dispatch #bug #enhancement ref:GH#21625
