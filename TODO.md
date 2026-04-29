@@ -3563,3 +3563,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3062 add trusted-issue-author allowlist to bypass t2449 gate for peer-runner-filed issues #auto-dispatch #enhancement ref:GH#21789
 
 - [ ] t3064 extend PR #21733 fix — use gh_issue_edit_safe in remaining hot-path body updates #auto-dispatch #bug ref:GH#21798
+
+- [ ] t3065 worktree-helper.sh remove emits BSD sed regex error after cleanup #auto-dispatch #bug #framework ref:GH#21801
