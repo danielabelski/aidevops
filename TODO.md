@@ -3525,3 +3525,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3042 fix: claim-task-id.sh emits doubled task-ID prefix in TODO.md line #auto-dispatch #bug ref:GH#21658
 
 - [ ] t3044 bug(log-issue): client-side fingerprint dedup bypassed by direct gh issue create — server-side guard needed #auto-dispatch #bug ref:GH#21744
+
+- [ ] t3045 Migrate auto-update-helper-check.sh stat -f calls to _file_mtime_epoch (Linux crash regression missed by #21689) #auto-dispatch #bug ref:GH#21745
