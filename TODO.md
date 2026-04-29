@@ -3480,7 +3480,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3020 Add brief-filename guard to block unclaimed t-IDs in todo/tasks/tNNN-brief.md #auto-dispatch #bug ref:GH#21576 pr:#21613 completed:2026-04-29
 
-- [ ] t3021 Detect Anthropic 429 within first 30s, exit cleanly instead of 20-min retry zombie #auto-dispatch #bug ref:GH#21578
+- [x] t3021 Detect Anthropic 429 within first 30s, exit cleanly instead of 20-min retry zombie #auto-dispatch #bug ref:GH#21578 pr:#21615 completed:2026-04-29
 
 - [ ] t3022 Cap concurrent opus-4-6 dispatches at N per Anthropic account to prevent rate-limit cascade #auto-dispatch #enhancement ref:GH#21579
 
