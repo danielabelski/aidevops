@@ -3520,6 +3520,6 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3041 investigate pulse-merge-routine hang (Phase 2 of #21616, Bug 3 of 3) #auto-dispatch #bug ref:GH#21656
 
-- [ ] t3043 Locate dispatch_with_dedup hot spot post-t3040 (target dedup_check <60s) #auto-dispatch #enhancement #model:opus-4-7 #pulse ref:GH#21659
+- [x] t3043 Locate dispatch_with_dedup hot spot post-t3040 (target dedup_check <60s) #auto-dispatch #enhancement #model:opus-4-7 #pulse ref:GH#21659 pr:#21660 completed:2026-04-29
 
 - [ ] t3042 fix: claim-task-id.sh emits doubled task-ID prefix in TODO.md line #auto-dispatch #bug ref:GH#21658
