@@ -3543,3 +3543,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3052 extend t2449 worker-briefed auto-merge gate to honour cryptographic approval as OWNER/MEMBER bypass #auto-dispatch #bug ref:GH#21755
 
 - [ ] t3053 bug(pulse): pulse.log polluted with OpenCode tool_use JSON blobs from parallel interactive sessions #auto-dispatch #bug #framework #pulse ref:GH#21761
+
+- [ ] t3055 bug(pulse): worker dispatched but no [lifecycle] worker_exited line emitted on detach-path termination #auto-dispatch #bug #framework #pulse ref:GH#21762
