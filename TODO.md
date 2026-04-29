@@ -3531,3 +3531,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3046 CI gate: block stat -f %m (BSD-only) outside _file_mtime_epoch helper and platform-guarded branches #auto-dispatch #enhancement ref:GH#21746
 
 - [ ] t3047 claim-task-id.sh issue_num parser captures stderr digit-noise (causes 2157 prefix and 'awk: newline in string' on every issue creation) #auto-dispatch #bug ref:GH#21747
+
+- [ ] t3048 fix claim-task-id.sh phantom issue number from stderr capture (root cause for #21736, #21737) #auto-dispatch #bug ref:GH#21748
