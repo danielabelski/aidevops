@@ -3496,7 +3496,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3035 orphan worker reaper for workers whose parent pulse died #auto-dispatch #enhancement #pulse ref:GH#21604
 
-- [ ] t3034 360s ceiling timeout investigation — per-stage ceremony instrumentation #auto-dispatch #enhancement #pulse ref:GH#21603
+- [x] t3034 360s ceiling timeout investigation — per-stage ceremony instrumentation #auto-dispatch #enhancement #pulse ref:GH#21603 pr:#21620 completed:2026-04-29
 
 - [ ] t3033 pulse-wrapper self-respawn-on-source-mtime-change #auto-dispatch #enhancement #pulse ref:GH#21602
 
