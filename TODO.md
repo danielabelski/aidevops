@@ -3512,7 +3512,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3040 dispatch_with_dedup: drop t2955 already-committed cache, trust worker t2046 discovery ref:GH#21629 pr:#21638 completed:2026-04-29
 
-- [ ] t3039 Make claim-task-id.sh issue creation REST-aware under GraphQL exhaustion #auto-dispatch #bug ref:GH#21627
+- [x] t3039 Make claim-task-id.sh issue creation REST-aware under GraphQL exhaustion #auto-dispatch #bug ref:GH#21627 pr:#21655 completed:2026-04-29
 
 - [ ] t3038 Webhook-driven pulse-merge for sub-30s green-to-merged latency #auto-dispatch #enhancement #model:opus-4-7 ref:GH#21626
 
