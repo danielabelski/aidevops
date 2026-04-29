@@ -3517,3 +3517,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3038 Webhook-driven pulse-merge for sub-30s green-to-merged latency #auto-dispatch #enhancement #model:opus-4-7 ref:GH#21626
 
 - [ ] t3037 Extend gh PATH shim with GraphQL->REST routing under low budget #auto-dispatch #bug #enhancement ref:GH#21625
+
+- [ ] t3041 investigate pulse-merge-routine hang (Phase 2 of #21616, Bug 3 of 3) #auto-dispatch #bug ref:GH#21656
