@@ -3553,3 +3553,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3057 add interval-sampled CPU to _watchdog_tree_cpu (lifetime-avg false-defer fix) #auto-dispatch #bug #framework ref:GH#21785
 
 - [ ] t3058 separate WATCHDOG_STALL_DEFERRED marker from monitored OUTPUT_FILE #auto-dispatch #bug #framework ref:GH#21786
+
+- [ ] t3060 enum-prefix kill_reason setters in pulse-watchdog.sh classifier #auto-dispatch #bug #framework ref:GH#21788
+
+- [ ] t3059 walk full descendant tree in _watchdog_tree_cpu (BFS, not one-level) #auto-dispatch #bug #framework ref:GH#21787
