@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.10] - 2026-04-29
+
+### Changed
+
+- Maintenance: mark t3043 complete (pr:#21660 completed:2026-04-29) [skip ci]
+- raise per-candidate timeout floor 360s -> 600s (#21660)
+- Maintenance: sync ref:GH#21658 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21656 to TODO.md [skip ci]
+- fix pulse-merge-routine bootstrap (Bug 1+2) (#21643)
+- Refactor: split issue-sync-helper.sh (1839 lines) into orchestrator + 5 sub-modules (#21639)
+
 ## [3.13.9] - 2026-04-29
 
 ### Added
