@@ -3315,7 +3315,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t2916 worktree sweep: consult interactive-session claim stamps in should_skip_cleanup ref:GH#21074
 
-- [ ] t2917 Runner scripts hardcode $HOME/.aidevops/logs but plist/timer installers resolve paths.log_dir — divergence on customization ref:GH#21076
+- [x] t2917 Runner scripts hardcode $HOME/.aidevops/logs but plist/timer installers resolve paths.log_dir — divergence on customization ref:GH#21076 pr:#21701 completed:2026-04-29
 
 - [x] t2918 Invert tooling/product priority boost so tooling lifts product #bug #framework #pulse ref:GH#21079 pr:#21080 completed:2026-04-26
 
