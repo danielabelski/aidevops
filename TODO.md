@@ -3560,7 +3560,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3063 add kill_reason field to [lifecycle] worker_exited line #auto-dispatch #bug #framework ref:GH#21790 pr:#21795 completed:2026-04-29
 
-- [ ] t3062 add trusted-issue-author allowlist to bypass t2449 gate for peer-runner-filed issues #auto-dispatch #enhancement ref:GH#21789
+- [x] t3062 add trusted-issue-author allowlist to bypass t2449 gate for peer-runner-filed issues #auto-dispatch #enhancement ref:GH#21789 pr:#21804 completed:2026-04-29
 
 - [ ] t3064 extend PR #21733 fix — use gh_issue_edit_safe in remaining hot-path body updates #auto-dispatch #bug ref:GH#21798
 
