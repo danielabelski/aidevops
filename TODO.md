@@ -3583,7 +3583,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3072 runtime-health-audit routine: surface operational bugs the supervisor blind-spots #auto-dispatch #enhancement #framework ref:GH#21820 pr:#21829 completed:2026-04-30
 
-- [ ] t3074 fix duplicate Code Audit Routines dashboard issues — fail-closed dedup + title-prefix fallback + self-healing sweep #auto-dispatch #bug ref:GH#21830
+- [x] t3074 fix duplicate Code Audit Routines dashboard issues — fail-closed dedup + title-prefix fallback + self-healing sweep #auto-dispatch #bug ref:GH#21830 pr:#21834 completed:2026-04-30
 
 - [ ] t3075 claim-task-id dedup must search OPEN ISSUES not just PRs (4-way duplicate filing of same bug) #auto-dispatch #bug ref:GH#21831
 
