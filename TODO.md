@@ -3686,3 +3686,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3224 repo-aware pre-push verify hook auto-runs project format/lint/typecheck before push #auto-dispatch #bug #framework ref:GH#21967
 
 - [ ] t3225 ci-feedback workers prioritize format/lint auto-fix before generic re-implementation #auto-dispatch #bug #framework ref:GH#21968
+
+- [ ] t3226 pulse-wrapper credentials sourcing: fail-noisy when ANTHROPIC_API_KEY does not resolve post-source #bug #observability ref:GH#21972
