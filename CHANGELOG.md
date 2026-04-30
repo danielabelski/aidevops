@@ -10,6 +10,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.17] - 2026-04-30
+
+### Added
+
+- t3193 stuck-merge detector + zero-progress circuit breaker (#21915)
+
+### Changed
+
+- Maintenance: add TODO entry for t3220 (ref:GH#21963) [skip ci]
+- Maintenance: sync ref:GH#21963 to TODO.md [skip ci]
+- Maintenance: mark t3206 complete (pr:#21955 completed:2026-04-30) [skip ci]
+- Tests: align harness with t3209 fix and add intra-branch reversal coverage (t3206) (#21955)
+- Maintenance: mark t3215 complete (pr:#21956 completed:2026-04-30) [skip ci]
+- Maintenance: sync ref:GH#21961 to TODO.md [skip ci]
+- add worker-activity-helper.sh canonical-source summary (#21956)
+- Maintenance: sync ref:GH#21960 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21958 to TODO.md [skip ci]
+- Maintenance: mark t3204 complete (pr:#21918 completed:2026-04-30) [skip ci]
+- Maintenance: mark t3200 complete (pr:#21938 completed:2026-04-30) [skip ci]
+- Maintenance: mark t3196 complete (pr:#21939 completed:2026-04-30) [skip ci]
+- detect shallow clone before rebase to avoid add/add conflict cascade (#21938)
+- stale-stamp-aware takeover for DIRTY origin:interactive PRs (#21939)
+- Maintenance: mark t3209 complete (pr:#21940 completed:2026-04-30) [skip ci]
+- fix pulse-unbound-var-check.yml diff-scoping double-counts replaced lines (#21940)
+- Unify REST fallback function namespace to _rest_* (#21946)
+- Maintenance: mark t3213 complete (pr:#21950 completed:2026-04-30) [skip ci]
+- lazy-start Claude CLI proxy + skip in headless + EADDRINUSE adopt (#21951)
+- Maintenance: sync ref:GH#21952 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21949 to TODO.md [skip ci]
+- Maintenance: mark t3194 complete (pr:#21941 completed:2026-04-30) [skip ci]
+- cross-runner peer quarantine helper (#21941)
+- Maintenance: sync ref:GH#21948 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21947 to TODO.md [skip ci]
+- Maintenance: mark t3193 complete (pr:#21915 completed:2026-04-30) [skip ci]
+- Maintenance: sync ref:GH#21944 to TODO.md [skip ci]
+- Maintenance: mark t3198 complete (pr:#21908 completed:2026-04-30) [skip ci]
+- Maintenance: sync ref:GH#21942 to TODO.md [skip ci]
+- add pulse-runner-health-helper diagnose subcommand (#21908)
+- Maintenance: mark t3207 complete (pr:#21932 completed:2026-04-30) [skip ci]
+
+### Fixed
+
+- restore signature footer on auto-close path (t3204) (#21918)
+- switch check-pr concurrency to cancel-in-progress: true
+- extend WORKER_PROCESS_PATTERN with bash for test bash-runner liveness (#21932)
+
 ## [3.13.16] - 2026-04-30
 
 ### Changed
