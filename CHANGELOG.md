@@ -10,26 +10,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.12] - 2026-04-30
+
+### Added
+
+- t3063 extend crypto-approval bypass to deterministic merge cascade (#21827)
+
 ### Changed
 
-- t3015: rename `apply_deterministic_fill_floor()` → `apply_dispatch_max()`, add
-  new `dispatch_floor()` public wrapper that forces serial dispatch via the
-  new `_DISPATCH_FORCE_FLOOR` env hint. All `_dff_*` helpers and `_DFF_*` globals
-  renamed to the `_dispatch_*` / `_DISPATCH_*` namespace. Lib file renamed
-  `pulse-dispatch-fill-floor-lib.sh` → `pulse-dispatch-lib.sh`. Test renamed
-  `test-fill-floor-parallel.sh` → `test-dispatch-max-parallel.sh`. Net behaviour
-  change is zero — the default dispatch path (parallel, saturate to slot
-  budget) is unchanged. (#21555)
-- t3015: env vars `FILL_FLOOR_PER_CANDIDATE_TIMEOUT` and
-  `DISPATCH_FILL_FLOOR_PARALLEL` renamed to `DISPATCH_PER_CANDIDATE_TIMEOUT`
-  and `DISPATCH_MAX_PARALLEL`. Both old names still work (one-shot stderr
-  deprecation warning, then bridge value into the new variable). Old names
-  removed in v4.0. (#21555)
-- t3015: log lines emitted by the dispatch loop now report the active path —
-  `Dispatch path=max` (parallel, default) or `Dispatch path=floor` (serial,
-  triggered by adaptive throttle file presence or explicit `dispatch_floor()`
-  caller). Replaces the older `Dispatch_max:` / `Deterministic fill floor:`
-  prefixes for easier grep/correlation against pulse-diagnose-helper rules. (#21555)
+- Maintenance: mark t3077 complete (pr:#21878 completed:2026-04-30) [skip ci]
+- LLM-driven fix-the-fixer detector + worker observability (#21878)
+- Maintenance: sync ref:GH#21873 to TODO.md [skip ci]
+- Maintenance: mark t3084 complete (pr:#21872 completed:2026-04-30) [skip ci]
+- Maintenance: mark t3089 complete (pr:#21869 completed:2026-04-30) [skip ci]
+- route progress/idle-resume markers from PULSE_WATCHDOG_LOG to LIFECYCLE_LOG (#21869)
+- Maintenance: mark t3071 complete (pr:#21867 completed:2026-04-30) [skip ci]
+- Maintenance: mark t3015 complete (pr:#21871 completed:2026-04-30) [skip ci]
+- codify watchdog self-write anti-pattern in shell style guide (#21867)
+- rename dispatch_floor / dispatch_max + back-compat env aliases (#21871)
+- Maintenance: mark t3076 complete (pr:#21863 completed:2026-04-30) [skip ci]
+- auto-file root-cause meta-issues on circuit-breaker trips (#21863)
+- Maintenance: sync ref:GH#21868 to TODO.md [skip ci]
+- Instrument all gh shim exec paths for full GraphQL budget visibility (#21866)
+- Add multi-account gopass secret template for Meta Ads CLI
+- Maintenance: mark t3085 complete (pr:#21864 completed:2026-04-30) [skip ci]
+- init pre-existing local-var declarations in pulse-wrapper.sh + bootstrap (#21864)
+- Maintenance: mark t3080 complete (pr:#21859 completed:2026-04-30) [skip ci]
+- cross-link meta-ads-tooling-cli.md from ABO and metrics docs (#21859)
+- Maintenance: mark t3075 complete (pr:#21835 completed:2026-04-30) [skip ci]
+- Maintenance: mark t3074 complete (pr:#21834 completed:2026-04-30) [skip ci]
+- Maintenance: sync ref:GH#21844 to TODO.md [skip ci]
+- Maintenance: mark t3078 complete (pr:#21845 completed:2026-04-30) [skip ci]
+- claim-task-id dedup searches open issues in addition to PRs (#21835)
+- fix duplicate Code Audit Routines dashboard issues — fail-closed dedup + title-prefix fallback + self-healing sweep (#21834)
+- add Meta Ads CLI tooling doc to meta-ads agent (#21845)
+- Maintenance: mark t3081 complete (pr:#21851 completed:2026-04-30) [skip ci]
+- fix: worker exit classifier propagates SIGTERM/zero-session via wait_status sentinel + NMR escalation (#21825)
+- document multi-account naming convention for secrets (#21851)
+- Maintenance: mark t3068 complete (pr:#21854 completed:2026-04-30) [skip ci]
+- kick pulse-merge after sudo aidevops approve (#21854)
+- Maintenance: mark t3067 complete (pr:#21833 completed:2026-04-30) [skip ci]
+- Maintenance: mark t3082 complete (pr:#21852 completed:2026-04-30) [skip ci]
+- skip status:available on closed issues in release command (#21833)
+- Maintenance: sync ref:GH#21855 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21853 to TODO.md [skip ci]
+- guard PyYAML import; fix BSD sed non-greedy regex in localdev/loop helpers (#21839)
+- Maintenance: sync ref:GH#21849 to TODO.md [skip ci]
+- add image size guard to prevent session-crashing 5MB uploads
+- Maintenance: sync ref:GH#21841 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21840 to TODO.md [skip ci]
+- Maintenance: mark t3072 complete (pr:#21829 completed:2026-04-30) [skip ci]
+- split headless-runtime-helper.sh into focused sub-modules
+- runtime-health-audit routine surfaces operational regressions in interactive sessions
+- Maintenance: sync ref:GH#21831 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21830 to TODO.md [skip ci]
+- Maintenance: mark t3050 complete (pr:#21816 completed:2026-04-30) [skip ci]
+- skip consolidation when parent already resolved (#21816)
+- Maintenance: mark t3073 complete (pr:#21823 completed:2026-04-29) [skip ci]
+- restore +x on worktree-helper.sh orchestrator (#21823)
+- enforce canonical-workspace protection for Edit|Write across all default-branch names (#21824)
+
+### Fixed
+
+- use merge-base for pulse-unbound-var-check diff extraction (#21872)
+- route informational writes away from monitored LOGFILE (#21850)
+- bash 3.2 heredoc apostrophe in counter-trend-delta.sh (#21852)
 
 ## [3.13.11] - 2026-04-30
 
