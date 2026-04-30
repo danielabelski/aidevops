@@ -10,6 +10,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.13] - 2026-04-30
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Maintenance: mark t3086 complete (pr:#21898 completed:2026-04-30) [skip ci]
+- Maintenance: sync ref:GH#21901 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21900 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21895 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21889 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21888 to TODO.md [skip ci]
+- add configurable runner label to reusable workflows via repos.json (#21879)
+- Maintenance: mark t3090 complete (pr:#21884 completed:2026-04-30) [skip ci]
+- fix 4 pre-existing test failures in test-pulse-wrapper-worker-count.sh
+- Maintenance: offline claim t3191..t3191 [offline]
+
+### Fixed
+
+- parent-side lifecycle observer emits worker_exited for detached workers (#21885)
+
 ## [3.13.12] - 2026-04-30
 
 ### Added
