@@ -3676,3 +3676,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3219 worker-activity-helper.sh: streaming jq + jq-built cache JSON (gemini #21956 followup) #auto-dispatch #bug ref:GH#21961
 
 - [ ] t3220 pre-edit-check: path traversal and absolute-path-outside-repo cases create worktree instead of blocking #auto-dispatch #bug #security ref:GH#21963
+
+- [ ] t3221 setup.sh deploy under 60s steady-state — bulk rsync, migration sentinels, async pulse restart #auto-dispatch #bug ref:GH#21964
