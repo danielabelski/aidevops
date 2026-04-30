@@ -3587,7 +3587,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3075 claim-task-id dedup must search OPEN ISSUES not just PRs (4-way duplicate filing of same bug) #auto-dispatch #bug ref:GH#21831 pr:#21835 completed:2026-04-30
 
-- [ ] t3076 pulse: circuit breaker auto-files root-cause meta-issue and dispatches systemic-fix worker #auto-dispatch #bug #enhancement #framework #model:opus-4-7 #pulse ref:GH#21840
+- [x] t3076 pulse: circuit breaker auto-files root-cause meta-issue and dispatches systemic-fix worker #auto-dispatch #bug #enhancement #framework #model:opus-4-7 #pulse ref:GH#21840 pr:#21863 completed:2026-04-30
 
 - [ ] t3077 pulse: LLM-driven periodic pass detects fix-the-fixer tasks and adds extra observability #auto-dispatch #enhancement #framework #model:opus-4-7 #pulse ref:GH#21841
 
