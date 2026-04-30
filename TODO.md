@@ -3603,7 +3603,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3083 Fix Bash 3.2 heredoc parse error in counter-trend-delta.sh #auto-dispatch #bug #ci ref:GH#21853
 
-- [ ] t3085 init pre-existing local-var declarations in pulse-wrapper.sh + bootstrap #auto-dispatch #bug ref:GH#21856
+- [x] t3085 init pre-existing local-var declarations in pulse-wrapper.sh + bootstrap #auto-dispatch #bug ref:GH#21856 pr:#21864 completed:2026-04-30
 
 - [ ] t3084 Fix pulse-unbound-var-check false-positives on stale-base PRs #auto-dispatch #bug #ci ref:GH#21855
 
