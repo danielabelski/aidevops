@@ -3694,3 +3694,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3228 Refactor conflict-pattern classifier below function-complexity gate #auto-dispatch #bug ref:GH#21981
 
 - [ ] t3229 fix OpenAI OAuth availability when env key is stale #auto-dispatch #bug #models ref:GH#21983
+
+- [ ] t3230 add current OpenAI model fallbacks to tier routing #auto-dispatch #enhancement #models ref:GH#21984
