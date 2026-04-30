@@ -3703,7 +3703,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3231 Bound optional CodeRabbit CLI pre-push review #auto-dispatch #bug ref:GH#21985
 
-- [ ] t3232 Fix OpenCode DB archive schema drift blocking session pruning #auto-dispatch #bug ref:GH#21987
+- [x] t3232 Fix OpenCode DB archive schema drift blocking session pruning #auto-dispatch #bug ref:GH#21987 pr:#21992 completed:2026-04-30
 
 - [ ] t3234 setup.sh non-interactive hangs after Claude openapi-search MCP registration #auto-dispatch #bug #framework ref:GH#21989
 
