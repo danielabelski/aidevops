@@ -3690,3 +3690,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3226 pulse-wrapper credentials sourcing: fail-noisy when ANTHROPIC_API_KEY does not resolve post-source #bug #observability ref:GH#21972
 
 - [ ] t3227 auto-update deploy race wipes ~/.aidevops/agents/ leaving OpenCode unable to launch #auto-dispatch #bug #framework ref:GH#21973
+
+- [ ] t3228 Refactor conflict-pattern classifier below function-complexity gate #auto-dispatch #bug ref:GH#21981
