@@ -3672,3 +3672,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3218 pulse-merge: _resolve_pr_mergeable_status doesn't retry when prefetched mergeable is empty string #auto-dispatch #bug ref:GH#21960
 
 - [ ] t3219 worker-activity-helper.sh: streaming jq + jq-built cache JSON (gemini #21956 followup) #auto-dispatch #bug ref:GH#21961
+
+- [ ] t3220 pre-edit-check: path traversal and absolute-path-outside-repo cases create worktree instead of blocking #auto-dispatch #bug #security ref:GH#21963
