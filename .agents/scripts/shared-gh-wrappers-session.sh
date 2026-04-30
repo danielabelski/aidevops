@@ -214,7 +214,11 @@ _gh_wrapper_args_have_label() {
 		--label)
 			local next_val="${2:-}"
 			label_val="$next_val"
-			shift
+			# Guard the shift: if --label is the last arg, $#=1 here and the
+			# trailing shift below would fail under set -e. Skip the value-
+			# consuming shift in that case so the trailing shift consumes the
+			# flag itself and the loop exits naturally.
+			[[ $# -gt 1 ]] && shift
 			;;
 		--label=*)
 			label_val="${cur#--label=}"
@@ -222,6 +226,46 @@ _gh_wrapper_args_have_label() {
 		esac
 		if [[ -n "$label_val" && ",${label_val}," == *",${needle},"* ]]; then
 			return 0
+		fi
+		shift
+	done
+	return 1
+}
+
+# t3088: Internal — check if argv already contains any origin:* label.
+# Defence-in-depth for gh_create_issue / gh_create_pr session-origin self-injection:
+# when a caller has explicitly passed an origin label (e.g. parent-task-helper.sh
+# passing origin:worker), the wrapper must NOT also append session_origin_label()
+# — that produces TWO --label flags which, if they disagree, both apply (t2200
+# mutual-exclusion violation, canonical PR #21825). With this guard, callers
+# retain authority over their declared origin and the wrapper only fills in
+# the default when no origin was specified.
+#
+# Returns 0 if any --label arg contains origin:interactive, origin:worker, or
+# origin:worker-takeover. Supports comma-separated label lists.
+_gh_wrapper_args_have_origin_label() {
+	while [[ $# -gt 0 ]]; do
+		local cur="$1"
+		local label_val=""
+		case "$cur" in
+		--label)
+			label_val="${2:-}"
+			# Guard the shift: if --label is the last arg, $#=1 here and the
+			# trailing shift below would fail under set -e. Skip the value-
+			# consuming shift in that case so the trailing shift consumes the
+			# flag itself and the loop exits naturally.
+			[[ $# -gt 1 ]] && shift
+			;;
+		--label=*)
+			label_val="${cur#--label=}"
+			;;
+		esac
+		if [[ -n "$label_val" ]]; then
+			case ",${label_val}," in
+			*,origin:interactive,* | *,origin:worker,* | *,origin:worker-takeover,*)
+				return 0
+				;;
+			esac
 		fi
 		shift
 	done
