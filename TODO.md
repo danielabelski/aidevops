@@ -3680,3 +3680,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3221 setup.sh deploy under 60s steady-state — bulk rsync, migration sentinels, async pulse restart #auto-dispatch #bug ref:GH#21964
 
 - [ ] t3222 harness rule: productivity questions answer current state, not historical aggregates #auto-dispatch #documentation #framework ref:GH#21965
+
+- [ ] t3223 RCA: pulse fix-the-fixer-detector silently fails 100% — six layers of fail-safe-hides-failure #auto-dispatch #bug #framework #parent ref:GH#21966
