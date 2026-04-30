@@ -3639,6 +3639,6 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3201 investigate: worker stuck-loop pattern force-pushes + review_dismissed + close on PR (canonical: #21876) #bug #framework #investigation #parent ref:GH#21901
 
-- [ ] t3202 version-manager release fails non-deterministically on marketplace.json update #auto-dispatch #bug ref:GH#21905
+- [x] t3202 version-manager release fails non-deterministically on marketplace.json update #auto-dispatch #bug ref:GH#21905 pr:#21909 completed:2026-04-30
 
 - [ ] t3204 issue-sync close path drops signature footer + summary on auto-close #auto-dispatch #bug ref:GH#21910
