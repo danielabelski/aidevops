@@ -3620,3 +3620,15 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t3090 Fix 4 pre-existing failures in test-pulse-wrapper-worker-count.sh #auto-dispatch #bug ref:GH#21873 pr:#21884 completed:2026-04-30
 
 - [ ] t3192 extend pulse-merge native auto-merge with stuck-state fallback to --admin direct merge #auto-dispatch #bug #framework ref:GH#21888
+
+- [ ] t3199 add ADD_ADD_NEW_FILE classification to t2987 conflict-pattern registry #auto-dispatch #enhancement ref:GH#21894
+
+- [ ] t3198 pulse-runner-health-helper.sh diagnose: cross-check breaker state vs observed pulse log #auto-dispatch #enhancement ref:GH#21893
+
+- [ ] t3197 Per-issue launch-failure cooldown: prevent same-issue tight retry loops after no_worker_process #auto-dispatch #bug ref:GH#21892
+
+- [ ] t3196 stale-stamp-aware takeover for DIRTY origin:interactive PRs #auto-dispatch #bug #enhancement ref:GH#21891
+
+- [ ] t3194 Cross-runner peer quarantine: auto-detect broken peer runners and quarantine their dispatch claims #auto-dispatch #bug ref:GH#21890
+
+- [ ] t3195 fix(pulse): _worker_produced_output uses --head instead of --search to avoid GitHub search-index lag misclassifying workers as branch_orphan #auto-dispatch #bug #framework #pulse ref:GH#21889
