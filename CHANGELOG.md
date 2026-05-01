@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.24] - 2026-05-01
+
+### Changed
+
+- Maintenance: sync ref:GH#21994 to TODO.md [skip ci]
+- Maintenance: mark t3237 complete (pr:#22000 completed:2026-05-01) [skip ci]
+- standardize session title prefixes (#22000)
+
 ## [3.13.23] - 2026-05-01
 
 ### Changed
