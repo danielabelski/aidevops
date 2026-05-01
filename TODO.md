@@ -899,7 +899,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [x] t3389 defer OpenCode proxy model discovery off plugin startup #bug ref:GH#22157 pr:#22159 completed:2026-05-01
 
-- [ ] t3392 Update README recommended OpenCode OpenAI setup ref:GH#22168
+- [x] t3392 Update README recommended OpenCode OpenAI setup ref:GH#22168 pr:#22169 completed:2026-05-01
 
 - [ ] t3394 fix setup non-interactive slow post-skill stages and timeout cleanup #auto-dispatch #bug #framework ref:GH#22174
 
@@ -3825,7 +3825,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3385 Fix task-complete PR merge detection after gh REST fallback #auto-dispatch #bug #framework ref:GH#22143 pr:#22150 completed:2026-05-01
 
-- [ ] t3392 Update README recommended OpenCode OpenAI setup ref:GH#22168
+- [x] t3392 Update README recommended OpenCode OpenAI setup ref:GH#22168 pr:#22169 completed:2026-05-01
 
 - [ ] t3391 Treat non-critical runtime deployment timeout as setup warning #auto-dispatch #bug #framework ref:GH#22164
 
