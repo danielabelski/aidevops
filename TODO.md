@@ -870,7 +870,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [x] t3231 Bound optional CodeRabbit CLI pre-push review #auto-dispatch #bug blocked-by:t3228 ref:GH#21985 pr:#22044 completed:2026-05-01
 
-- [ ] t3258 add pulse-diagnose issue subcommand for issue-level worker/PR timelines #auto-dispatch #feat #framework ref:GH#22045
+- [x] t3258 add pulse-diagnose issue subcommand for issue-level worker/PR timelines #auto-dispatch #feat #framework ref:GH#22045 pr:#22097 completed:2026-05-01
 
 - [x] t3259 add dispatch-loop counter for repeated worker_branch_orphan on same issue branch #auto-dispatch #bug #framework ref:GH#22049 pr:#22113 completed:2026-05-01
 
@@ -3773,7 +3773,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3259 add dispatch-loop counter for repeated worker_branch_orphan on same issue branch #auto-dispatch #bug #framework ref:GH#22049 pr:#22113 completed:2026-05-01
 
-- [ ] t3258 add pulse-diagnose issue subcommand for issue-level worker/PR timelines #auto-dispatch #enhancement #framework ref:GH#22045
+- [x] t3258 add pulse-diagnose issue subcommand for issue-level worker/PR timelines #auto-dispatch #enhancement #framework ref:GH#22045 pr:#22097 completed:2026-05-01
 
 - [x] t3362 fix OAuth pool rotation for canary preflight #bug ref:GH#22065 pr:#22067 completed:2026-05-01
 
