@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.56] - 2026-05-01
+
+### Fixed
+
+- reuse preflight timing helper (#22126)
+- support variable-width release task IDs (#22127)
+
 ## [3.13.55] - 2026-05-01
 
 ### Changed
