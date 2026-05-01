@@ -3707,7 +3707,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3229 fix OpenAI OAuth availability when env key is stale #auto-dispatch #bug #models ref:GH#21983
 
-- [ ] t3230 add current OpenAI model fallbacks to tier routing #auto-dispatch #enhancement #models ref:GH#21984
+- [x] t3230 add current OpenAI model fallbacks to tier routing #auto-dispatch #enhancement #models ref:GH#21984 pr:#22050 completed:2026-05-01
 
 - [x] t3231 Bound optional CodeRabbit CLI pre-push review #auto-dispatch #bug ref:GH#21985 pr:#22044 completed:2026-05-01
 
