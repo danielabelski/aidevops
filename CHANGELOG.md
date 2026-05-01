@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.73] - 2026-05-01
+
+### Changed
+
+- Maintenance: add t3394 setup timeout cleanup follow-up
+- Maintenance: mark t3388 complete (pr:#22162 completed:2026-05-01) [skip ci]
+- Maintenance: mark t3389 complete (pr:#22159 completed:2026-05-01) [skip ci]
+- Maintenance: mark t3383 complete (pr:#22144 completed:2026-05-01) [skip ci]
+- docs(README): recommend OpenCode with OpenAI models (#22169)
+- Maintenance: ratchet QLTY_SMELL_THRESHOLD 40→39 (-1) [skip ci]
+- Maintenance: mark t3390 complete (pr:#22163)
+- add B'5 regression test for gh_create_issue empty argv (#22141)
+
+### Fixed
+
+- optimize skill generator timeout (#22170)
+
 ## [3.13.72] - 2026-05-01
 
 ### Changed
