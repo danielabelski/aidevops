@@ -3754,3 +3754,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3257 Reconstruct PR 21876 worker-loop timeline #auto-dispatch #framework #investigation ref:GH#22041
 
 - [ ] t3256 Make linters-local string literal gate ratchet-based #auto-dispatch #bug ref:GH#22039
+
+- [ ] t3259 add dispatch-loop counter for repeated worker_branch_orphan on same issue branch #auto-dispatch #bug #framework ref:GH#22049
+
+- [ ] t3258 add pulse-diagnose issue subcommand for issue-level worker/PR timelines #auto-dispatch #enhancement #framework ref:GH#22045
