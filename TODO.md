@@ -874,7 +874,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [x] t3259 add dispatch-loop counter for repeated worker_branch_orphan on same issue branch #auto-dispatch #bug #framework ref:GH#22049 pr:#22113 completed:2026-05-01
 
-- [ ] t3257 Reconstruct PR 21876 worker-loop timeline #auto-dispatch #framework #investigation ref:GH#22041
+- [x] t3257 Reconstruct PR 21876 worker-loop timeline #auto-dispatch #framework #investigation ref:GH#22041 pr:#22102 completed:2026-05-01
 
 - [x] t3362 fix OAuth pool rotation for canary preflight #bug ref:GH#22065 pr:#22067 completed:2026-05-01
 
