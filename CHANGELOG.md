@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.43] - 2026-05-01
+
+### Changed
+
+- Performance: setup.sh steady-state under 60s — rsync drift check, SHA-skip backup, async pulse, migration sentinels (t3221) (#22027)
+
+### Fixed
+
+- guard atomic swap mv ops in agent-deploy against set -e suppression (#22033)
+
 ## [3.13.42] - 2026-05-01
 
 ### Fixed
