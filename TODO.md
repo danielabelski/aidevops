@@ -884,7 +884,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [ ] t3370 fix setup noninteractive lock/stall recovery #auto-dispatch #bug ref:GH#22086
 
-- [ ] t3372 Fix pulse dry-run hang during repeated pulse-stats sourcing #auto-dispatch #bug ref:GH#22091
+- [x] t3372 Fix pulse dry-run hang during repeated pulse-stats sourcing #auto-dispatch #bug ref:GH#22091 pr:#22101 completed:2026-05-01
 
 - [ ] t3382 Fix pre-edit worktree auto-create failure leaving registered worktrees #auto-dispatch #bug ref:GH#22136
 
