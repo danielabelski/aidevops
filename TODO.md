@@ -939,6 +939,7 @@ t165,Provider-agnostic task claiming via TODO.md,marcusquinn,orchestration archi
 
 ## Done
 
+- [x] t3201 investigate: worker stuck-loop pattern force-pushes + review_dismissed + close on PR (canonical: #21876) #bug #framework #investigation #parent ref:GH#21901 pr:#22053 completed:2026-05-01
 - [x] t3218 pulse-merge: _resolve_pr_mergeable_status doesn't retry when prefetched mergeable is empty string #auto-dispatch #bug ref:GH#21960 pr:#22047 completed:2026-05-01
 - [x] t3059 walk full descendant tree in _watchdog_tree_cpu (BFS, not one-level) #auto-dispatch #bug #framework ref:GH#21787 pr:#21796 testing:runtime-verified completed:2026-04-29
 - [x] t3058 separate WATCHDOG_STALL_DEFERRED marker from monitored OUTPUT_FILE #auto-dispatch #bug #framework ref:GH#21786 pr:#21797 testing:runtime-verified completed:2026-04-29
@@ -3656,7 +3657,6 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3200 full-loop-helper.sh: detect shallow clone before rebase to avoid add/add conflict cascade #auto-dispatch #bug #framework ref:GH#21900 pr:#21938 completed:2026-04-30
 
-- [ ] t3201 investigate: worker stuck-loop pattern force-pushes + review_dismissed + close on PR (canonical: #21876) #bug #framework #investigation #parent ref:GH#21901
 
 - [x] t3202 version-manager release fails non-deterministically on marketplace.json update #auto-dispatch #bug ref:GH#21905 pr:#21909 completed:2026-04-30
 
