@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.30] - 2026-05-01
+
+### Changed
+
+- Maintenance: mark t3217 complete (pr:#22029 completed:2026-05-01) [skip ci]
+- fix orphan recovery existing PR probe (#22029)
+- Maintenance: mark t3246 complete (pr:#22013 completed:2026-05-01) [skip ci]
+- Maintenance: mark t3220 complete (pr:#22020 completed:2026-05-01) [skip ci]
+
 ## [3.13.29] - 2026-05-01
 
 ### Changed
