@@ -949,6 +949,7 @@ t165,Provider-agnostic task claiming via TODO.md,marcusquinn,orchestration archi
 
 ## Done
 
+- [x] t3380 Speed up worktree registry prune for large stale backlogs #bug ref:GH#22131 pr:#22137 testing:runtime-verified completed:2026-05-01
 - [x] t3201 investigate: worker stuck-loop pattern force-pushes + review_dismissed + close on PR (canonical: #21876) #bug #framework #investigation #parent ref:GH#21901 pr:#22053 completed:2026-05-01
 - [x] t3218 pulse-merge: _resolve_pr_mergeable_status doesn't retry when prefetched mergeable is empty string #auto-dispatch #bug ref:GH#21960 pr:#22047 completed:2026-05-01
 - [x] t3059 walk full descendant tree in _watchdog_tree_cpu (BFS, not one-level) #auto-dispatch #bug #framework ref:GH#21787 pr:#21796 testing:runtime-verified completed:2026-04-29
@@ -3803,4 +3804,3 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3381 Fix merge LaunchAgent stuck in xpcproxy before exec #auto-dispatch #bug ref:GH#22133
 
-- [ ] t3380 Speed up worktree registry prune for large stale backlogs #bug ref:GH#22131
