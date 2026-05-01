@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.23] - 2026-05-01
+
+### Changed
+
+- Maintenance: sync ref:GH#22001 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21999 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21997 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21996 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21995 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#21994 to TODO.md [skip ci]
+- Maintenance: mark t3232 complete (pr:#21992 completed:2026-04-30) [skip ci]
+- fix OpenCode DB archive schema drift (#21992)
+- Maintenance: sync ref:GH#21981 to TODO.md [skip ci]
+
 ## [3.13.22] - 2026-05-01
 
 ### Changed
