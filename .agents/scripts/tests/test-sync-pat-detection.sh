@@ -179,13 +179,13 @@ export AIDEVOPS_AGENTS_DIR="$TMP/.aidevops/agents"
 mkdir -p "$AIDEVOPS_AGENTS_DIR"
 
 # Source shared-constants.sh fallbacks
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-BOLD='\033[1m'
-NC='\033[0m'
+[[ -z "${RED+x}" ]] && RED='\033[0;31m'
+[[ -z "${GREEN+x}" ]] && GREEN='\033[0;32m'
+[[ -z "${YELLOW+x}" ]] && YELLOW='\033[1;33m'
+[[ -z "${BLUE+x}" ]] && BLUE='\033[0;34m'
+[[ -z "${CYAN+x}" ]] && CYAN='\033[0;36m'
+[[ -z "${BOLD+x}" ]] && BOLD='\033[1m'
+[[ -z "${NC+x}" ]] && NC='\033[0m'
 
 # Counters (same as in the helper)
 FINDINGS_CRITICAL=0
@@ -238,10 +238,10 @@ resolve_slug() {
 # Extract function bodies from the helper (check_sync_pat + its sub-functions).
 # Order matters: _branch_is_rulesets_protected is called by _check_sync_pat_need
 # (t2806), so it must be defined first.
-eval "$(sed -n '/^_emit_sync_pat_advisory()/,/^}/p' "${SCRIPTS_DIR}/security-posture-helper.sh")"
-eval "$(sed -n '/^_branch_is_rulesets_protected()/,/^}/p' "${SCRIPTS_DIR}/security-posture-helper.sh")"
-eval "$(sed -n '/^_check_sync_pat_need()/,/^}/p' "${SCRIPTS_DIR}/security-posture-helper.sh")"
-eval "$(sed -n '/^check_sync_pat()/,/^}/p' "${SCRIPTS_DIR}/security-posture-helper.sh")"
+eval "$(sed -n '/^_emit_sync_pat_advisory()/,/^}/p' "${SCRIPTS_DIR}/security-posture-helper-repo.sh")"
+eval "$(sed -n '/^_branch_is_rulesets_protected()/,/^}/p' "${SCRIPTS_DIR}/security-posture-helper-repo.sh")"
+eval "$(sed -n '/^_check_sync_pat_need()/,/^}/p' "${SCRIPTS_DIR}/security-posture-helper-repo.sh")"
+eval "$(sed -n '/^check_sync_pat()/,/^}/p' "${SCRIPTS_DIR}/security-posture-helper-repo.sh")"
 
 # =============================================================================
 # Severity constants needed by the function
