@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.35] - 2026-05-01
+
+### Changed
+
+- tolerate array pulse_hours in pulse iterators (#22042)
+- Maintenance: sync ref:GH#22039 to TODO.md [skip ci]
+
 ## [3.13.34] - 2026-05-01
 
 ### Fixed
