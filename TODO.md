@@ -906,7 +906,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [ ] t3396 Prevent setup.sh from removing active implementation worktrees #auto-dispatch #bug #framework ref:GH#22176
 
-- [ ] t3397 Fix task-complete-helper merged PR detection #auto-dispatch #bug #framework ref:GH#22178
+- [x] t3397 Fix task-complete-helper merged PR detection #auto-dispatch #bug #framework ref:GH#22178 pr:#22181 completed:2026-05-01
 
 ## In Progress
 
