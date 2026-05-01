@@ -908,7 +908,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [x] t3397 Fix task-complete-helper merged PR detection #auto-dispatch #bug #framework ref:GH#22178 pr:#22181 completed:2026-05-01
 
-- [ ] t3403 Fix quality gate false failures from workflow cancellation #bug ref:GH#22194
+- [x] t3403 Fix quality gate false failures from workflow cancellation #bug ref:GH#22194 pr:#22196 completed:2026-05-01
 
 ## In Progress
 
