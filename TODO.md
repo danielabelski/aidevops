@@ -3713,7 +3713,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3236 add issue-body formatting lint for AI-composed task descriptions #auto-dispatch #enhancement #quality ref:GH#21991
 
-- [ ] t3237 Standardize session title issue and PR prefix guidance ref:GH#21994
+- [x] t3237 Standardize session title issue and PR prefix guidance ref:GH#21994 pr:#22000 completed:2026-05-01
 
 - [ ] t3238 Add memory truth-maintenance and debunk workflow #auto-dispatch #enhancement ref:GH#21995
 
