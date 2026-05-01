@@ -90,7 +90,7 @@ test_non_full_loop_prompt_unchanged() {
 test_does_not_double_append() {
 	local prompt='/full-loop Continue issue #14964
 
-[HEADLESS_CONTINUATION_CONTRACT_V6]
+[HEADLESS_CONTINUATION_CONTRACT_V7]
 This worker run is unattended.'
 	local output
 	output=$(append_worker_headless_contract "$prompt")
