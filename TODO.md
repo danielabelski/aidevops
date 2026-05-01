@@ -3862,3 +3862,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t3410 Ensure setup.sh exits cleanly after non-interactive success #auto-dispatch #bug #framework ref:GH#22214 pr:#22223 completed:2026-05-01
 
 - [x] t3409 Make release creation resilient to GitHub GraphQL exhaustion #auto-dispatch #bug #framework ref:GH#22213 pr:#22217 completed:2026-05-01
+
+- [ ] t3411 Fix routine setup push retry when HEAD ref is detached or stale #auto-dispatch #bug #framework ref:GH#22235
