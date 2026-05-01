@@ -3784,3 +3784,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3366 Fix REST fallback wrapper test hang after PR fallback cases #auto-dispatch #bug ref:GH#22076
 
 - [ ] t3371 Bound setup deploy_agents_to_runtimes stage #auto-dispatch #bug #framework ref:GH#22087
+
+- [ ] t3375 Raise token advisory first threshold to 250k #bug ref:GH#22115
