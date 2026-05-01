@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.77] - 2026-05-01
+
+### Changed
+
+- split aidevops CLI helper libraries
+
 ## [3.13.76] - 2026-05-01
 
 ### Changed
