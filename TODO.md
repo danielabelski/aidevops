@@ -3719,7 +3719,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3239 Make OpenCode DB maintenance WAL-aware under active sessions #auto-dispatch #bug ref:GH#21996
 
-- [ ] t3241 Fix memory dedup dry-run count channel #auto-dispatch #bug #self-improvement ref:GH#21998
+- [x] t3241 Fix memory dedup dry-run count channel #auto-dispatch #bug #self-improvement ref:GH#21998 pr:#22040 completed:2026-05-01
 
 - [ ] t3240 Make stash cleanup non-blocking in pulse preflight #auto-dispatch #bug ref:GH#21997
 
