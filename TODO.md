@@ -3730,3 +3730,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3244 Add disruptive OpenCode DB maintenance window mode #auto-dispatch #enhancement ref:GH#22004
 
 - [ ] t3245 Enforce brief workflow in issue creation harness ref:GH#22008
+
+- [ ] t3246 Add prompt-to-hook migration loop for deterministic rules #auto-dispatch #enhancement #self-improvement ref:GH#22009
