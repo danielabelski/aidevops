@@ -3941,7 +3941,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3454 Use app usage fallback when macOS backlit screen-time stream is sparse #auto-dispatch #bug ref:GH#22308
 
-- [ ] t3455 Make shared-constants source cleanly from zsh #auto-dispatch #bug ref:GH#22311
+- [x] t3455 Make shared-constants source cleanly from zsh #auto-dispatch #bug ref:GH#22311 pr:#22323 completed:2026-05-02
 
 - [ ] t3456 Fix dispatch timing stale lock CPU runaway #auto-dispatch #bug ref:GH#22314
 
