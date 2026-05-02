@@ -3985,7 +3985,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3469 Roll out productive headless OpenAI-first defaults and runner diagnostics #auto-dispatch #enhancement ref:GH#22363
 
-- [ ] t3468 Enforce private reference guard across all public surfaces #auto-dispatch #security ref:GH#22355
+- [x] t3468 Enforce private reference guard across all public surfaces #auto-dispatch #security ref:GH#22355 pr:#22410 completed:2026-05-02
 
 - [x] t3475 Fix worker activity future timestamp examples #auto-dispatch #bug #framework ref:GH#22370 pr:#22377 completed:2026-05-02
 
