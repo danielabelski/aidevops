@@ -4028,3 +4028,9 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3496 Make issue-sync TODO updates conflict-safe under concurrent task creation #auto-dispatch #bug ref:GH#22433
 
 - [ ] t3497 Make release workflow idempotent when tag release already exists #auto-dispatch #bug ref:GH#22434
+
+- [ ] t3500 Ensure headless workers never enter chat without worktree env #auto-dispatch #bug ref:GH#22438
+
+- [ ] t3499 Suppress intentional secretlint fixture false positive in postflight #auto-dispatch #bug ref:GH#22437
+
+- [ ] t3498 Reduce benign cancellation noise from high-churn GitHub workflows #auto-dispatch #enhancement ref:GH#22436
