@@ -3916,3 +3916,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3442 Add data-flow contracts and privacy tiers to agent packs #auto-dispatch #enhancement ref:GH#22292
 
 - [ ] t3443 Investigate repeated dispatch claim comments without worker spawn #auto-dispatch #bug ref:GH#22293
+
+- [ ] t3444 Clean up stale dispatch timing recorder processes #auto-dispatch #bug ref:GH#22296
