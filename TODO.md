@@ -3896,7 +3896,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3433 define data-plane registry and routing map #auto-dispatch #enhancement #framework ref:GH#22284
 
-- [ ] t3432 Seed and update private agent source repo structure #auto-dispatch #enhancement ref:GH#22282
+- [x] t3432 Seed and update private agent source repo structure #auto-dispatch #enhancement ref:GH#22282 pr:#22343 completed:2026-05-02
 
 - [ ] t3431 add seed user-data plane directories to aidevops repo #auto-dispatch #enhancement #framework ref:GH#22281
 
