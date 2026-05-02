@@ -10,6 +10,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.94] - 2026-05-02
+
+### Added
+
+- close worker failure feedback loop (#22384)
+- file memory audit opportunities (#22383)
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Add user-owned GitHub App auth and API routing
+- Relax worker timing recovery gates (#22392)
+- Maintenance: mark t3467 complete (pr:#22383 completed:2026-05-02) [skip ci]
+- Maintenance: mark t3429 complete (pr:#22382 completed:2026-05-02) [skip ci]
+- tolerate scalar thread fields (#22375)
+- Maintenance: sync ref:GH#22370 to TODO.md [skip ci]
+- Maintenance: mark t3475 complete (pr:#22377 completed:2026-05-02) [skip ci]
+- Maintenance: sync ref:GH#22373 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22372 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22371 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22370 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22369 to TODO.md [skip ci]
+- Maintenance: mark t3448 complete (pr:#22353 completed:2026-05-02) [skip ci]
+- restore agents backups atomically (#22362)
+- reduce pulse GraphQL read pressure (#22353)
+- document seeded draft PR workflow
+- Maintenance: mark t3435 complete (pr:#22342 completed:2026-05-02) [skip ci]
+- route gh list view calls through wrappers (#22352)
+- Maintenance: mark t3460 complete (pr:#22335 completed:2026-05-02) [skip ci]
+- route solved label edits through gh timeout wrapper (#22359)
+- Maintenance: mark t3440 complete (pr:#22341 completed:2026-05-02) [skip ci]
+- Maintenance: mark t3432 complete (pr:#22343 completed:2026-05-02) [skip ci]
+- Maintenance: mark t3442 complete (pr:#22336 completed:2026-05-02) [skip ci]
+- Maintenance: sync ref:GH#22320 to TODO.md [skip ci]
+- add inbox correction learning
+- Maintenance: mark t3428 complete (pr:#22329 completed:2026-05-02) [skip ci]
+- avoid reloading active profile README jobs
+- measure pulse and worker resources (#22342)
+- route gh read call sites through wrappers
+- mark pulse prefetch audit complete
+- Maintenance: mark t3441 complete (pr:#22326 completed:2026-05-02) [skip ci]
+- improve pulse API call attribution
+- reduce headless prompt argv size
+- seed managed agent source repos
+- reduce shell forks in dispatch hot paths
+
+### Fixed
+
+- use BSD-compatible awk for efficiency speed collection (#22374)
+- make origin label ceremony REST-backed (#22391)
+- exclude future worker metric timestamps (#22377)
+- paginate orphan loop comments (#22361)
+- remove redundant NMR timestamp jq guard (#22358)
+- enforce task ID boundary in release extraction (#22357)
+- harden worker canary soft-failure handling (#22340)
+
 ## [3.13.93] - 2026-05-02
 
 ### Added
