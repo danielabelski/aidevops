@@ -3994,3 +3994,11 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3477 _performance plane parent — KPI schemas dashboards and result ingest #enhancement #framework #parent ref:GH#22372
 
 - [ ] t3478 _feedback plane parent — capture retention mining and promotion paths #enhancement #framework #parent ref:GH#22373
+
+- [ ] t3482 Add adaptive worker launch staggering #auto-dispatch #enhancement #framework ref:GH#22387
+
+- [ ] t3481 Preserve TODO refs after fallback issue creation #auto-dispatch #bug #framework ref:GH#22381
+
+- [ ] t3480 Add auto-reason agent and slash command #auto-dispatch #enhancement ref:GH#22380
+
+- [ ] t3479 Classify provider and runtime worker failures precisely #auto-dispatch #bug #framework ref:GH#22379
