@@ -3969,7 +3969,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3464 Fix gh-thread-clean-helper crash on PR comment shapes #auto-dispatch #bug ref:GH#22347
 
-- [ ] t3463 Fix gh pr list REST fallback head filtering #auto-dispatch #bug ref:GH#22344
+- [x] t3463 Fix gh pr list REST fallback head filtering #auto-dispatch #bug ref:GH#22344 pr:#22389 completed:2026-05-02
 
 - [x] t3462 Fix BSD awk syntax in efficiency speed collection #auto-dispatch #bug ref:GH#22339 pr:#22374 completed:2026-05-02
 
