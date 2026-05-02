@@ -10,6 +10,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.95] - 2026-05-02
+
+### Changed
+
+- Maintenance: mark t3489 complete (pr:#22421 completed:2026-05-02) [skip ci]
+- Maintenance: mark t3491 complete (pr:#22422 completed:2026-05-02) [skip ci]
+- automate safe remote branch cleanup (#22421)
+- Maintenance: mark t3488 complete (pr:#22424 completed:2026-05-02) [skip ci]
+- ensure release deploy starts pulse (#22422)
+- Maintenance: mark t3474 complete (pr:#22423 completed:2026-05-02) [skip ci]
+- Documentation: align research command names (#22423)
+- Maintenance: sync ref:GH#22418 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22417 to TODO.md [skip ci]
+- Maintenance: update simplification state registry
+- guard pulse wrapper bash-only sourcing (#22402)
+- Maintenance: mark t3482 complete (pr:#22412 completed:2026-05-02) [skip ci]
+- Maintenance: mark t3468 complete (pr:#22410 completed:2026-05-02) [skip ci]
+
+### Fixed
+
+- harden launchd xpcproxy recovery (#22427)
+- add REST fallback for PR comments (#22424)
+
 ## [3.13.94] - 2026-05-02
 
 ### Added
