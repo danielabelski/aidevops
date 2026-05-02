@@ -3981,7 +3981,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3471 Clean up root shell script layout #auto-dispatch #bug #framework ref:GH#22366
 
-- [ ] t3470 Make manual worker origin-label ceremony REST-backed and fail-closed #auto-dispatch #bug ref:GH#22365
+- [x] t3470 Make manual worker origin-label ceremony REST-backed and fail-closed #auto-dispatch #bug ref:GH#22365 pr:#22391 completed:2026-05-02
 
 - [ ] t3469 Roll out productive headless OpenAI-first defaults and runner diagnostics #auto-dispatch #enhancement ref:GH#22363
 
