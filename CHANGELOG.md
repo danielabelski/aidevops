@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.4] - 2026-05-03
+
+### Changed
+
+- reduce launchd xpcproxy setup warnings
+- prevent non-maintainer upstream-watch issue spam
+- cost circuit breaker diagnostics and 800K budget
+- Maintenance: sync ref:GH#22478 to TODO.md [skip ci]
+- prioritize GraphQL budget for pulse stages (#22492)
+
 ## [3.14.3] - 2026-05-03
 
 ### Changed
