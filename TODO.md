@@ -4008,3 +4008,9 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3486 Block external issue dispatch while issue-triage gate is queued #auto-dispatch #bug #security ref:GH#22399
 
 - [x] t3484 Repair broken Tabby OpenCode launch profiles #auto-dispatch #bug #framework ref:GH#22397 pr:#22404 completed:2026-05-02
+
+- [ ] t3490 Make worktree cleanup safe without system Trash growth #auto-dispatch #enhancement ref:GH#22417
+
+- [ ] t3489 automate safe remote branch cleanup #auto-dispatch #enhancement ref:GH#22415
+
+- [ ] t3488 Add REST fallback for PR comment wrapper on GraphQL exhaustion #auto-dispatch #bug ref:GH#22411
