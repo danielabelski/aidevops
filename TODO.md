@@ -3908,3 +3908,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3439 Audit shell hot paths for compute-efficient tools #auto-dispatch #enhancement ref:GH#22289
 
 - [ ] t3438 Audit pulse GitHub API prefetch for need-to-know caching #auto-dispatch #enhancement ref:GH#22288
+
+- [ ] t3440 Review headless prompt delivery for duplication and cleanup #auto-dispatch #enhancement ref:GH#22290
