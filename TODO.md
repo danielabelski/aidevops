@@ -3880,7 +3880,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3417 support glob-compressed subagent allowlists and document permission.task pattern #auto-dispatch ref:GH#22251 pr:#22252 completed:2026-05-01
 
-- [ ] t3428 fix campaign status router mismatch #auto-dispatch #bug ref:GH#22271
+- [x] t3428 fix campaign status router mismatch #auto-dispatch #bug ref:GH#22271 pr:#22329 completed:2026-05-02
 
 - [x] t3427 Integrate plugin namespaces into subagent discovery #auto-dispatch #bug ref:GH#22270 pr:#22275 completed:2026-05-02
 
