@@ -10,6 +10,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.0] - 2026-05-02
+
+### Changed
+
+- reason-code dispatch candidate pre-launch failures (#22485)
+- Maintenance: sync ref:GH#22482 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22481 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22480 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22479 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22472 to TODO.md [skip ci]
+- add PR repair loop for blocked checks (#22475)
+- Maintenance: sync ref:GH#22474 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22473 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22472 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22471 to TODO.md [skip ci]
+- add auto-reason subjective refinement workflow (#22470)
+- Fix commit-and-pr REST fallback PR-number stdout (#22468)
+- Maintenance: sync ref:GH#22458 to TODO.md [skip ci]
+- update upstream skill review docs (#22464)
+- suppress postflight scrubber fixture false positive
+- remove volatile Sonar quality gate badge (#22447)
+- Make issue-sync TODO pushes conflict-safe
+- Maintenance: sync ref:GH#22442 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22441 to TODO.md [skip ci]
+- clean up root shell script layout (#22440)
+- Maintenance: sync ref:GH#22436 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22434 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22433 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22432 to TODO.md [skip ci]
+- Maintenance: mark t3492 complete (pr:#22431 completed:2026-05-02) [skip ci]
+- Maintenance: sync ref:GH#22428 to TODO.md [skip ci]
+
+### Fixed
+
+- prevent duplicate manual worker launches (#22486)
+- suppress available feedback issue assignments (#22483)
+- sync canonical labels during repo init (#22469)
+- guard issue workers missing worktree env (#22467)
+- reduce workflow cancellation noise (#22466)
+- isolate setup worktree preservation test fixtures (#22465)
+- harden code review auto-fix pushes (#22443)
+- make release creation idempotent (#22444)
+- redact session miner instruction candidate snippets (#22439)
+- route issue list json reads through REST fallback (#22435)
+- stop warning on empty Anthropic API key (#22431)
+- make verified worktree cleanup remove permanently (#22426)
+
 ## [3.13.95] - 2026-05-02
 
 ### Changed
