@@ -186,11 +186,11 @@ _prefetch_repo_issues() {
 	filtered_json=$(echo "$issue_json" | _filter_non_task_issues)
 
 	# GH#10308: Split issues into dispatchable vs quality-sweep-tracked.
-	local dispatchable_json sweep_tracked_json
+	local dispatchable_json="" sweep_tracked_json=""
 	dispatchable_json=$(echo "$filtered_json" | jq '[.[] | select(.labels | map(.name) | (index("source:quality-sweep") or index("source:review-feedback")) | not)]')
 	sweep_tracked_json=$(echo "$filtered_json" | jq '[.[] | select(.labels | map(.name) | (index("source:quality-sweep") or index("source:review-feedback")))]')
 
-	local dispatchable_count sweep_tracked_count
+	local dispatchable_count=0 sweep_tracked_count=0
 	dispatchable_count=$(echo "$dispatchable_json" | jq 'length')
 	sweep_tracked_count=$(echo "$sweep_tracked_json" | jq 'length')
 
@@ -232,6 +232,7 @@ _prefetch_batch_refresh() {
 	# Parse counters for health instrumentation (t2830: also parses tickle counters)
 	local _batch_search_calls=0 _batch_cache_writes=0
 	local _tickle_fresh=0 _tickle_stale=0
+	local _conditional_304=0 _conditional_refreshes=0 _conditional_misses=0
 	if [[ -n "$_batch_output" ]]; then
 		local _line
 		while IFS= read -r _line; do
@@ -240,6 +241,9 @@ _prefetch_batch_refresh() {
 			cache_writes=*)         _batch_cache_writes="${_line#cache_writes=}" ;;
 			events_tickle_fresh=*)  _tickle_fresh="${_line#events_tickle_fresh=}" ;;
 			events_tickle_stale=*)  _tickle_stale="${_line#events_tickle_stale=}" ;;
+			conditional_304=*)      _conditional_304="${_line#conditional_304=}" ;;
+			conditional_refreshes=*) _conditional_refreshes="${_line#conditional_refreshes=}" ;;
+			conditional_misses=*)   _conditional_misses="${_line#conditional_misses=}" ;;
 			esac
 		done <<<"$_batch_output"
 	fi
@@ -247,7 +251,10 @@ _prefetch_batch_refresh() {
 	_PULSE_HEALTH_BATCH_CACHE_HITS=$((_PULSE_HEALTH_BATCH_CACHE_HITS + _batch_cache_writes))
 	_PULSE_HEALTH_EVENTS_TICKLE_FRESH=$((_PULSE_HEALTH_EVENTS_TICKLE_FRESH + _tickle_fresh))
 	_PULSE_HEALTH_EVENTS_TICKLE_STALE=$((_PULSE_HEALTH_EVENTS_TICKLE_STALE + _tickle_stale))
-	echo "[pulse-wrapper] Batch prefetch: search_calls=${_batch_search_calls} cache_writes=${_batch_cache_writes} tickle_fresh=${_tickle_fresh} tickle_stale=${_tickle_stale}" >>"$LOGFILE"
+	_PULSE_HEALTH_CONDITIONAL_304=$((_PULSE_HEALTH_CONDITIONAL_304 + _conditional_304))
+	_PULSE_HEALTH_CONDITIONAL_REFRESHES=$((_PULSE_HEALTH_CONDITIONAL_REFRESHES + _conditional_refreshes))
+	_PULSE_HEALTH_CONDITIONAL_MISSES=$((_PULSE_HEALTH_CONDITIONAL_MISSES + _conditional_misses))
+	echo "[pulse-wrapper] Batch prefetch: search_calls=${_batch_search_calls} cache_writes=${_batch_cache_writes} tickle_fresh=${_tickle_fresh} tickle_stale=${_tickle_stale} conditional_304=${_conditional_304} conditional_refreshes=${_conditional_refreshes} conditional_misses=${_conditional_misses}" >>"$LOGFILE"
 
 	# t3027 (GH#21584): Bridge counters across run_stage_with_timeout subshell.
 	# prefetch_state runs inside a subshell created by run_stage_with_timeout
@@ -257,18 +264,21 @@ _prefetch_batch_refresh() {
 	# counters into the cycle-scoped totals. Pattern mirrors the merge
 	# counter bridge at pulse-wrapper.sh:996-1008 (GH#18571).
 	#
-	# Format: single line of 4 space-separated integers in fixed positional
-	# order: search_calls cache_hits tickle_fresh tickle_stale. Cumulative
+	# Format: single line of 7 space-separated integers in fixed positional
+	# order: search_calls cache_hits tickle_fresh tickle_stale conditional_304 conditional_refreshes conditional_misses. Cumulative
 	# within this prefetch_state invocation (we accumulate here rather than
 	# requiring the reader to sum across multiple files). The reader
 	# `read -r` parses positionally — DO NOT change column order without
 	# updating pulse-wrapper.sh::_pulse_drain_prefetch_counters.
 	local _pf_counters_file="${TMPDIR:-/tmp}/pulse-health-prefetch-$$.tmp"
-	printf '%d %d %d %d\n' \
+	printf '%d %d %d %d %d %d %d\n' \
 		"$_PULSE_HEALTH_BATCH_SEARCH_CALLS" \
 		"$_PULSE_HEALTH_BATCH_CACHE_HITS" \
 		"$_PULSE_HEALTH_EVENTS_TICKLE_FRESH" \
 		"$_PULSE_HEALTH_EVENTS_TICKLE_STALE" \
+		"$_PULSE_HEALTH_CONDITIONAL_304" \
+		"$_PULSE_HEALTH_CONDITIONAL_REFRESHES" \
+		"$_PULSE_HEALTH_CONDITIONAL_MISSES" \
 		>"$_pf_counters_file" 2>/dev/null || true
 	return 0
 }
@@ -493,7 +503,7 @@ prefetch_missions() {
 	local active_count=0
 
 	for entry in "${mission_files[@]}"; do
-		local slug path mfile
+		local slug="" path="" mfile=""
 		IFS='|' read -r slug path mfile <<<"$entry"
 
 		# Extract frontmatter status — look for status: in YAML frontmatter
@@ -684,7 +694,7 @@ prefetch_triage_review_status() {
 		fi
 
 		# Get needs-maintainer-review issues for this repo
-		local nmr_json nmr_err
+	local nmr_json="" nmr_err=""
 		nmr_err=$(mktemp)
 		nmr_json=$(gh_issue_list --repo "$slug" --label "needs-maintainer-review" \
 			--state open --json number,title,createdAt,updatedAt \
@@ -722,7 +732,7 @@ prefetch_triage_review_status() {
 		# Check each issue for an existing agent review comment
 		local i=0
 		while [[ "$i" -lt "$nmr_count" ]]; do
-			local number title created_at
+		local number="" title="" created_at=""
 			number=$(echo "$nmr_json" | jq -r ".[$i].number")
 			title=$(echo "$nmr_json" | jq -r ".[$i].title")
 			created_at=$(echo "$nmr_json" | jq -r ".[$i].createdAt")

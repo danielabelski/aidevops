@@ -188,7 +188,7 @@ append_cycle_index() {
 	local ts
 	ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-	local workers_active workers_max
+	local workers_active=0 workers_max=0
 	workers_active=$(count_active_workers 2>/dev/null || echo "0")
 	[[ "$workers_active" =~ ^[0-9]+$ ]] || workers_active=0
 	workers_max=$(get_max_workers_target 2>/dev/null || echo "1")
@@ -273,7 +273,7 @@ write_pulse_health_file() {
 	# list (list_active_worker_processes via count_active_workers) has a brief
 	# race window after nohup launch before the process appears in ps.
 	local _ledger_helper="${SCRIPT_DIR}/dispatch-ledger-helper.sh"
-	local workers_active workers_max
+	local workers_active=0 workers_max=0
 	workers_active=$(count_active_workers 2>/dev/null || echo "0")
 	[[ "$workers_active" =~ ^[0-9]+$ ]] || workers_active=0
 	workers_max=$(get_max_workers_target 2>/dev/null || echo "1")
@@ -328,6 +328,9 @@ write_pulse_health_file() {
   "batch_cache_hits": ${_PULSE_HEALTH_BATCH_CACHE_HITS:-0},
   "events_tickle_fresh": ${_PULSE_HEALTH_EVENTS_TICKLE_FRESH:-0},
   "events_tickle_stale": ${_PULSE_HEALTH_EVENTS_TICKLE_STALE:-0},
+  "prefetch_conditional_304": ${_PULSE_HEALTH_CONDITIONAL_304:-0},
+  "prefetch_conditional_refreshes": ${_PULSE_HEALTH_CONDITIONAL_REFRESHES:-0},
+  "prefetch_conditional_misses": ${_PULSE_HEALTH_CONDITIONAL_MISSES:-0},
   "prefetch_throttled": ${_PULSE_HEALTH_PREFETCH_THROTTLED:-0},
   "idle_cycle_skipped": ${_PULSE_HEALTH_IDLE_CYCLE_SKIPPED:-0}
 }
@@ -339,6 +342,6 @@ EOF
 		return 0
 	}
 
-	echo "[pulse-wrapper] pulse-health.json written: workers=${workers_active}/${workers_max} merged=${_PULSE_HEALTH_PRS_MERGED} closed_conflicting=${_PULSE_HEALTH_PRS_CLOSED_CONFLICTING} dispatched=${issues_dispatched} stalled_killed=${_PULSE_HEALTH_STALLED_KILLED} backed_off=${models_backed_off} idle_skips=${_PULSE_HEALTH_IDLE_REPO_SKIPS:-0} batch_search=${_PULSE_HEALTH_BATCH_SEARCH_CALLS:-0} batch_hits=${_PULSE_HEALTH_BATCH_CACHE_HITS:-0} tickle_fresh=${_PULSE_HEALTH_EVENTS_TICKLE_FRESH:-0} tickle_stale=${_PULSE_HEALTH_EVENTS_TICKLE_STALE:-0} prefetch_throttled=${_PULSE_HEALTH_PREFETCH_THROTTLED:-0} idle_skipped=${_PULSE_HEALTH_IDLE_CYCLE_SKIPPED:-0}" >>"$LOGFILE"
+	echo "[pulse-wrapper] pulse-health.json written: workers=${workers_active}/${workers_max} merged=${_PULSE_HEALTH_PRS_MERGED} closed_conflicting=${_PULSE_HEALTH_PRS_CLOSED_CONFLICTING} dispatched=${issues_dispatched} stalled_killed=${_PULSE_HEALTH_STALLED_KILLED} backed_off=${models_backed_off} idle_skips=${_PULSE_HEALTH_IDLE_REPO_SKIPS:-0} batch_search=${_PULSE_HEALTH_BATCH_SEARCH_CALLS:-0} batch_hits=${_PULSE_HEALTH_BATCH_CACHE_HITS:-0} tickle_fresh=${_PULSE_HEALTH_EVENTS_TICKLE_FRESH:-0} tickle_stale=${_PULSE_HEALTH_EVENTS_TICKLE_STALE:-0} conditional_304=${_PULSE_HEALTH_CONDITIONAL_304:-0} conditional_refreshes=${_PULSE_HEALTH_CONDITIONAL_REFRESHES:-0} conditional_misses=${_PULSE_HEALTH_CONDITIONAL_MISSES:-0} prefetch_throttled=${_PULSE_HEALTH_PREFETCH_THROTTLED:-0} idle_skipped=${_PULSE_HEALTH_IDLE_CYCLE_SKIPPED:-0}" >>"$LOGFILE"
 	return 0
 }

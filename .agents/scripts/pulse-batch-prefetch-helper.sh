@@ -88,6 +88,7 @@ PULSE_BATCH_PREFETCH_ENABLED="${PULSE_BATCH_PREFETCH_ENABLED:-1}"
 PULSE_PREFETCH_FULL_SWEEP_INTERVAL="${PULSE_PREFETCH_FULL_SWEEP_INTERVAL:-14400}"
 BATCH_SEARCH_LIMIT="${PULSE_BATCH_SEARCH_LIMIT:-200}"
 LOGFILE="${LOGFILE:-${HOME}/.aidevops/logs/pulse-wrapper.log}"
+PULSE_BATCH_CONDITIONAL_REST_ENABLED="${PULSE_BATCH_CONDITIONAL_REST_ENABLED:-1}"
 
 # String constants to avoid repeated-literal ratchet violations
 _KIND_ISSUES="issues"
@@ -226,7 +227,7 @@ _prefetch_rest_per_slug() {
 	local kind="$1"
 	local slugs="${2:-}"
 	[[ -n "$slugs" ]] || return 0
-	local slug ok
+	local slug="" ok=0
 	while IFS= read -r slug; do
 		[[ -n "$slug" ]] || continue
 		ok=0
@@ -332,6 +333,87 @@ _cache_file_path() {
 	return 0
 }
 
+_conditional_rest_endpoint() {
+	local kind="$1"
+	local slug="$2"
+	case "$kind" in
+	issues) printf '/repos/%s/issues?state=open&per_page=%s\n' "$slug" "$BATCH_SEARCH_LIMIT" ;;
+	prs) printf '/repos/%s/pulls?state=open&per_page=%s\n' "$slug" "$BATCH_SEARCH_LIMIT" ;;
+	*) return 1 ;;
+	esac
+	return 0
+}
+
+_conditional_rest_update_cache_from_response() {
+	local kind="$1"
+	local slug="$2"
+	local response_file="$3"
+	local cache_file="$4"
+	# Keep response parsing in Python so this shell library stays below the
+	# function-complexity gate while preserving atomic cache writes.
+	python3 "${SCRIPT_DIR}/pulse-batch-conditional-cache.py" "$kind" "$slug" "$response_file" "$cache_file"
+	return 0
+}
+
+_conditional_rest_refresh_slug() {
+	local kind="$1"
+	local slug="$2"
+	[[ "${PULSE_BATCH_CONDITIONAL_REST_ENABLED:-1}" == "1" ]] || return 1
+	local cache_file
+	cache_file=$(_cache_file_path "$kind" "$slug")
+	local endpoint
+	endpoint=$(_conditional_rest_endpoint "$kind" "$slug") || return 1
+	local etag=""
+	if [[ -f "$cache_file" ]]; then
+		etag=$(jq -r '.etag // ""' "$cache_file" 2>/dev/null) || etag=""
+		[[ "$etag" == "$_JSON_NULL" ]] && etag=""
+	fi
+	[[ -n "$etag" ]] || _OWNER_CONDITIONAL_MISSES=$((_OWNER_CONDITIONAL_MISSES + 1))
+	local response_file="" err_file=""
+	response_file=$(mktemp)
+	err_file=$(mktemp)
+	local rc=0
+	if [[ -n "$etag" ]]; then
+		gh api -i -H "Accept: application/vnd.github+json" -H "If-None-Match: ${etag}" "$endpoint" >"$response_file" 2>"$err_file" || rc=$?
+	else
+		gh api -i -H "Accept: application/vnd.github+json" "$endpoint" >"$response_file" 2>"$err_file" || rc=$?
+	fi
+	local status=""
+	status=$(_conditional_rest_update_cache_from_response "$kind" "$slug" "$response_file" "$cache_file" 2>/dev/null) || status=""
+	rm -f "$response_file" "$err_file"
+	case "$status" in
+	304)
+		_OWNER_CONDITIONAL_304=$((_OWNER_CONDITIONAL_304 + 1))
+		_OWNER_CACHE_WRITES=$((_OWNER_CACHE_WRITES + 1))
+		_log "conditional REST ${kind}: 304 cache hit for ${slug}"
+		return 0
+		;;
+	2*)
+		_OWNER_CONDITIONAL_REFRESHES=$((_OWNER_CONDITIONAL_REFRESHES + 1))
+		_OWNER_CACHE_WRITES=$((_OWNER_CACHE_WRITES + 1))
+		_log "conditional REST ${kind}: refreshed ${slug} status=${status}"
+		return 0
+		;;
+	*)
+		[[ "$rc" -eq 0 ]] || _log "conditional REST ${kind}: failed for ${slug}; falling back"
+		return 1
+		;;
+	esac
+}
+
+_conditional_rest_per_slug() {
+	local kind="$1"
+	local slugs="${2:-}"
+	[[ -n "$slugs" ]] || return 1
+	local slug="" failures=0
+	while IFS= read -r slug; do
+		[[ -n "$slug" ]] || continue
+		_conditional_rest_refresh_slug "$kind" "$slug" || failures=$((failures + 1))
+	done < <(tr ',' '\n' <<< "$slugs")
+	[[ "$failures" -eq 0 ]] || return 1
+	return 0
+}
+
 # --- Write per-slug cache files ---
 # Takes normalized JSON (keyed by slug) and writes individual cache files.
 _write_per_slug_caches() {
@@ -371,6 +453,10 @@ _refresh_owner_issues() {
 	local owner="$1"
 	local slugs="${2:-}"
 	local graphql_remaining="${3:-}"
+	if _conditional_rest_per_slug issues "$slugs"; then
+		_log "conditional REST issues complete for owner=${owner} — skipped search"
+		return 0
+	fi
 	# Proactive REST fallback (t2902): if GraphQL is at/below the fallback
 	# threshold, skip `gh search issues` (which uses the GraphQL Search API,
 	# ~30 points/call) and go straight to per-slug REST iteration. Avoids
@@ -430,6 +516,10 @@ _refresh_owner_prs() {
 	local owner="$1"
 	local slugs="${2:-}"
 	local graphql_remaining="${3:-}"
+	if _conditional_rest_per_slug prs "$slugs"; then
+		_log "conditional REST prs complete for owner=${owner} — skipped search"
+		return 0
+	fi
 	# Proactive REST fallback (t2902): same pattern as _refresh_owner_issues.
 	# Pass pre-computed remaining to avoid a redundant rate-limit API call per owner.
 	if _rest_should_fallback "$graphql_remaining" 2>/dev/null; then
@@ -477,6 +567,23 @@ _refresh_owner_prs() {
 	return 0
 }
 
+_record_events_tickle_stats() {
+	if ! declare -F pulse_stats_increment >/dev/null 2>&1; then
+		return 0
+	fi
+	local _fi=0
+	while [[ "$_fi" -lt "$_PULSE_EVENTS_TICKLE_FRESH" ]]; do
+		pulse_stats_increment "pulse_events_tickle_fresh" 2>/dev/null || true
+		_fi=$((_fi + 1))
+	done
+	local _si=0
+	while [[ "$_si" -lt "$_PULSE_EVENTS_TICKLE_STALE" ]]; do
+		pulse_stats_increment "pulse_events_tickle_stale" 2>/dev/null || true
+		_si=$((_si + 1))
+	done
+	return 0
+}
+
 # =============================================================================
 # Subcommand: refresh
 # =============================================================================
@@ -508,6 +615,9 @@ _cmd_refresh() {
 	_OWNER_SEARCH_CALLS=0
 	_OWNER_CACHE_WRITES=0
 	_OWNER_ERRORS=0
+	_OWNER_CONDITIONAL_304=0
+	_OWNER_CONDITIONAL_REFRESHES=0
+	_OWNER_CONDITIONAL_MISSES=0
 
 	# Pre-fetch GraphQL remaining once per refresh cycle (t2902 review followup).
 	# Both _refresh_owner_issues and _refresh_owner_prs call _rest_should_fallback,
@@ -527,7 +637,7 @@ _cmd_refresh() {
 	_PULSE_EVENTS_TICKLE_FRESH=0
 	_PULSE_EVENTS_TICKLE_STALE=0
 
-	local owner slugs
+	local owner="" slugs=""
 	while IFS='|' read -r owner slugs; do
 		[[ -n "$owner" ]] || continue
 
@@ -546,7 +656,7 @@ _cmd_refresh() {
 		_refresh_owner_prs "$owner" "$slugs" "$_graphql_remaining" || true
 	done <<<"$owner_groups"
 
-	_log "refresh complete: search_calls=${_OWNER_SEARCH_CALLS} cache_writes=${_OWNER_CACHE_WRITES} errors=${_OWNER_ERRORS} tickle_fresh=${_PULSE_EVENTS_TICKLE_FRESH} tickle_stale=${_PULSE_EVENTS_TICKLE_STALE}"
+	_log "refresh complete: search_calls=${_OWNER_SEARCH_CALLS} cache_writes=${_OWNER_CACHE_WRITES} errors=${_OWNER_ERRORS} tickle_fresh=${_PULSE_EVENTS_TICKLE_FRESH} tickle_stale=${_PULSE_EVENTS_TICKLE_STALE} conditional_304=${_OWNER_CONDITIONAL_304} conditional_refreshes=${_OWNER_CONDITIONAL_REFRESHES} conditional_misses=${_OWNER_CONDITIONAL_MISSES}"
 
 	# t2902: aggregate gh API call records to JSON report at the end of each
 	# refresh cycle. Fail-open: if gh-api-instrument.sh isn't sourced, the
@@ -559,18 +669,7 @@ _cmd_refresh() {
 	# fresh/stale owner). Fail-open: pulse_stats_increment is sourced from
 	# pulse-stats-helper.sh above; if it was not sourced, the declare -F
 	# guard is a no-op and the batch search continues unaffected.
-	if declare -F pulse_stats_increment >/dev/null 2>&1; then
-		local _fi=0
-		while [[ "$_fi" -lt "$_PULSE_EVENTS_TICKLE_FRESH" ]]; do
-			pulse_stats_increment "pulse_events_tickle_fresh" 2>/dev/null || true
-			_fi=$((_fi + 1))
-		done
-		local _si=0
-		while [[ "$_si" -lt "$_PULSE_EVENTS_TICKLE_STALE" ]]; do
-			pulse_stats_increment "pulse_events_tickle_stale" 2>/dev/null || true
-			_si=$((_si + 1))
-		done
-	fi
+	_record_events_tickle_stats
 
 	# Export counters for health instrumentation (parsed by _prefetch_batch_refresh
 	# in pulse-prefetch.sh and added to per-cycle health totals).
@@ -579,6 +678,9 @@ _cmd_refresh() {
 	echo "errors=${_OWNER_ERRORS}"
 	echo "events_tickle_fresh=${_PULSE_EVENTS_TICKLE_FRESH}"
 	echo "events_tickle_stale=${_PULSE_EVENTS_TICKLE_STALE}"
+	echo "conditional_304=${_OWNER_CONDITIONAL_304}"
+	echo "conditional_refreshes=${_OWNER_CONDITIONAL_REFRESHES}"
+	echo "conditional_misses=${_OWNER_CONDITIONAL_MISSES}"
 	return 0
 }
 
@@ -626,7 +728,7 @@ _cmd_cache_path() {
 		return 1
 	fi
 
-	local cache_epoch now_epoch
+	local cache_epoch=0 now_epoch=0
 	if [[ "$(uname)" == "Darwin" ]]; then
 		cache_epoch=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%SZ" "$cache_ts" "+%s" 2>/dev/null) || cache_epoch=0
 	else
@@ -727,7 +829,7 @@ _cmd_status() {
 		[[ -n "$file" ]] || continue
 		local basename
 		basename=$(basename "$file" .json)
-		local ts item_count age_s freshness
+		local ts="" item_count="" age_s=0 freshness=""
 		ts=$(jq -r '.timestamp // "unknown"' "$file" 2>/dev/null) || ts="unknown"
 		item_count=$(jq '.items | length' "$file" 2>/dev/null) || item_count="?"
 
