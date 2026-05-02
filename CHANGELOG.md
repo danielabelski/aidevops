@@ -10,6 +10,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.93] - 2026-05-02
+
+### Added
+
+- add rich inbox preview extraction (#22330)
+
+### Changed
+
+- Add data-flow contracts and privacy tiers to agent packs
+- route eligible GitHub reads through REST proactively
+- Maintenance: mark t3455 complete (pr:#22323 completed:2026-05-02) [skip ci]
+- Maintenance: sync ref:GH#22324 to TODO.md [skip ci]
+- Maintenance: repair stale TODO completions for data-plane tasks (#22325)
+- Maintenance: mark t3457 complete (pr:#22319 completed:2026-05-02) [skip ci]
+- normalize escaped newlines in issue bodies (#22319)
+- Maintenance: mark t3458 complete (pr:#22318 completed:2026-05-02) [skip ci]
+- Maintenance: sync ref:GH#22317 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22316 to TODO.md [skip ci]
+- Maintenance: mark t3436 complete (pr:#22315 completed:2026-05-02) [skip ci]
+- Maintenance: sync ref:GH#22314 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22311 to TODO.md [skip ci]
+
+### Fixed
+
+- harden profile README session stats (#22331)
+- route campaign status provisioning (#22329)
+- enforce active worker minimum floor (#22327)
+- make shared constants source cleanly from zsh (#22323)
+
 ## [3.13.92] - 2026-05-02
 
 ### Fixed
