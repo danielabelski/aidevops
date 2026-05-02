@@ -4054,3 +4054,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3510 Prevent duplicate manual workers on the same issue worktree #auto-dispatch #bug ref:GH#22474
 
 - [ ] t3511 Reason-code dispatch candidate pre-launch failures #auto-dispatch #bug ref:GH#22476
+
+- [ ] t3513 Prioritize GraphQL budget for issue-solving dispatch #auto-dispatch #enhancement ref:GH#22479
+
+- [ ] t3512 Reduce GraphQL read pressure blocking pulse dispatch #auto-dispatch #bug ref:GH#22478
