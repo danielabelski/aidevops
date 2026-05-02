@@ -3966,3 +3966,17 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3463 Fix gh pr list REST fallback head filtering #auto-dispatch #bug ref:GH#22344
 
 - [ ] t3462 Fix BSD awk syntax in efficiency speed collection #auto-dispatch #bug ref:GH#22339
+
+- [ ] t3474 Align research command names and add deep-research workflow #auto-dispatch #enhancement ref:GH#22369
+
+- [ ] t3473 Block secret/private-key reads before model context #auto-dispatch #framework #security ref:GH#22368
+
+- [ ] t3472 Add repository layout policy and drift audit #auto-dispatch #enhancement #framework ref:GH#22367
+
+- [ ] t3471 Clean up root shell script layout #auto-dispatch #bug #framework ref:GH#22366
+
+- [ ] t3470 Make manual worker origin-label ceremony REST-backed and fail-closed #auto-dispatch #bug ref:GH#22365
+
+- [ ] t3469 Roll out productive headless OpenAI-first defaults and runner diagnostics #auto-dispatch #enhancement ref:GH#22363
+
+- [ ] t3468 Enforce private reference guard across all public surfaces #auto-dispatch #security ref:GH#22355
