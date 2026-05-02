@@ -3951,7 +3951,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3461 Add user-owned GitHub App auth and API budget routing #auto-dispatch #enhancement ref:GH#22324
 
-- [ ] t3460 Audit raw gh list/view call sites that bypass REST fallback wrappers #auto-dispatch #enhancement ref:GH#22321
+- [x] t3460 Audit raw gh list/view call sites that bypass REST fallback wrappers #auto-dispatch #enhancement ref:GH#22321 pr:#22335 completed:2026-05-02
 
 - [ ] t3459 Route eligible GitHub list/view reads to REST before GraphQL exhaustion #auto-dispatch #enhancement ref:GH#22320
 
