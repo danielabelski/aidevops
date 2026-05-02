@@ -3948,3 +3948,9 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t3457 Normalize escaped newlines in issue bodies #auto-dispatch #bug ref:GH#22316 pr:#22319 completed:2026-05-02
 
 - [x] t3458 Fix node_modules restore stale lock spin #bug ref:GH#22317 pr:#22318 completed:2026-05-02
+
+- [ ] t3461 Add user-owned GitHub App auth and API budget routing #auto-dispatch #enhancement ref:GH#22324
+
+- [ ] t3460 Audit raw gh list/view call sites that bypass REST fallback wrappers #auto-dispatch #enhancement ref:GH#22321
+
+- [ ] t3459 Route eligible GitHub list/view reads to REST before GraphQL exhaustion #auto-dispatch #enhancement ref:GH#22320
