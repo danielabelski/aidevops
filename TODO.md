@@ -3986,3 +3986,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3476 _projects plane parent — structured project lifecycle and TODO/full-loop integration #enhancement #framework #parent ref:GH#22371
 
 - [ ] t3477 _performance plane parent — KPI schemas dashboards and result ingest #enhancement #framework #parent ref:GH#22372
+
+- [ ] t3478 _feedback plane parent — capture retention mining and promotion paths #enhancement #framework #parent ref:GH#22373
