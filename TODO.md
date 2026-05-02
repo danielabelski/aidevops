@@ -3888,3 +3888,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3421 Improve worker resource and failure telemetry for throughput tuning #auto-dispatch #enhancement #framework #observability ref:GH#22256
 
 - [ ] t3419 Relax worker timing gates now that OpenAI workers complete work #auto-dispatch #enhancement #framework ref:GH#22254
+
+- [ ] t3429 Support core-style layout in private agent source repos #auto-dispatch #enhancement ref:GH#22274
