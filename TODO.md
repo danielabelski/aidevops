@@ -3902,3 +3902,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3434 file future-plane parent tasks for projects performance feedback #auto-dispatch #enhancement #framework ref:GH#22285
 
 - [ ] t3435 Measure CPU and RAM per pulse and worker outcome #auto-dispatch #enhancement ref:GH#22286
+
+- [ ] t3436 Investigate lingering dispatch timing record processes #auto-dispatch #bug ref:GH#22287
