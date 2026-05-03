@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.6] - 2026-05-03
+
+### Changed
+
+- gate compaction advisory (#22497)
+- remove duplicate performance TODO entry (#22514)
+- Maintenance: sync ref:GH#22510 to TODO.md [skip ci]
+
 ## [3.14.5] - 2026-05-03
 
 ### Changed
