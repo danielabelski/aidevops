@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.7] - 2026-05-03
+
+### Changed
+
+- Maintenance: decompose feedback plane parent (#22520)
+
+### Fixed
+
+- address review feedback for setup and model probes (#22509)
+
 ## [3.14.6] - 2026-05-03
 
 ### Changed
