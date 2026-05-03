@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.21] - 2026-05-03
+
+### Changed
+
+- fix dispatch dedup for ops-wrapped comments
+- Documentation: extract quality gate pattern references (#22658)
+- Maintenance: update simplification state registry
+
 ## [3.14.20] - 2026-05-03
 
 ### Changed
