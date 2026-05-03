@@ -4085,3 +4085,13 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3524 feedback plane Phase 2 retention and sensitivity policy #auto-dispatch #enhancement #framework ref:GH#22512
 
 - [ ] t3523 feedback plane Phase 1 capture contract #auto-dispatch #enhancement #framework ref:GH#22510
+
+- [ ] t3529 setup postflight still reports non-fatal degraded stages after v3.14.6 deploy #auto-dispatch #bug #framework ref:GH#22521
+
+- [ ] t3528 feedback plane Phase 5 CLI and routines design #auto-dispatch #enhancement #framework ref:GH#22519
+
+- [ ] t3527 feedback plane Phase 4 promotion paths #auto-dispatch #enhancement #framework ref:GH#22518
+
+- [ ] t3526 Fix setup noninteractive stale-lock false reclaim #auto-dispatch #bug ref:GH#22517
+
+- [ ] t3525 feedback plane Phase 3 mining workflow and evidence thresholds #auto-dispatch #enhancement #framework ref:GH#22515
