@@ -4111,3 +4111,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3536 Define _projects directory contract #auto-dispatch #enhancement #framework ref:GH#22537
 
 - [ ] t3538 Fix interactive issue origin label detection #bug #framework ref:GH#22539
+
+- [ ] t3540 Recover pulse wrapper when launched from removed worktree path #auto-dispatch #bug ref:GH#22545
+
+- [ ] t3539 Prevent active interactive worktree cleanup during verification #auto-dispatch #bug #framework ref:GH#22544
