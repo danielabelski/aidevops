@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.29] - 2026-05-03
+
+### Changed
+
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- dedupe TODO auto-mark completions (#22676)
+
 ## [3.14.28] - 2026-05-03
 
 ### Fixed
