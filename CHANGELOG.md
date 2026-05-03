@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.11] - 2026-05-03
+
+### Changed
+
+- Maintenance: sync ref:GH#22537 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#22534 to TODO.md [skip ci]
+- feedback plane Phase 3 mining workflow (#22532)
+
 ## [3.14.10] - 2026-05-03
 
 ### Changed
