@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.22] - 2026-05-03
+
+### Changed
+
+- Documentation: add AGENTS size ratchet (#22661)
+- Maintenance: sync ref:GH#22660 to TODO.md [skip ci]
+- Maintenance: update simplification state registry
+
 ## [3.14.21] - 2026-05-03
 
 ### Changed
