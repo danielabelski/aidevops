@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.10] - 2026-05-03
+
+### Changed
+
+- release dispatch claims on pre-launch aborts
+- feedback plane Phase 5 CLI and routines design
+- Maintenance: sync ref:GH#22527 to TODO.md [skip ci]
+
+### Fixed
+
+- restore validator cwd before amend
+
 ## [3.14.9] - 2026-05-03
 
 ### Changed
