@@ -4095,3 +4095,9 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3526 Fix setup noninteractive stale-lock false reclaim #auto-dispatch #bug ref:GH#22517
 
 - [ ] t3525 feedback plane Phase 3 mining workflow and evidence thresholds #auto-dispatch #enhancement #framework ref:GH#22515
+
+- [ ] t3532 Reduce GraphQL call pressure blocking pulse dispatch #auto-dispatch #bug ref:GH#22525
+
+- [ ] t3531 Limit broad log searches in interactive diagnostics #auto-dispatch #bug ref:GH#22524
+
+- [ ] t3530 fix setup noninteractive simplification-state registry rewrite #auto-dispatch #bug #framework ref:GH#22523
