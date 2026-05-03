@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.28] - 2026-05-03
+
+### Fixed
+
+- dedupe consolidation dispatch on long threads (#22673)
+
 ## [3.14.27] - 2026-05-03
 
 ### Fixed
