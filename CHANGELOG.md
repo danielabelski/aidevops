@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.18] - 2026-05-03
+
+### Changed
+
+- Documentation: extract gh command discipline reference (#22651)
+- Maintenance: sync ref:GH#22649 to TODO.md [skip ci]
+- align OpenAI availability auth precedence (#22638)
+- Maintenance: update simplification state registry
+- Maintenance: mark t3558 complete (pr:#22639 completed:2026-05-03) [skip ci]
+- preserve current OpenAI OAuth account (#22646)
+
 ## [3.14.17] - 2026-05-03
 
 ### Changed
