@@ -950,7 +950,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [x] t3557 Reset pulse blockers when eligible work exists #auto-dispatch #bug ref:GH#22631 pr:#22641 completed:2026-05-03
 
-- [ ] t3560 Add /goals mission command ref:GH#22649
+- [x] t3560 Add /goals mission command ref:GH#22649 pr:#22650 completed:2026-05-03
 
 ## In Progress
 
@@ -4168,4 +4168,4 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [x] t3558 Remove CPU-based canary throttling #auto-dispatch #bug ref:GH#22634 pr:#22639 completed:2026-05-03
 
-- [ ] t3560 Add /goals mission command ref:GH#22649
+- [x] t3560 Add /goals mission command ref:GH#22649 pr:#22650 completed:2026-05-03
