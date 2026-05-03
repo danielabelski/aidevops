@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.14] - 2026-05-03
+
+### Changed
+
+- Documentation: extract task lifecycle rules to reference file (#22625)
+- Maintenance: update simplification state registry
+- extract diagnostics-discipline to reference (Phase 1 of #22616) (#22620)
+- register parent task for AGENTS.md progressive disclosure (#22618)
+
 ## [3.14.13] - 2026-05-03
 
 ### Changed
