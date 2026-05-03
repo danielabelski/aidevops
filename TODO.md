@@ -4101,3 +4101,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3531 Limit broad log searches in interactive diagnostics #auto-dispatch #bug ref:GH#22524
 
 - [ ] t3530 fix setup noninteractive simplification-state registry rewrite #auto-dispatch #bug #framework ref:GH#22523
+
+- [ ] t3533 Fix headless worker launch from deleted current directory #auto-dispatch #bug ref:GH#22527
