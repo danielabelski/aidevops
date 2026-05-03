@@ -7199,9 +7199,9 @@
       "pr": 19047
     },
     ".agents/workflows/git-workflow.md": {
-      "at": "2026-05-03T16:22:09Z",
-      "hash": "de3663e2ca950715d20b1d73603f249c2d327684",
-      "passes": 4,
+      "at": "2026-05-03T16:57:02Z",
+      "hash": "88b8db610a4441b0f6b1b0e224668ff9ddb29398",
+      "passes": 5,
       "pr": 12777
     },
     ".agents/workflows/init-routines.md": {
@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-03T16:52:04Z",
-      "hash": "a802af5667029c10380fcdb3c468c1768ed71a84",
-      "passes": 129,
+      "at": "2026-05-03T16:57:09Z",
+      "hash": "56b9eddf721ed110ac05647b0c3e75295570a0b2",
+      "passes": 130,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-03T16:52:04Z",
-      "hash": "09e6458d08969b687f672913f8031b61d2508763",
-      "passes": 125,
+      "at": "2026-05-03T16:57:09Z",
+      "hash": "97e354af09715cef8ad44ee2b4fe0ea7b7739433",
+      "passes": 126,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7636,10 +7636,10 @@
       "passes": 2
     },
     ".agents/reference/large-file-split.md": {
-      "hash": "267a97c3e87215b13f6e15ee693aefc52a1c6017",
-      "at": "2026-04-25T14:54:14Z",
+      "hash": "7103121f3c5c4dcaa3d112f737857899de4c2129",
+      "at": "2026-05-03T16:57:11Z",
       "pr": 20107,
-      "passes": 3
+      "passes": 4
     },
     ".agents/scripts/pulse-merge-conflict.sh": {
       "hash": "8bf9ac9f64c4681ef59e4875ce0f3df75c18f554",
@@ -7786,10 +7786,10 @@
       "passes": 1
     },
     ".agents/reference/reusable-workflows.md": {
-      "hash": "9bb994581ecb947b7eb8a82cd230707f7719a107",
-      "at": "2026-04-30T07:49:02Z",
+      "hash": "edb7cd7a812837aec2362b6b924518aa21270eb3",
+      "at": "2026-05-03T16:57:11Z",
       "pr": 20698,
-      "passes": 5
+      "passes": 6
     },
     ".agents/reference/pulse-wrapper-churn-investigation.md": {
       "hash": "c483bb156bea80d70625002d02a39166f30baa05",
@@ -7822,10 +7822,10 @@
       "passes": 1
     },
     ".agents/aidevops/badges.md": {
-      "hash": "2b8860307c59cd60f58aa1104d2e1f307f619c0f",
-      "at": "2026-05-03T12:50:56Z",
+      "hash": "89e60d8ef5bcf060ad84a482807a29d955482a33",
+      "at": "2026-05-03T16:57:11Z",
       "pr": 20995,
-      "passes": 2
+      "passes": 3
     },
     ".agents/scripts/commands/setup-git.md": {
       "hash": "993011c3b435f911df4312125f01a5f7c25d8c08",
