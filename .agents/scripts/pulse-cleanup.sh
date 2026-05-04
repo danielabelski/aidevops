@@ -893,9 +893,8 @@ cleanup_stashes() {
 # This function runs each pulse cycle (before worker counting) to kill
 # workers that are still running after their work is done.
 #
-# Uses the dispatch ledger session keys (issue-{N}) to find the issue
-# number, then checks if a merged PR exists for that issue. If so,
-# sends SIGTERM to the worker process tree.
+# Uses the dispatch ledger session keys (issue-{N}) to bind the issue,
+# repo, and PID before checking for merged PRs and terminating the worker.
 #
 # Returns: 0 always (best-effort, never breaks the pulse)
 #######################################
@@ -903,7 +902,6 @@ reap_zombie_workers() {
 	local reaped=0
 	local worker_pids worker_key issue_number
 
-	# Get unique session keys from active worker processes
 	local session_keys
 	session_keys=$(ps aux | grep '[h]eadless-runtime.*--role worker' | grep -v grep |
 		sed 's/.*--session-key //' | awk '{print $1}' | sort -u) || return 0
@@ -913,26 +911,37 @@ reap_zombie_workers() {
 		issue_number="${worker_key#issue-}"
 		[[ "$issue_number" =~ ^[0-9]+$ ]] || continue
 
-		# Check dispatch ledger for the repo slug
-		local repo_slug=""
+		# Session keys are issue-number only, so require the live ledger's repo
+		# and PID to avoid same-number cross-repo PR/issue collisions.
+		local repo_slug="" ledger_entry="" ledger_issue="" ledger_pid=""
 		local _ledger_helper="${SCRIPT_DIR}/dispatch-ledger-helper.sh"
 		if [[ -x "$_ledger_helper" ]]; then
-			repo_slug=$("$_ledger_helper" get-repo --session-key "$worker_key" 2>/dev/null) || repo_slug=""
+			ledger_entry=$("$_ledger_helper" check --session-key "$worker_key" 2>/dev/null) || ledger_entry=""
+			if [[ -n "$ledger_entry" ]]; then
+				repo_slug=$(printf '%s' "$ledger_entry" | jq -r '.repo_slug // ""' 2>/dev/null) || repo_slug=""
+				ledger_issue=$(printf '%s' "$ledger_entry" | jq -r '.issue_number // ""' 2>/dev/null) || ledger_issue=""
+				ledger_pid=$(printf '%s' "$ledger_entry" | jq -r '.pid // ""' 2>/dev/null) || ledger_pid=""
+			fi
 		fi
-		# Fallback: check all pulse-enabled repos
 		if [[ -z "$repo_slug" ]]; then
-			repo_slug=$(jq -r '.initialized_repos[] | select(.pulse == true and (.local_only // false) == false) | .slug // ""' "$REPOS_JSON" | head -1) || continue
+			echo "[pulse-wrapper] Zombie reap skipped for ${worker_key}: no live ledger repo; refusing repo-less merged-PR lookup" >>"$LOGFILE"
+			continue
 		fi
-		[[ -n "$repo_slug" ]] || continue
-
-		# Check if a merged PR exists that closes this issue
+		if [[ -n "$ledger_issue" && "$ledger_issue" != "$issue_number" ]]; then
+			echo "[pulse-wrapper] Zombie reap skipped for ${worker_key}: ledger issue ${ledger_issue} does not match session issue ${issue_number}" >>"$LOGFILE"
+			continue
+		fi
+		if [[ -z "$ledger_pid" || ! "$ledger_pid" =~ ^[0-9]+$ ]]; then
+			echo "[pulse-wrapper] Zombie reap skipped for ${worker_key}: no ledger PID; refusing session-key-wide kill" >>"$LOGFILE"
+			continue
+		fi
 		local merged_pr
 		merged_pr=$(gh pr list --repo "$repo_slug" --state merged --search "closes #${issue_number} OR Closes #${issue_number} OR Resolves #${issue_number} OR resolves #${issue_number}" \
 			--limit 1 --json number --jq '.[0].number // ""' 2>/dev/null) || merged_pr=""
 
 		if [[ -n "$merged_pr" ]]; then
 			# Kill the worker process tree
-			worker_pids=$(ps aux | grep "[h]eadless-runtime.*--session-key ${worker_key}" | grep -v grep | awk '{print $2}')
+			worker_pids="$ledger_pid"
 			if [[ -n "$worker_pids" ]]; then
 				echo "[pulse-wrapper] Reaping zombie worker ${worker_key}: PR #${merged_pr} already merged in ${repo_slug}" >>"$LOGFILE"
 				echo "$worker_pids" | xargs kill 2>/dev/null || true
