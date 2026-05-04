@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.43] - 2026-05-04
+
+### Changed
+
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- stabilize FOSS dispatch regression test (#22795)
+- guard FOSS dispatch issue selection (#22790)
+- normalize REST PR mergeable state (#22787)
+
 ## [3.14.42] - 2026-05-04
 
 ### Fixed
