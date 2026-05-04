@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.36] - 2026-05-04
+
+### Changed
+
+- fix pulse REST dispatch fallback (#22732)
+
 ## [3.14.35] - 2026-05-04
 
 ### Changed
