@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.37] - 2026-05-04
+
+### Added
+
+- add Open Design peripheral workflow (#22735)
+
+### Changed
+
+- Tests: cover disabled pulse REST dispatch fallback (#22734)
+
 ## [3.14.36] - 2026-05-04
 
 ### Changed
