@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-05-04T14:37:06Z",
-      "hash": "56d694d54350e64d6c0bb790d7fbec496f4a0518",
-      "passes": 73,
+      "at": "2026-05-04T20:35:40Z",
+      "hash": "fc037e358683d4cd232d5a8b4bdf17f5cbf11a6d",
+      "passes": 74,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -1952,9 +1952,9 @@
       "pr": 16797
     },
     ".agents/scripts/commands/full-loop.md": {
-      "at": "2026-05-03T12:51:38Z",
-      "hash": "5c86a24fff78682501335ab3a29fb7da706153ba",
-      "passes": 15,
+      "at": "2026-05-04T20:36:37Z",
+      "hash": "a5d0f519058651e36d88e497dcf809f73eba8c7c",
+      "passes": 16,
       "pr": 14590
     },
     ".agents/scripts/commands/init-routines.md": {
@@ -2394,9 +2394,9 @@
       "pr": 17590
     },
     ".agents/scripts/pulse-ancillary-dispatch.sh": {
-      "at": "2026-04-27T16:20:33Z",
-      "hash": "85a2b1bc3cdcd7512b60c6a6f3d5e9de055c5da1",
-      "passes": 9,
+      "at": "2026-05-04T20:36:57Z",
+      "hash": "397ff8ce714527fe38dd3a4537532e26f2408a48",
+      "passes": 10,
       "pr": 18657
     },
     ".agents/scripts/pulse-cleanup.sh": {
@@ -2436,15 +2436,15 @@
       "pr": 18691
     },
     ".agents/scripts/pulse-issue-reconcile.sh": {
-      "at": "2026-05-04T14:42:32Z",
-      "hash": "4f8af85bcaa62425896c48b5ee079e0d47957d41",
-      "passes": 34,
+      "at": "2026-05-04T20:38:03Z",
+      "hash": "fd91ec386c47923f28c8709e6b45af2f1243a615",
+      "passes": 35,
       "pr": 18690
     },
     ".agents/scripts/pulse-merge.sh": {
-      "at": "2026-05-03T12:51:54Z",
-      "hash": "e1d1f9f3ae932705db87b63fc593df32eea96e87",
-      "passes": 30,
+      "at": "2026-05-04T20:38:25Z",
+      "hash": "cf231f29b456e8cf5117ae7d03579ed598051c48",
+      "passes": 31,
       "pr": 18829
     },
     ".agents/scripts/pulse-prefetch.sh": {
@@ -6168,15 +6168,15 @@
       "pr": 15327
     },
     ".agents/tools/git/opencode-github-security.md": {
-      "at": "2026-03-28T22:39:20Z",
-      "hash": "433293616dc956ef4fec53349c3f5c94b4318746",
-      "passes": 1,
+      "at": "2026-05-04T20:42:56Z",
+      "hash": "5c08e34c4ca0345d58cd8f75024b11652c22362d",
+      "passes": 2,
       "pr": 12309
     },
     ".agents/tools/git/opencode-github.md": {
-      "at": "2026-04-18T18:06:56Z",
-      "hash": "7de772de90fdf5653c951159d1652e48bf64e706",
-      "passes": 2,
+      "at": "2026-05-04T20:42:57Z",
+      "hash": "1c9fe4344f1d83c5a12a7f9350ae0017adfb2211",
+      "passes": 3,
       "pr": 11349
     },
     ".agents/tools/git/opencode-gitlab.md": {
@@ -7193,9 +7193,9 @@
       "pr": 13065
     },
     ".agents/workflows/full-loop.md": {
-      "at": "2026-05-03T12:53:17Z",
-      "hash": "5c86a24fff78682501335ab3a29fb7da706153ba",
-      "passes": 4,
+      "at": "2026-05-04T20:43:56Z",
+      "hash": "a5d0f519058651e36d88e497dcf809f73eba8c7c",
+      "passes": 5,
       "pr": 19047
     },
     ".agents/workflows/git-workflow.md": {
@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-04T14:50:13Z",
-      "hash": "8948418dc087da917560a8f33ee71fd15e3aa268",
-      "passes": 133,
+      "at": "2026-05-04T20:44:05Z",
+      "hash": "a643e707be200b78f63d1e363d8ad2ea2df2ef93",
+      "passes": 134,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-04T14:50:14Z",
-      "hash": "6565af19eedf84127b47fa7b81ce11cea99f37ab",
-      "passes": 129,
+      "at": "2026-05-04T20:44:05Z",
+      "hash": "db7cb2fa092ec96251c97a8401bf869952d9ccb0",
+      "passes": 130,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7606,10 +7606,10 @@
       "passes": 2
     },
     ".agents/scripts/pulse-merge-feedback.sh": {
-      "hash": "3a10f01ad8b2089b3572617d3283a5ad32f54ece",
-      "at": "2026-05-03T12:51:54Z",
+      "hash": "7a99603a20ef77f2bf61e8911f9854ee860e903f",
+      "at": "2026-05-04T20:38:14Z",
       "pr": 20057,
-      "passes": 8
+      "passes": 9
     },
     ".agents/reference/hot-deploy.md": {
       "hash": "3a66b934462bb8f144f83d2522d569068d4898d1",
@@ -7618,10 +7618,10 @@
       "passes": 2
     },
     ".agents/reference/testing.md": {
-      "hash": "74ecb0c34ba67fedfc31ebf20a1418353bb8c727",
-      "at": "2026-04-20T06:08:30Z",
+      "hash": "6c1fa400fc78ec57b0f5ae939b1ce86d1f3bf74a",
+      "at": "2026-05-04T20:36:32Z",
       "pr": 20110,
-      "passes": 1
+      "passes": 2
     },
     ".agents/reference/opencode-maintenance.md": {
       "hash": "d54d86ee0aaf5f7cd97f1b8815382e55fa9f92d1",
