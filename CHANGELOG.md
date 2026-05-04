@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.46] - 2026-05-04
+
+### Changed
+
+- Documentation: restore core AGENTS progress guidance (#22797)
+
 ## [3.14.45] - 2026-05-04
 
 ### Changed
