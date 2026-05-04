@@ -35,6 +35,7 @@ Environment overrides:
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 
@@ -357,6 +358,88 @@ def _build_canonical_off_default_deny(
     }
 
 
+TAKES_BRANCH_ARG = {"-b", "-B", "-c", "-C", "--create", "--force-create"}
+OPTION_WITH_VALUE = {"-t", "--track", "--orphan", "--conflict", "--pathspec-from-file"}
+
+
+def _split_git_switch_command(command: str) -> tuple[str, list[str]]:
+    """Return the git switch/checkout subcommand and args, or empty values."""
+    subcommand = ""
+    args: list[str] = []
+    try:
+        tokens = shlex.split(command)
+    except ValueError:
+        tokens = []
+    if len(tokens) >= 3 and tokens[0] == "git" and tokens[1] in ("switch", "checkout"):
+        subcommand = tokens[1]
+        args = tokens[2:]
+    return subcommand, args
+
+
+def _scan_git_switch_args(subcommand: str, args: list[str]) -> str:
+    """Return the first branch-like target in git switch/checkout args."""
+    target = ""
+    index = 0
+    while index < len(args) and not target:
+        arg = args[index]
+        if arg in TAKES_BRANCH_ARG:
+            if index + 1 < len(args):
+                target = args[index + 1]
+        elif arg in OPTION_WITH_VALUE:
+            index += 2
+            continue
+        elif arg.startswith("-"):
+            index += 1
+            continue
+        elif subcommand == "checkout" and any(ch in arg for ch in ("/", ".")):
+            # Likely a file/path checkout, not a branch switch.
+            target = ""
+        else:
+            target = arg
+        index += 1
+    return target
+
+
+def _extract_git_switch_target(command: str) -> str:
+    """Return the target branch for a git switch/checkout command, if obvious."""
+    subcommand, args = _split_git_switch_command(command)
+    target = ""
+    if subcommand and "--" not in args:
+        target = _scan_git_switch_args(subcommand, args)
+    return target
+
+
+def _canonical_branch_switch_deny(target: str, default_branch: str) -> dict:
+    """Return a deny payload for canonical workspace branch switches."""
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "deny",
+            "permissionDecisionReason": (
+                "BLOCKED by git_safety_guard.py (aidevops t1990)\n\n"
+                f"Reason: Canonical workspace cannot switch to or create branch '{target}'.\n\n"
+                "Per t1990, the canonical repo directory must stay on the default branch. "
+                "Create or use a linked worktree under the configured workspace root instead:\n"
+                f"  wt switch -c {target}\n\n"
+                f"To restore canonical state, run: git switch {default_branch}"
+            ),
+        }
+    }
+
+
+def _check_canonical_branch_switch_command(command: str) -> "dict | None":
+    """Deny git switch/checkout to non-default refs in the canonical checkout."""
+    cwd = os.getcwd()
+    repo_root = _get_repo_root(cwd)
+    target = ""
+    if repo_root and not _is_linked_worktree(repo_root):
+        target = _extract_git_switch_target(command)
+    default_branch = _get_default_branch(repo_root) if target else ""
+    if target and target not in (default_branch, "main", "master", "-"):
+        return _canonical_branch_switch_deny(target, default_branch)
+    return None
+
+
 def _check_main_branch_allowlist(file_path: str) -> "dict | None":
     """Check if an Edit/Write to file_path is allowed on the current branch.
 
@@ -471,6 +554,11 @@ def main():
 
     original_command = command
     command = _normalize_absolute_paths(command)
+
+    branch_switch_deny = _check_canonical_branch_switch_command(command)
+    if branch_switch_deny:
+        print(json.dumps(branch_switch_deny))
+        sys.exit(0)
 
     # Check safe patterns first (allowlist)
     for pattern in SAFE_PATTERNS:
