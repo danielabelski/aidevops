@@ -10,6 +10,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.40] - 2026-05-04
+
+### Changed
+
+- Refactor: clarify ops comment body construction (#22770)
+- Tests: lock startup greeting prompt wording (#22772)
+- Performance: harden TODO sync recovery (#22771)
+- Tests: cover lowercase dispatch claim release markers (#22767)
+- Documentation: align quality gate reference wording (#22766)
+- Refactor: reduce agent source nesting debt (#22750)
+- Refactor: split case alarm tick complexity (#22748)
+
+### Fixed
+
+- reduce bash compatibility baseline debt (#22781)
+- bind zombie reaper to worker ledger repo (#22776)
+- skip launch preflight fast-fail accrual (#22773)
+- skip launch preflight fast-fail accrual (#22775)
+- trim fallback greeting version (#22769)
+- honor skipped OpenAI OAuth account (#22768)
+- skip no_work NMR for prelaunch skips (#22754)
+- align git safety hook branch self-test (#22753)
+- normalize health dashboard issue states (#22751)
+- count no_work markers across comment pages (#22747)
+- reduce bash 3.2 compatibility violations (#22749)
+- improve worker reliability controls (#22745)
+
 ## [3.14.39] - 2026-05-04
 
 ### Changed
