@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.62] - 2026-05-05
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Tests: guard full-loop behavior spelling (#22929)
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- initialize fast-fail age-out locals (#22931)
+- recover stale pulse dispatch blockers (#22930)
+- narrow pulse zero-progress candidates (#22926)
+
 ## [3.14.61] - 2026-05-05
 
 ### Changed
