@@ -1952,9 +1952,9 @@
       "pr": 16797
     },
     ".agents/scripts/commands/full-loop.md": {
-      "at": "2026-05-05T08:15:27Z",
-      "hash": "caf12e0b85959db72d8e3cf2beeac12376b890b8",
-      "passes": 17,
+      "at": "2026-05-05T13:04:22Z",
+      "hash": "312c48f7c2a442eccd34bc34410c5ad2e3dae44a",
+      "passes": 18,
       "pr": 14590
     },
     ".agents/scripts/commands/init-routines.md": {
@@ -2394,9 +2394,9 @@
       "pr": 17590
     },
     ".agents/scripts/pulse-ancillary-dispatch.sh": {
-      "at": "2026-05-04T20:36:57Z",
-      "hash": "397ff8ce714527fe38dd3a4537532e26f2408a48",
-      "passes": 10,
+      "at": "2026-05-05T13:04:34Z",
+      "hash": "4c836c623816e869238e34b0985b68d79fe12676",
+      "passes": 11,
       "pr": 18657
     },
     ".agents/scripts/pulse-cleanup.sh": {
@@ -7193,9 +7193,9 @@
       "pr": 13065
     },
     ".agents/workflows/full-loop.md": {
-      "at": "2026-05-05T08:22:25Z",
-      "hash": "caf12e0b85959db72d8e3cf2beeac12376b890b8",
-      "passes": 6,
+      "at": "2026-05-05T13:06:23Z",
+      "hash": "312c48f7c2a442eccd34bc34410c5ad2e3dae44a",
+      "passes": 7,
       "pr": 19047
     },
     ".agents/workflows/git-workflow.md": {
@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-05T12:17:12Z",
-      "hash": "6af622eed876b6f72a90a055e50ec8a58dc7fbcd",
-      "passes": 136,
+      "at": "2026-05-05T13:06:28Z",
+      "hash": "78a37ea994b2431c3edda269ce164cc845be8562",
+      "passes": 137,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-05T12:17:12Z",
-      "hash": "fc19c7a5ecbe54a24da50f4c0fa89fdf794ec773",
-      "passes": 132,
+      "at": "2026-05-05T13:06:29Z",
+      "hash": "88824cdc2485c7960cf19d69b457a40eb9aec837",
+      "passes": 133,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7756,10 +7756,10 @@
       "passes": 4
     },
     ".agents/scripts/shared-gh-wrappers-rest-fallback.sh": {
-      "hash": "17e2a01478e5eecac124ccf4e4845d3be9642fa6",
-      "at": "2026-05-04T14:42:50Z",
+      "hash": "de43333ce7b4cd3d08576d85ff20cc1eebc8ea9c",
+      "at": "2026-05-05T13:04:38Z",
       "pr": 20552,
-      "passes": 11
+      "passes": 12
     },
     ".agents/scripts/pulse-dirty-pr-sweep.sh": {
       "hash": "f568032b08445dcc0e69c8e55fa18401d1a063eb",
