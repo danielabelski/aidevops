@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.61] - 2026-05-05
+
+### Changed
+
+- Documentation: standardize full-loop behavior spelling (#22921)
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- bound pulse final dispatch wait (#22925)
+- preserve helper output when printing bash32 scan logs (#22924)
+- harden REST mergeable jq normalization (#22923)
+- support older git in bash32 gate test (#22922)
+- normalize FOSS issue selection fallback (#22920)
+
 ## [3.14.60] - 2026-05-05
 
 ### Changed
