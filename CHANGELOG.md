@@ -10,6 +10,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.60] - 2026-05-05
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Documentation: align auto-dispatch followup guidance (#22916)
+- Tests: cover contributor insight review followup (#22915)
+- Tests: guard reachable CI test failure guidance (#22912)
+- Documentation: consolidate auto-dispatch readiness criteria (#22910)
+- Documentation: align plans auto-dispatch gate (#22911)
+- Documentation: clarify auto-dispatch placeholders (#22870)
+- Documentation: align auto-dispatch quality gate (#22904)
+- Documentation: clarify plans auto-dispatch guidance
+- reset idle merge zero-progress streak (#22884)
+- streamline zombie reaper ledger parsing (#22879)
+- Performance: avoid mergeable normalization subshells (#22880)
+- Documentation: align auto-dispatch exclusions (#22882)
+- Tests: align stale recovery mock repo slug (#22867)
+
+### Fixed
+
+- unblock review cleanup dispatch
+- optimize pulse gauge status (#22914)
+- harden gh pr list state parsing (#22877)
+- include OpenAI retry missing body status (#22883)
+- require lint warning cleanup dependency (#22903)
+- surface stale PR activity lookup errors (#22909)
+- improve setup lock diagnostics (#22907)
+- include OpenAI retry missing body status (#22908)
+- cover watchdog thrash advisory (#22900)
+- streamline contributor insight error composition (#22902)
+- release worker worktree on retry finish (#22899)
+- remove duplicate CI test failure patterns (#22901)
+- close recovered dashboard freshness alerts (#22873)
+- improve ratchet timeout diagnostics (#22898)
+- preserve log novelty evidence backslashes (#22897)
+- resolve SonarCloud quality gate blockers (#22886)
+- classify review bot notices in one pass (#22866)
+- preserve audit filenames in evidence tables (#22875)
+- simplify stale open PR activity guard (#22872)
+
 ## [3.14.59] - 2026-05-05
 
 ### Fixed
