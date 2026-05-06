@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.80] - 2026-05-06
+
+### Changed
+
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- release claim-only dispatch markers (#23021)
+- enforce ruleset required checks in pulse merge gate (#23022)
+
 ## [3.14.79] - 2026-05-06
 
 ### Changed
