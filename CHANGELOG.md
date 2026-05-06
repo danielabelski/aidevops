@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.78] - 2026-05-06
+
+### Fixed
+
+- avoid dispatch claims before canary passes (#23015)
+
 ## [3.14.77] - 2026-05-06
 
 ### Fixed
