@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.81] - 2026-05-06
+
+### Fixed
+
+- preserve peer-runner circuit breakers (#23025)
+- keep pulse OpenCode resolver product-strict (#23023)
+
 ## [3.14.80] - 2026-05-06
 
 ### Changed
