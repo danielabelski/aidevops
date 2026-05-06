@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-05-06T16:38:45Z",
-      "hash": "4cab9752708a3f31d105c7eeff8c924df4d7a89a",
-      "passes": 77,
+      "at": "2026-05-06T21:53:27Z",
+      "hash": "e9853c28a81d9d6e145f17bcc1060446fc92ba17",
+      "passes": 78,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -2096,9 +2096,9 @@
       "pr": 12326
     },
     ".agents/scripts/commands/save-todo.md": {
-      "at": "2026-04-23T21:02:11Z",
-      "hash": "5b7649bd09c96cad2f3853a71dbe7a68ce778065",
-      "passes": 4,
+      "at": "2026-05-06T21:55:22Z",
+      "hash": "fb2a3c13b35c7b821874eaef1697faa03f9543f2",
+      "passes": 5,
       "pr": 12521
     },
     ".agents/scripts/commands/security-deps.md": {
@@ -7390,9 +7390,9 @@
       "pr": 18211
     },
     ".agents/workflows/save-todo.md": {
-      "at": "2026-04-23T21:03:22Z",
-      "hash": "5b7649bd09c96cad2f3853a71dbe7a68ce778065",
-      "passes": 4,
+      "at": "2026-05-06T21:57:52Z",
+      "hash": "fb2a3c13b35c7b821874eaef1697faa03f9543f2",
+      "passes": 5,
       "pr": 18187
     },
     ".agents/workflows/session-manager.md": {
@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-06T16:41:25Z",
-      "hash": "00349cc8eda22643fe6560784270f583b4984360",
-      "passes": 149,
+      "at": "2026-05-06T21:57:54Z",
+      "hash": "aece4a7679de1128c64ac3971725ad8cec673a9f",
+      "passes": 150,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-06T16:41:26Z",
-      "hash": "c4ab161d6057043ad2b63c9f79b8d7e77fe7ba6f",
-      "passes": 145,
+      "at": "2026-05-06T21:57:55Z",
+      "hash": "3312f6f8402c13000ffe505249fac3a3303b9a3d",
+      "passes": 146,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
