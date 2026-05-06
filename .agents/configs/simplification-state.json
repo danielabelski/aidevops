@@ -2424,9 +2424,9 @@
       "pr": 18799
     },
     ".agents/scripts/pulse-fast-fail.sh": {
-      "at": "2026-05-06T04:36:12Z",
-      "hash": "a14ac08cd7e81dd470a853c750ce49267810e0a5",
-      "passes": 12,
+      "at": "2026-05-06T06:32:17Z",
+      "hash": "289adbf5dd1576bf44d8b4aca20e0d3f85cd2465",
+      "passes": 13,
       "pr": 18692
     },
     ".agents/scripts/pulse-instance-lock.sh": {
@@ -7768,10 +7768,10 @@
       "passes": 5
     },
     ".agents/scripts/pulse-dispatch-worker-launch.sh": {
-      "hash": "f088f082a1392137972bdf3e6c6bebb086b0e908",
-      "at": "2026-05-06T04:36:11Z",
+      "hash": "7b1258b71daadd861a5838283f974e167efc2269",
+      "at": "2026-05-06T06:32:16Z",
       "pr": 20617,
-      "passes": 16
+      "passes": 17
     },
     ".agents/reference/dispatch-blockers.md": {
       "hash": "a9d78357a5125b66aabc3092007c4648e5c73319",
