@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.82] - 2026-05-06
+
+### Fixed
+
+- quarantine dead worktree owners (#23026)
+
 ## [3.14.81] - 2026-05-06
 
 ### Fixed
