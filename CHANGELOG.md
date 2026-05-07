@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.92] - 2026-05-07
+
+### Changed
+
+- respect repository rulesets during pulse merge (#23090)
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- reject qwen opencode shim candidates (#23096)
+- reject invalid duplicate issue numbers (#23094)
+- allow aidevops script references in privacy scanner (#23095)
+- harden pulse stuck author parsing (#23093)
+- preserve prelaunch worker failure reasons (#23088)
+- restore OpenCode memory tool args schema (#23084)
+- handle protected counter branch allocation (#23083)
+
 ## [3.14.91] - 2026-05-07
 
 ### Fixed
