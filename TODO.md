@@ -4186,6 +4186,6 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3571 feat: close superseded duplicate PRs against merged fixes #auto-dispatch #feature #framework #pulse ref:GH#23105
 
-- [ ] t3572 docs: add automation safety invariants to AGENTS.md #auto-dispatch #documentation #framework ref:GH#23106
+- [x] t3572 docs: add automation safety invariants to AGENTS.md #auto-dispatch #documentation #framework ref:GH#23106 pr:#23115 completed:2026-05-07
 
 - [x] t3573 fix: block unrequested canonical branch switches #auto-dispatch #bug #framework #git-safety #interactive ref:GH#23109 pr:#23113 completed:2026-05-07
