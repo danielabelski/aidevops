@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.91] - 2026-05-07
+
+### Fixed
+
+- isolate systemd pulse workers from cgroup (#23082)
+- protect owned worktrees from branch-merged cleanup (#23081)
+- protect worker worktrees during cleanup (#23075)
+
 ## [3.14.90] - 2026-05-07
 
 ### Fixed
