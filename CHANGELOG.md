@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.97] - 2026-05-08
+
+### Changed
+
+- Maintenance: sync ref:GH#23128 to TODO.md [skip ci]
+
+### Fixed
+
+- retry breaker-held issues after aidevops upgrades (#23127)
+
 ## [3.14.96] - 2026-05-08
 
 ### Changed
