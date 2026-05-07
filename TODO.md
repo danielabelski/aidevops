@@ -4189,3 +4189,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t3572 docs: add automation safety invariants to AGENTS.md #auto-dispatch #documentation #framework ref:GH#23106 pr:#23115 completed:2026-05-07
 
 - [x] t3573 fix: block unrequested canonical branch switches #auto-dispatch #bug #framework #git-safety #interactive ref:GH#23109 pr:#23113 completed:2026-05-07
+
+- [ ] t3566 Allow breaker-held issues to retry after aidevops upgrades #bug ref:GH#23128
