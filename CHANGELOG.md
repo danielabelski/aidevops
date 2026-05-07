@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.93] - 2026-05-07
+
+### Changed
+
+- Maintenance: mark t3570 complete (pr:#23111 completed:2026-05-07) [skip ci]
+- Maintenance: sync ref:GH#23109 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#23106 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#23105 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#23101 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#23100 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#23099 to TODO.md [skip ci]
+
+### Fixed
+
+- heal invalid OpenCode stable shim (#23108)
+- pause transient rate-limit release storms (#23111)
+
 ## [3.14.92] - 2026-05-07
 
 ### Changed
