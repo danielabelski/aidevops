@@ -10,6 +10,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.94] - 2026-05-07
+
+### Added
+
+- dedupe review-feedback dispatch against merged PRs (#23122)
+- close superseded pulse duplicate PRs (#23117)
+
+### Changed
+
+- treat pending required checks as non-terminal (#23119)
+- deduplicate health dashboards by identity aliases (#23121)
+- Maintenance: mark t3571 complete (pr:#23117 completed:2026-05-07) [skip ci]
+- Maintenance: mark t3572 complete (pr:#23115 completed:2026-05-07) [skip ci]
+- Documentation: add automation safety invariants (#23115)
+- Maintenance: update simplification state registry
+- Maintenance: mark t3573 complete (pr:#23113 completed:2026-05-07) [skip ci]
+- Maintenance: mark t3568 complete (pr:#23112 completed:2026-05-07) [skip ci]
+
+### Fixed
+
+- deduplicate linux scheduler backends (#23123)
+- anchor JS credential scrub pattern (#23120)
+- recover task counter desync (#23114)
+- block unrequested canonical branch switches (#23113)
+- require terminal CI failures for repair feedback (#23112)
+
 ## [3.14.93] - 2026-05-07
 
 ### Changed
