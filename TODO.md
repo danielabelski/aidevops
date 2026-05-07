@@ -4177,3 +4177,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t3565 Harden interactive issue creation labels #bug ref:GH#23018 pr:#23020 completed:2026-05-06
 
 - [ ] t3567 fix: treat pending required checks as non-terminal #auto-dispatch #bug #framework #pulse ref:GH#23099
+
+- [ ] t3568 fix: require terminal CI failures for repair feedback #auto-dispatch #bug #framework #pulse ref:GH#23100
