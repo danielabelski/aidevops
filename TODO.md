@@ -4175,3 +4175,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3563 Fix recurring TODO sync stashes during cleanup #auto-dispatch #bug ref:GH#22664
 
 - [x] t3565 Harden interactive issue creation labels #bug ref:GH#23018 pr:#23020 completed:2026-05-06
+
+- [ ] t3567 fix: treat pending required checks as non-terminal #auto-dispatch #bug #framework #pulse ref:GH#23099
