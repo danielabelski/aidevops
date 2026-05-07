@@ -4183,3 +4183,5 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [ ] t3570 fix: pause repeated transient rate-limit releases #auto-dispatch #bug #framework #pulse ref:GH#23102
 
 - [ ] t3569 feat: dedupe review-feedback issues before worker launch #auto-dispatch #feature #framework #worker ref:GH#23101
+
+- [ ] t3571 feat: close superseded duplicate PRs against merged fixes #auto-dispatch #feature #framework #pulse ref:GH#23105
