@@ -2298,15 +2298,15 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "at": "2026-05-05T08:15:43Z",
-      "hash": "2e9c4853e87077eaa0a44a7144e2ab9006eeb4b7",
-      "passes": 39,
+      "at": "2026-05-07T08:25:45Z",
+      "hash": "336dfa036d40b2cbc595857deaf1e8eaa352be0e",
+      "passes": 40,
       "pr": 15086
     },
     ".agents/scripts/headless-runtime-lib.sh": {
-      "at": "2026-05-05T08:15:44Z",
-      "hash": "0ab7b3b834fc7592aba8aef59d74e38de5292065",
-      "passes": 21,
+      "at": "2026-05-07T08:25:47Z",
+      "hash": "6bfbdb5f1491e51fefa69ea42febd98f054e7650",
+      "passes": 22,
       "pr": 18707
     },
     ".agents/scripts/interactive-session-helper.sh": {
@@ -2418,9 +2418,9 @@
       "pr": 18832
     },
     ".agents/scripts/pulse-dispatch-engine.sh": {
-      "at": "2026-05-04T14:42:28Z",
-      "hash": "5b2255c198e08a2e6e37f1b49d7d88686d5fac1b",
-      "passes": 27,
+      "at": "2026-05-07T08:26:10Z",
+      "hash": "2e292fb8b503d6fb8c9a1388c767110775d017e7",
+      "passes": 28,
       "pr": 18799
     },
     ".agents/scripts/pulse-fast-fail.sh": {
@@ -2436,9 +2436,9 @@
       "pr": 18691
     },
     ".agents/scripts/pulse-issue-reconcile.sh": {
-      "at": "2026-05-06T15:41:16Z",
-      "hash": "2166bdc5cc48259080f8f6ad175c9cf367b23a98",
-      "passes": 37,
+      "at": "2026-05-07T08:26:16Z",
+      "hash": "21099bbe6132dc9dc640a67a22a25ba268adc563",
+      "passes": 38,
       "pr": 18690
     },
     ".agents/scripts/pulse-merge.sh": {
@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-06T21:57:54Z",
-      "hash": "aece4a7679de1128c64ac3971725ad8cec673a9f",
-      "passes": 150,
+      "at": "2026-05-07T08:47:00Z",
+      "hash": "1aa10bc31704eff84661619efdeed0e53ff14234",
+      "passes": 151,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-06T21:57:55Z",
-      "hash": "3312f6f8402c13000ffe505249fac3a3303b9a3d",
-      "passes": 146,
+      "at": "2026-05-07T08:47:01Z",
+      "hash": "fc238eafebf07ed8e21029ff5df2257b9ef9a1de",
+      "passes": 147,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
