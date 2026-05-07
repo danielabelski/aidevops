@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.90] - 2026-05-07
+
+### Fixed
+
+- transfer precreated worker worktree ownership (#23072)
+
 ## [3.14.89] - 2026-05-07
 
 ### Fixed
