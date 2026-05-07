@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.95] - 2026-05-08
+
+### Fixed
+
+- keep dashboard freshness dedup compatible (#23124)
+
 ## [3.14.94] - 2026-05-07
 
 ### Added
