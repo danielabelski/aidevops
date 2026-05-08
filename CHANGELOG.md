@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.4] - 2026-05-08
+
+### Changed
+
+- Maintenance: mark t3582 complete (pr:#23216 completed:2026-05-08) [skip ci]
+- fix pulse self-healing blockers (#23216)
+- Maintenance: sync ref:GH#23215 to TODO.md [skip ci]
+- Documentation: clarify RTK adaptive fallback (#23213)
+- Maintenance: mark t3581 complete (pr:#23214 completed:2026-05-08) [skip ci]
+
 ## [3.15.3] - 2026-05-08
 
 ### Added
