@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.6] - 2026-05-08
+
+### Changed
+
+- fix consolidated label predicate (#23219)
+- Maintenance: mark t3583 complete (pr:#23218 completed:2026-05-08) [skip ci]
+- fix worker recovery follow-through (#23218)
+
 ## [3.15.5] - 2026-05-08
 
 ### Changed
