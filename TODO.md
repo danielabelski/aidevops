@@ -4200,7 +4200,7 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3575 Avoid redispatch for CI infra-only blockers #auto-dispatch #bug #framework #mission #pulse ref:GH#23134
 
-- [ ] t3578 SQLite output sandbox for token-efficient noisy tool output #enhancement #framework ref:GH#23137
+- [x] t3578 SQLite output sandbox for token-efficient noisy tool output #enhancement #framework ref:GH#23137 pr:#23143 completed:2026-05-08
 
 - [x] t3577 Default RTK token optimization in setup #enhancement #framework ref:GH#23136 pr:#23138 completed:2026-05-08
 
