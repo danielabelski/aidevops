@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-05-08T04:22:15Z",
-      "hash": "f142517abbeeb9ae990973aa2cbcee69a377ec29",
-      "passes": 80,
+      "at": "2026-05-08T13:58:38Z",
+      "hash": "4a192b282cff9494ab98fe5d2859b2def8d7a387",
+      "passes": 81,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -1802,9 +1802,9 @@
       "pr": "pending"
     },
     ".agents/reference/worker-diagnostics.md": {
-      "at": "2026-05-05T08:15:12Z",
-      "hash": "916809309d4e42f89f1cd41b1bd917e006874004",
-      "passes": 15,
+      "at": "2026-05-08T14:07:20Z",
+      "hash": "30d7bb4fa997790d9eb1b670d27f2f4e26503e4f",
+      "passes": 16,
       "pr": 17659
     },
     ".agents/research.md": {
@@ -2436,9 +2436,9 @@
       "pr": 18691
     },
     ".agents/scripts/pulse-issue-reconcile.sh": {
-      "at": "2026-05-07T08:26:16Z",
-      "hash": "21099bbe6132dc9dc640a67a22a25ba268adc563",
-      "passes": 38,
+      "at": "2026-05-08T14:12:27Z",
+      "hash": "a4f9076bcc39d5de5781ce03867afa35437152e2",
+      "passes": 39,
       "pr": 18690
     },
     ".agents/scripts/pulse-merge.sh": {
@@ -7480,21 +7480,21 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-05-08T08:44:39Z",
-      "hash": "115bc81c24980f76453af5212ba4165f4b54c25e",
-      "passes": 136,
+      "at": "2026-05-08T14:47:54Z",
+      "hash": "68166eb440dbee3f85750f4f5d22881a8fb83e37",
+      "passes": 137,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-08T08:44:40Z",
-      "hash": "2c75d36f48961f97db0d5b47713838affe4d2cc3",
-      "passes": 158,
+      "at": "2026-05-08T14:48:01Z",
+      "hash": "3c356f9dd1d4b4ef3fdd7a7eabfdf13766557434",
+      "passes": 159,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-08T08:44:40Z",
-      "hash": "d3500f2fef95dd1fd280cc1183a03088e2f930b7",
-      "passes": 154,
+      "at": "2026-05-08T14:48:08Z",
+      "hash": "8860d3dabd1797583629f1aa614c4c3196e213fd",
+      "passes": 155,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7648,10 +7648,10 @@
       "passes": 7
     },
     ".agents/reference/review-bot-gate.md": {
-      "hash": "e89b742ff09029f13a0bf070ce490ecc39f80984",
-      "at": "2026-05-01T21:32:57Z",
+      "hash": "11994c471664573bdcc6b795590f2a4221c3af4a",
+      "at": "2026-05-08T14:06:46Z",
       "pr": 20122,
-      "passes": 4
+      "passes": 5
     },
     ".agents/reference/pre-commit-hooks.md": {
       "hash": "3c96085bb4ec8c76e91757bfc666a8dc0df75c70",
