@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.100] - 2026-05-08
+
+### Changed
+
+- Maintenance: mark t3579 complete (pr:#23141 completed:2026-05-08) [skip ci]
+- fix: classify timed-out CI logs as infra blockers (#23141)
+- Maintenance: sync ref:GH#23142 to TODO.md [skip ci]
+
 ## [3.14.99] - 2026-05-08
 
 ### Changed
