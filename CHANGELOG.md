@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.0] - 2026-05-08
+
+### Added
+
+- add SQLite output sandbox helper (#23143)
+
+### Changed
+
+- Maintenance: mark t3578 complete (pr:#23143 completed:2026-05-08) [skip ci]
+- Maintenance: update simplification state registry
+
 ## [3.14.100] - 2026-05-08
 
 ### Changed
