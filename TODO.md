@@ -959,7 +959,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [x] t3583 Improve pulse recovery for orphaned worker output ref:GH#23217 pr:#23218 completed:2026-05-08
 
-- [ ] t3584 fix: recover worker output after runtime kills #auto-dispatch #bug ref:GH#23224
+- [x] t3584 fix: recover worker output after runtime kills #auto-dispatch #bug ref:GH#23224 pr:#23223 completed:2026-05-08
 
 ## In Progress
 
@@ -4217,4 +4217,4 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 
 
-- [ ] t3584 fix: recover worker output after runtime kills #auto-dispatch #bug ref:GH#23224
+- [x] t3584 fix: recover worker output after runtime kills #auto-dispatch #bug ref:GH#23224 pr:#23223 completed:2026-05-08
