@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.5] - 2026-05-08
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Maintenance: sync ref:GH#23217 to TODO.md [skip ci]
+
+### Fixed
+
+- initialize pulse capacity locals (#23062)
+
 ## [3.15.4] - 2026-05-08
 
 ### Changed
