@@ -10,6 +10,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.98] - 2026-05-08
+
+### Added
+
+- default RTK token optimization setup (#23138)
+
+### Changed
+
+- Maintenance: mark t3576 complete (pr:#23133 completed:2026-05-08) [skip ci]
+- Maintenance: mark t3577 complete (pr:#23138 completed:2026-05-08) [skip ci]
+- fix: avoid redispatch for CI infra-only blockers (#23133)
+- Maintenance: mark t3574 complete (pr:#23131 completed:2026-05-08) [skip ci]
+- add auto-browse workflow guidance (#23131)
+- Maintenance: sync ref:GH#23136 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#23134 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#23132 to TODO.md [skip ci]
+
+### Fixed
+
+- guard health dashboard dedup targets (#23129)
+
 ## [3.14.97] - 2026-05-08
 
 ### Changed
