@@ -7480,21 +7480,21 @@
       "pr": 16415
     },
     "TODO.md": {
-      "at": "2026-05-08T02:20:02Z",
-      "hash": "ff0b38e4120713c96ed894e1a27a3bde3457ebbe",
-      "passes": 134,
+      "at": "2026-05-08T02:32:14Z",
+      "hash": "5fa018c259302ed8c1593d0696574ea5f29e4eac",
+      "passes": 135,
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-08T02:20:02Z",
-      "hash": "71d1e5962460cd2be9c585787679df59a1387a45",
-      "passes": 155,
+      "at": "2026-05-08T02:32:15Z",
+      "hash": "82fa388de189861fc702b5dc4821651fed9f20cc",
+      "passes": 156,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-08T02:20:03Z",
-      "hash": "bc38098adf3078e6b79afc7f14afaf13c116c231",
-      "passes": 151,
+      "at": "2026-05-08T02:32:15Z",
+      "hash": "ce7d01fadf0d8df6bee743153231c54437ab6bf6",
+      "passes": 152,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7630,10 +7630,10 @@
       "passes": 3
     },
     ".agents/reference/observability.md": {
-      "hash": "43800ff8ceae1b8b9e54e43f2d4677ba371cf4df",
-      "at": "2026-05-02T15:43:07Z",
+      "hash": "7f9d94cc1e07cd0168ed743a5d256eec4dcbd3ac",
+      "at": "2026-05-08T02:32:17Z",
       "pr": 20108,
-      "passes": 2
+      "passes": 3
     },
     ".agents/reference/large-file-split.md": {
       "hash": "7103121f3c5c4dcaa3d112f737857899de4c2129",
