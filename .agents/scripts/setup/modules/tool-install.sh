@@ -1668,7 +1668,10 @@ _setup_opencode_node_path_for_binary() {
 	local path_value=""
 
 	bin_dir=$(dirname "$bin" 2>/dev/null || printf '')
-	path_value="$bin_dir:${HOME}/.local/bin:${HOME}/.aidevops/agents/scripts:/usr/local/bin:/usr/bin:/bin"
+	if [[ -n "$bin_dir" && "$bin_dir" == /* ]]; then
+		path_value="${bin_dir}:"
+	fi
+	path_value="${path_value}${HOME}/.local/bin:${HOME}/.aidevops/agents/scripts:/usr/local/bin:/usr/bin:/bin"
 	printf '%s\n' "$path_value"
 	return 0
 }
