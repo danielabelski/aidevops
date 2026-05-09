@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.12] - 2026-05-09
+
+### Changed
+
+- Documentation: organize ecosystem repo paths (#23278)
+
 ## [3.15.11] - 2026-05-09
 
 ### Added
