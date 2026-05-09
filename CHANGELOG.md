@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.19] - 2026-05-10
+
+### Added
+
+- add video editor skill workflow (#23293)
+
+### Changed
+
+- Maintenance: update simplification state registry
+
 ## [3.15.18] - 2026-05-10
 
 ### Fixed
