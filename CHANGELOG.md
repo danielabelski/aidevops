@@ -10,6 +10,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.10] - 2026-05-09
+
+### Added
+
+- consolidate duplicate worker PR siblings (#23232)
+- add pulse current-state dispatch guardrails (#23233)
+- add structured worker failure diagnostics (#23229)
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Refactor: normalize worker exit metrics (#23248)
+- Performance: consolidate duplicate PR merge jq parsing (#23249)
+- Maintenance: update simplification state registry
+- recover missing-context blockers (#23227)
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- clarify interactive PR throughput policy (#23273)
+- skip claim lifecycle on external repos (#23274)
+- harden coderabbit init yaml edge cases (#23272)
+- refresh pulse current-state telemetry (#23270)
+- normalize duplicate PR mergeable scoring (#23271)
+- tighten dispatch sibling issue matching (#23269)
+- preserve duplicate PR consolidation scoring (#23268)
+- use label constants in feedback backfill (#23267)
+- avoid HEAD fallback in default branch resolver (#23266)
+- harden rtk helper cleanup followup (#23265)
+- harden CodeRabbit init YAML updates (#23254)
+- preserve feedback lifecycle labels (#23251)
+- guard failure recovery on default branch (#23250)
+- harden rtk helper temp cleanup (#23253)
+- refresh pulse guardrail telemetry (#23252)
+- refine dispatch PR sibling matching (#23247)
+- dedupe healthy sibling dispatch PRs (#23230)
+
 ## [3.15.9] - 2026-05-08
 
 ### Changed
