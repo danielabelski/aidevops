@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.17] - 2026-05-09
+
+### Added
+
+- add branded screenshot video agents (#23289)
+
 ## [3.15.16] - 2026-05-09
 
 ### Fixed
