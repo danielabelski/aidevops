@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.20] - 2026-05-10
+
+### Changed
+
+- Documentation: document grouped ecosystem repo paths (#23294)
+
 ## [3.15.19] - 2026-05-10
 
 ### Added
