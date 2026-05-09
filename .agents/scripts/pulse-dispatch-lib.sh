@@ -104,7 +104,7 @@ _dispatch_stats_increment() {
 _dispatch_stats_increment_candidate_failed() {
 	local reason="$1"
 	case "$reason" in
-		dedup_active_claim | cost_budget_exceeded | cooldown_no_worker_process | graphql_circuit_breaker | runner_health_circuit_breaker | ever_nmr_without_approval | canary_failed | launch_error | missing_worker_context | local_capacity_gate | policy_gate | no_recent_log_evidence | unclassified_signal)
+		dedup_active_claim | cost_budget_exceeded | cooldown_no_worker_process | graphql_circuit_breaker | runner_health_circuit_breaker | ever_nmr_without_approval | canary_failed | launch_error | missing_worker_context | local_capacity_gate | policy_gate | no_recent_log_evidence | provider_rate_limit_pressure | repeated_failure_pressure | healthy_pr_backlog | no_dispatchable_evidence | unclassified_signal)
 			;;
 		*)
 			reason="unclassified_signal"
@@ -507,6 +507,13 @@ _dispatch_compute_capacity() {
 		fi
 	fi
 	available_slots=$((max_workers - active_workers))
+
+	local guardrail_line=""
+	guardrail_line=$(_dispatch_apply_current_state_guardrails "$max_workers" "$active_workers" "$available_slots") || guardrail_line="${max_workers} ${active_workers} ${available_slots}"
+	read -r max_workers active_workers available_slots <<<"$guardrail_line"
+	[[ "$max_workers" =~ ^[0-9]+$ ]] || max_workers=1
+	[[ "$active_workers" =~ ^[0-9]+$ ]] || active_workers=0
+	[[ "$available_slots" =~ ^-?[0-9]+$ ]] || available_slots=0
 
 	printf '%s %s %s\n' "$max_workers" "$active_workers" "$available_slots"
 	return 0
