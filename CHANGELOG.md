@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.16] - 2026-05-09
+
+### Fixed
+
+- keep nested skill resources under agents dir (#23288)
+- avoid text-only read-before-edit TTSR false positives (#23287)
+
 ## [3.15.15] - 2026-05-09
 
 ### Changed
