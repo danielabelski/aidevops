@@ -11,6 +11,7 @@
 # pipeline:
 #   - merge_ready_prs_all_repos           — top-level merge pass entry point
 #   - _merge_ready_prs_for_repo           — per-repo PR iteration
+#   - _pmp_consolidate_duplicate_pr_groups — safe superseded sibling PR cleanup
 #   - _pmp_classify_pr_backlog_state      — PR backlog observability buckets
 #   - _pmp_sort_prs_by_backlog_priority   — near-merge/fix-needed ordering
 #   - _attempt_pr_update_branch           — fast-forward via update-branch
@@ -348,6 +349,12 @@ merge_ready_prs_all_repos() {
 	return 0
 }
 
+# Safe duplicate worker PR consolidation helpers (m-20260508-0e27c3 task 2.4).
+_PULSE_MERGE_PROCESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./pulse-merge-duplicate-consolidation.sh
+# shellcheck disable=SC1091  # sub-library resolved at runtime via _PULSE_MERGE_PROCESS_DIR
+source "${_PULSE_MERGE_PROCESS_DIR}/pulse-merge-duplicate-consolidation.sh"
+
 #######################################
 # Merge ready PRs for a single repo.
 #
@@ -378,7 +385,7 @@ _merge_ready_prs_for_repo() {
 	local pr_json pr_merge_err
 	pr_merge_err=$(mktemp)
 	pr_json=$(gh_pr_list --repo "$repo_slug" --state open \
-		--json number,mergeable,reviewDecision,author,title,isDraft,labels,headRefOid \
+		--json number,mergeable,reviewDecision,author,title,isDraft,labels,headRefOid,createdAt \
 		--limit "$PULSE_MERGE_BATCH_LIMIT" 2>"$pr_merge_err") || pr_json="[]"
 	if [[ -z "$pr_json" || "$pr_json" == "null" ]]; then
 		local _pr_merge_err_msg
@@ -401,6 +408,7 @@ _merge_ready_prs_for_repo() {
 
 	_pmp_log_pr_backlog_counts "$repo_slug" "$pr_json"
 	pr_json=$(_pmp_sort_prs_by_backlog_priority "$pr_json")
+	_pmp_consolidate_duplicate_pr_groups "$repo_slug" "$pr_json" || true
 	pr_count=$(printf '%s' "$pr_json" | jq 'length' 2>/dev/null) || pr_count=0
 	[[ "$pr_count" =~ ^[0-9]+$ ]] || pr_count=0
 
