@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.15] - 2026-05-09
+
+### Changed
+
+- Documentation: capture session learning guidance (#23286)
+- Maintenance: sync ref:GH#23285 to TODO.md [skip ci]
+
 ## [3.15.14] - 2026-05-09
 
 ### Fixed
