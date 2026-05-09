@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.21] - 2026-05-10
+
+### Fixed
+
+- sync Tabby title on session rename (#23296)
+- preserve profile README worker counts (#23295)
+
 ## [3.15.20] - 2026-05-10
 
 ### Changed
