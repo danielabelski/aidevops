@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.29] - 2026-05-10
+
+### Changed
+
+- prescribe linked worktree guidance (#23365)
+
 ## [3.15.28] - 2026-05-10
 
 ### Changed
