@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.28] - 2026-05-10
+
+### Changed
+
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- pin postflight secretlint to repo version
+
 ## [3.15.27] - 2026-05-10
 
 ### Changed
