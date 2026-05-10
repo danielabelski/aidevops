@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.24] - 2026-05-10
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- make local complexity gate changed-file aware (#23307)
+- sign gh body-file temp copies (#23305)
+
 ## [3.15.23] - 2026-05-10
 
 ### Changed
