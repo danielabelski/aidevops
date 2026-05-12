@@ -288,9 +288,9 @@
       "pr": 11812
     },
     ".agents/commands/AGENTS.md": {
-      "at": "2026-05-10T22:06:00Z",
-      "hash": "d9d53475c20d43d0e29b2a13a2a9c2b1e038b594",
-      "passes": 83,
+      "at": "2026-05-12T23:36:31Z",
+      "hash": "1e6efb903e31b147744621a8502031d82df2b3cd",
+      "passes": 84,
       "pr": 18117
     },
     ".agents/commands/aidevops-automate.md": {
@@ -2298,9 +2298,9 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "at": "2026-05-09T07:01:54Z",
-      "hash": "945210baa6b1fc8b74e22d2884861cb4aadf1a7a",
-      "passes": 43,
+      "at": "2026-05-12T23:38:25Z",
+      "hash": "48cb9c8501742e345006435c210b666ec8119b43",
+      "passes": 44,
       "pr": 15086
     },
     ".agents/scripts/headless-runtime-lib.sh": {
@@ -6641,9 +6641,9 @@
       "pr": 13958
     },
     ".agents/tools/ui/frontend-debugging.md": {
-      "at": "2026-03-28T03:54:06Z",
-      "hash": "a6d23658a56048f995610f91ce49c03f0e5cccf9",
-      "passes": 1,
+      "at": "2026-05-12T23:41:17Z",
+      "hash": "15b8c94bd91875b1262fb833513b9ad85ef91d28",
+      "passes": 2,
       "pr": 11340
     },
     ".agents/tools/ui/i18next.md": {
@@ -6736,9 +6736,9 @@
       "pr": 12576
     },
     ".agents/tools/ui/ui-skills.md": {
-      "at": "2026-04-03T22:25:53Z",
-      "hash": "523286e313aee9bc39321d092c06aca4a062dee0",
-      "passes": 3,
+      "at": "2026-05-12T23:41:20Z",
+      "hash": "0b167065f56dac54c8fcca11d6aa035890191eae",
+      "passes": 4,
       "pr": 16281
     },
     ".agents/tools/ui/wxt.md": {
@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-12T10:12:16Z",
-      "hash": "85ca53aeadb41711015d961de3335c33a8352278",
-      "passes": 167,
+      "at": "2026-05-12T23:41:47Z",
+      "hash": "dcd9104cc18a4fc1d7dbcb6a7d496f6c0c7ee164",
+      "passes": 168,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-12T10:12:16Z",
-      "hash": "99f1f3bbc440b0ce3b252e1a4dea42d27344f708",
-      "passes": 163,
+      "at": "2026-05-12T23:41:47Z",
+      "hash": "0058c75fef5b301ca37667030b4b609311355534",
+      "passes": 164,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
