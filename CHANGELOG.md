@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.33] - 2026-05-12
+
+### Changed
+
+- Maintenance: mark t3588 complete (pr:#23440 completed:2026-05-12) [skip ci]
+- surface gh upgrade remediation (#23440)
+- Maintenance: sync ref:GH#23435 to TODO.md [skip ci]
+- Maintenance: sync ref:GH#23428 to TODO.md [skip ci]
+
+### Fixed
+
+- reduce duplicate pulse PR metadata polling (#23438)
+- back off fix-the-fixer auth failures (#23434)
+- validate stats runner identity (#23436)
+- detect unsupported gh slurp prerequisite (#23429)
+
 ## [3.15.32] - 2026-05-12
 
 ### Changed

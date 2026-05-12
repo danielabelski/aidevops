@@ -4224,4 +4224,3 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 
 - [ ] t3587 fix gh CLI slurp prerequisite diagnostics #auto-dispatch #bug #framework ref:GH#23428
 
-- [x] t3588 offer gh upgrade and OpenCode prerequisite toast #bug #framework ref:GH#23435 pr:#23440 completed:2026-05-12
