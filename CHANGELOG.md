@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.34] - 2026-05-12
+
+### Fixed
+
+- complete gh slurp prerequisite guidance
+
 ## [3.15.33] - 2026-05-12
 
 ### Changed
