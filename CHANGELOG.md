@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.32] - 2026-05-12
+
+### Changed
+
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- allow stale interactive merge handover
+
 ## [3.15.31] - 2026-05-11
 
 ### Fixed
