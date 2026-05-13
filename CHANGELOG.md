@@ -10,6 +10,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.39] - 2026-05-14
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Performance: consolidate dispatch readiness grep (#23502)
+- Documentation: clarify React Doctor read-only scope (#23514)
+- Documentation: clarify hotfix commit staging (#23503)
+- Performance: reuse pulse PR labels during routing (#23498)
+- Documentation: clarify React Doctor workflow (#23494)
+- Maintenance: update simplification state registry
+- Documentation: add React Doctor guidance (#23483)
+
+### Fixed
+
+- add OpenCode plugin tool args schemas (#23527)
+- default issue create status labels (#23523)
+- normalize backfill status issue counts (#23518)
+- reject hyphen-leading stats fallback identity
+- normalize CLI help alias formatting (#23515)
+- count supply-chain scan findings consistently (#23513)
+- simplify OpenCode memory limit fallback (#23504)
+- initialize pulse PR metadata locals (#23501)
+- isolate handover log tests (#23499)
+- address worktree CLI review followup (#23497)
+- harden supply-chain advisory scanner (#23496)
+- address routine systemd review followups (#23495)
+
 ## [3.15.38] - 2026-05-12
 
 ### Added
