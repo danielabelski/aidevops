@@ -1511,11 +1511,10 @@ _run_canary_test() {
 	local canary_output
 	canary_output=$(mktemp "${TMPDIR:-/tmp}/aidevops-canary.XXXXXX")
 
-	# Run without external plugins and with an explicit built-in agent. The canary
-	# validates provider/model health, not aidevops agent routing; relying on
-	# OpenCode's default_agent makes dispatch preflight fail before the smoke test
-	# can run when a clean setup has a stale or subagent-only default (GH#22250).
-	# OAuth auth remains available via the isolated auth.json copied below.
+	# GH#23598: OAuth-only Anthropic canaries must exercise the same plugin
+	# auth path as workers. Keep isolated XDG state for GH#22250, but do not
+	# use `--pure`; load the aidevops plugin and suppress interactive hooks via
+	# AIDEVOPS_HEADLESS=1 below.
 	local canary_model="$requested_model"
 	if [[ -z "$canary_model" ]]; then
 		while IFS= read -r canary_model; do
@@ -1551,10 +1550,19 @@ _run_canary_test() {
 	# Config isolation for canary: avoid validating the user's global
 	# default_agent before the smoke prompt runs. A stale or subagent-only
 	# default agent should not block provider/model health checks (GH#22250).
+	#
+	# GH#23598: include the opencode-aidevops plugin when present so OAuth
+	# auth is transformed correctly. Static-key hosts without the plugin keep
+	# the previous bare-config behaviour.
 	local _canary_config_dir=""
 	_canary_config_dir=$(mktemp -d "${TMPDIR:-/tmp}/aidevops-canary-config.XXXXXX")
 	mkdir -p "${_canary_config_dir}/opencode"
-	printf '%s\n' "{\"\$schema\":\"https://opencode.ai/config.json\"}" >"${_canary_config_dir}/opencode/opencode.json"
+	local _canary_plugin_path="${AIDEVOPS_PLUGIN_INDEX:-${HOME}/.aidevops/agents/plugins/opencode-aidevops/index.mjs}"
+	local _canary_plugin_url=""
+	[[ -f "$_canary_plugin_path" ]] && _canary_plugin_url="file://${_canary_plugin_path}"
+	jq -n --arg plugin_url "$_canary_plugin_url" \
+		'{"$schema":"https://opencode.ai/config.json"} + (if $plugin_url == "" then {} else {plugin: [$plugin_url]} end)' \
+		>"${_canary_config_dir}/opencode/opencode.json"
 	local _canary_provider
 	local _canary_default_provider="anthropic"
 	_canary_provider=$(extract_provider "$canary_model" 2>/dev/null || printf '%s' "$_canary_default_provider")
@@ -1603,10 +1611,15 @@ _run_canary_test() {
 	# t2887: use _effective_opencode_bin (resolved above), not
 	# $OPENCODE_BIN_DEFAULT directly. Identical to the default in the
 	# happy path; differs only when alternative-path fallback fired.
+	#
+	# GH#23598: AIDEVOPS_HEADLESS=1 prevents greeting/TTSR prompt injection,
+	# while the benign arithmetic probe avoids prompt-injection-shaped canary
+	# tokens. Omit --agent; isolated config already avoids stale defaults.
 	XDG_CONFIG_HOME="$_canary_config_dir" XDG_DATA_HOME="$_canary_data_dir" \
+		AIDEVOPS_HEADLESS=1 \
 		run_without_opencode_session_env "${_canary_timeout_cmd[@]}" \
-		"$_effective_opencode_bin" run --pure "Reply with exactly: CANARY_OK" \
-		-m "$canary_model" --dir "${HOME}" --agent build \
+		"$_effective_opencode_bin" run "What is two plus two? Answer with the single word: Four" \
+		-m "$canary_model" --dir "${HOME}" \
 		${canary_attach_args[@]+"${canary_attach_args[@]}"} \
 		>"$canary_output" 2>&1 || canary_exit=$?
 
@@ -1614,16 +1627,19 @@ _run_canary_test() {
 	rm -rf "$_canary_data_dir" 2>/dev/null || true
 	rm -rf "$_canary_config_dir" 2>/dev/null || true
 
-	# Output-aware check: the model responding "CANARY_OK" is the real
-	# success signal. The exit code reflects process lifecycle (opencode
+	# Output-aware check: the model responding with the expected word is the
+	# real success signal. The exit code reflects process lifecycle (opencode
 	# cleanup time, signal handling) not model health. Previously this
-	# required exit=0 AND CANARY_OK, but opencode 1.4.x takes longer to
-	# shut down cleanly — the timeout mechanism kills it (exit=124/SIGTERM
-	# or 137/SIGKILL on Linux; exit=142/SIGALRM on perl-alarm fallback)
-	# even after the model has already responded. Checking output alone is
-	# safe because CANARY_OK can only appear if the model actually
+	# required exit=0 AND the expected token, but opencode 1.4.x takes longer
+	# to shut down cleanly — the timeout mechanism kills it (exit=124/SIGTERM
+	# or 137/SIGKILL on Linux; exit=142/SIGALRM on perl-alarm fallback) even
+	# after the model has already responded. Checking output alone is safe
+	# because the expected token can only appear if the model actually
 	# processed the prompt and generated a response.
-	if grep -q "CANARY_OK" "$canary_output" 2>/dev/null; then
+	#
+	# GH#23598: match the benign probe answer case-insensitively with a
+	# portable word boundary rather than relying on GNU grep `\b` semantics.
+	if grep -Eiq '(^|[^[:alnum:]_])four([^[:alnum:]_]|$)' "$canary_output" 2>/dev/null; then
 		# Cache the pass timestamp
 		mkdir -p "${STATE_DIR}" 2>/dev/null || true
 		date +%s >"$cache_file"
