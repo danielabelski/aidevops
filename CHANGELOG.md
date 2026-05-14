@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.44] - 2026-05-14
+
+### Changed
+
+- Maintenance: mark t17994 complete (pr:#23536 completed:2026-05-14) [skip ci]
+
+### Fixed
+
+- resolve systemd worker pid handoff (#23535)
+- skip closed parent phase auto-filing (#23534)
+
 ## [3.15.43] - 2026-05-14
 
 ### Changed
