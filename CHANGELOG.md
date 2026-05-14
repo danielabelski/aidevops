@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.43] - 2026-05-14
+
+### Changed
+
+- Documentation: align gh body examples with signature gate (#23533)
+- Maintenance: mark t3589 complete (pr:#23532 completed:2026-05-14) [skip ci]
+
+### Fixed
+
+- propagate worker origin through sandbox (#23532)
+
 ## [3.15.42] - 2026-05-14
 
 ### Fixed
