@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.42] - 2026-05-14
+
+### Fixed
+
+- skip draft PRs before pulse merge writes (#23531)
+
 ## [3.15.41] - 2026-05-14
 
 ### Fixed
