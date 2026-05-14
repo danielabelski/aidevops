@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.49] - 2026-05-14
+
+### Fixed
+
+- canary works on OAuth-only hosts (drop --pure, load plugin, headless flag, benign probe) (#23599)
+
 ## [3.15.48] - 2026-05-14
 
 ### Fixed
