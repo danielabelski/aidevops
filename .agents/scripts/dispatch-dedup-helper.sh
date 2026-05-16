@@ -721,6 +721,46 @@ _is_assigned_check_no_auto_dispatch() {
 }
 
 #######################################
+# is_assigned helper: check the hold-for-review unconditional block.
+#
+# Maintainers use `hold-for-review` to pause automation while they inspect an
+# issue or PR. PR auto-merge paths already honour the label; the issue dispatch
+# path must treat it as a hard dispatch block too, without overloading
+# `needs-maintainer-review` (which is the non-maintainer trust gate).
+#
+# Mirrors _is_assigned_check_no_auto_dispatch structure:
+#   - Same jq-failure fail-closed contract: GUARD_UNCERTAIN on jq error
+#   - Same return-code contract: 0 = block (with signal printed), 1 = allow
+#   - Same args shape for traceable error output
+#
+# Args:
+#   $1 = issue metadata JSON (from `gh issue view --json ...,labels`)
+#   $2 = (optional) issue number — included in GUARD_UNCERTAIN output
+#   $3 = (optional) repo slug — included in GUARD_UNCERTAIN output
+# Returns: exit 0 if hold-for-review label found or jq fails (prints signal),
+#          exit 1 if label absent and jq succeeds
+#######################################
+_is_assigned_check_hold_for_review() {
+	local meta_json="$1"
+	local issue_number="${2:-unknown}"
+	local repo_slug="${3:-unknown}"
+	local _jq_rc=0
+	local hfr_hit
+	hfr_hit=$(printf '%s' "$meta_json" |
+		jq -r '(.labels // [])[].name | select(. == "hold-for-review")' 2>/dev/null | head -n 1) || _jq_rc=$?
+	if [[ "$_jq_rc" -ne 0 ]]; then
+		printf 'GUARD_UNCERTAIN (reason=jq-failure call=hold-for-review-check issue=%s repo=%s)\n' \
+			"$issue_number" "$repo_slug"
+		return 0
+	fi
+	if [[ -n "$hfr_hit" ]]; then
+		printf 'HOLD_FOR_REVIEW_BLOCKED (label=%s)\n' "$hfr_hit"
+		return 0
+	fi
+	return 1
+}
+
+#######################################
 # t3197: is_assigned helper — per-issue dispatch cooldown after launch failure.
 #
 # When `recover_failed_launch_state` records a `no_worker_process` failure,
@@ -1123,6 +1163,13 @@ is_assigned() {
 		return 0
 	fi
 
+	# Maintainer-requested review hold. This is intentionally separate from
+	# needs-maintainer-review, whose trust-boundary semantics are reserved for
+	# non-maintainer content and circuit-breaker review.
+	if _is_assigned_check_hold_for_review "$issue_meta_json" "$issue_number" "$repo_slug"; then
+		return 0
+	fi
+
 	# t3197: per-issue dispatch cooldown after no_worker_process launch failures.
 	# Short-circuits with DISPATCH_COOLDOWN_ACTIVE while the marker is unexpired.
 	# Fail-open: feature-gated by DISPATCH_COOLDOWN_AFTER_LAUNCH_FAILURE_SECONDS,
@@ -1287,7 +1334,8 @@ is_assigned() {
 # enumerate_blockers — report ALL structural dispatch blockers for an issue.
 #
 # Unlike is_assigned() which short-circuits on the first match, this function
-# runs every unconditional structural check (parent-task, no-auto-dispatch)
+# runs every unconditional structural check (parent-task, no-auto-dispatch,
+# hold-for-review)
 # and emits ALL matching signals as newline-separated tokens on stdout.
 #
 # Intentionally excludes cost-budget, hydration window, and assignee checks —
@@ -1354,7 +1402,14 @@ enumerate_blockers() {
 		_found=true
 	fi
 
-	# Check 3: t3197 dispatch cooldown after no_worker_process launch failure.
+	# Check 3: hold-for-review unconditional maintainer hold.
+	_blocker_out=$(_is_assigned_check_hold_for_review "$issue_meta_json" "$issue_number" "$repo_slug" 2>/dev/null) || true
+	if [[ -n "$_blocker_out" ]]; then
+		printf '%s\n' "$_blocker_out"
+		_found=true
+	fi
+
+	# Check 4: t3197 dispatch cooldown after no_worker_process launch failure.
 	_blocker_out=$(_is_assigned_check_dispatch_cooldown "$issue_number" "$repo_slug" 2>/dev/null) || true
 	if [[ -n "$_blocker_out" ]]; then
 		printf '%s\n' "$_blocker_out"

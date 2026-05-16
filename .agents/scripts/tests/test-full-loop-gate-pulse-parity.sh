@@ -7,12 +7,12 @@
 # Asserts that `_check_linked_issue_gate` in `.agents/scripts/full-loop-helper-state.sh`
 # inherits the pulse-side structural dispatch gates by calling
 # `dispatch-dedup-helper.sh enumerate-blockers` and translating PARENT_TASK_BLOCKED
-# and NO_AUTO_DISPATCH_BLOCKED signals into hard blocks.
+# NO_AUTO_DISPATCH_BLOCKED, and HOLD_FOR_REVIEW_BLOCKED signals into hard blocks.
 #
 # Background: pre-t2890, the interactive `/full-loop` path only checked
 # needs-maintainer-review + missing assignee. The pulse meanwhile honored
 # parent-task and no-auto-dispatch via dispatch-dedup-helper.sh. A user typing
-# /full-loop on a parent-task or no-auto-dispatch issue would bypass those
+# /full-loop on a parent-task, no-auto-dispatch, or hold-for-review issue would bypass those
 # gates entirely. This test prevents accidental regression of the wiring.
 #
 # This is a static structural check — runtime behaviour is verified at install
@@ -105,6 +105,26 @@ assert_in_gate \
 assert_in_gate \
 	'no-auto-dispatch' \
 	"_check_linked_issue_gate mentions no-auto-dispatch label in user-facing message"
+
+# -------------------------------------------------------------------
+# Assertion C2: HOLD_FOR_REVIEW_BLOCKED case translates to a block
+# -------------------------------------------------------------------
+assert_in_gate \
+	'HOLD_FOR_REVIEW_BLOCKED' \
+	"_check_linked_issue_gate matches HOLD_FOR_REVIEW_BLOCKED signal"
+assert_in_gate \
+	'hold-for-review' \
+	"_check_linked_issue_gate mentions hold-for-review label in user-facing message"
+
+# -------------------------------------------------------------------
+# Assertion C3: trusted maintainer-only interactive NMR path exists
+# -------------------------------------------------------------------
+assert_in_gate \
+	'_issue_thread_is_trusted_maintainer_only' \
+	"_check_linked_issue_gate checks trusted maintainer-only NMR threads"
+assert_in_gate \
+	'not a trusted maintainer-only interactive thread' \
+	"_check_linked_issue_gate keeps NMR blocking untrusted or headless flows"
 
 # -------------------------------------------------------------------
 # Assertion D: fail-open pattern present (matches existing gh-api fail-open)
