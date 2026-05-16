@@ -208,6 +208,39 @@ _issue_thread_is_trusted_maintainer_only() {
 	return 1
 }
 
+_linked_issue_structural_blocker_reasons() {
+	local issue_num="$1"
+	local repo="$2"
+	local dedup_helper="${SCRIPT_DIR}/dispatch-dedup-helper.sh"
+	local found=false
+
+	[[ -x "$dedup_helper" ]] || return 1
+
+	local dedup_out
+	dedup_out=$("$dedup_helper" enumerate-blockers "$issue_num" "$repo" "${AIDEVOPS_SESSION_USER:-${USER:-}}" 2>/dev/null || true)
+	local _blocker_line
+	while IFS= read -r _blocker_line; do
+		[[ -z "$_blocker_line" ]] && continue
+		case "$_blocker_line" in
+		*PARENT_TASK_BLOCKED*)
+			found=true
+			printf 'Issue #%s carries the %s label (decomposition tracker, not a worker target). Decompose into child phase issues, or remove the label if this is no longer a parent.\n' "$issue_num" "\`parent-task\`"
+			;;
+		*NO_AUTO_DISPATCH_BLOCKED*)
+			found=true
+			printf 'Issue #%s carries the %s label (explicit hold). Remove the label if you intentionally want worker dispatch, or work on this issue operationally (post comments, post analysis) without /full-loop.\n' "$issue_num" "\`no-auto-dispatch\`"
+			;;
+		*HOLD_FOR_REVIEW_BLOCKED*)
+			found=true
+			printf 'Issue #%s carries the %s label (maintainer-requested review hold). Remove the label when the hold is resolved.\n' "$issue_num" "\`hold-for-review\`"
+			;;
+		esac
+	done <<<"$dedup_out"
+
+	[[ "$found" == "true" ]] || return 1
+	return 0
+}
+
 # Pre-start maintainer gate check (GH#17810, t2890).
 # Extracts the first issue number from the prompt and verifies the linked
 # issue does not have needs-maintainer-review label or, for headless workers,
@@ -305,28 +338,10 @@ _check_linked_issue_gate() {
 	# Cost-budget, hydration window, and ownership-by-other are intentionally
 	# out of scope (need nuanced interactive UX). Fail-open on missing helper
 	# or empty stdout (matches the gh-api fail-open above).
-	local dedup_helper="${SCRIPT_DIR}/dispatch-dedup-helper.sh"
-	if [[ -x "$dedup_helper" ]]; then
-		local dedup_out
-		dedup_out=$("$dedup_helper" enumerate-blockers "$issue_num" "$repo" "${AIDEVOPS_SESSION_USER:-${USER:-}}" 2>/dev/null || true)
-		local _blocker_line
-		while IFS= read -r _blocker_line; do
-			[[ -z "$_blocker_line" ]] && continue
-			case "$_blocker_line" in
-			*PARENT_TASK_BLOCKED*)
-				blocked=true
-				reasons="${reasons}Issue #${issue_num} carries the \`parent-task\` label (decomposition tracker, not a worker target). Decompose into child phase issues, or remove the label if this is no longer a parent.\n"
-				;;
-			*NO_AUTO_DISPATCH_BLOCKED*)
-				blocked=true
-				reasons="${reasons}Issue #${issue_num} carries the \`no-auto-dispatch\` label (explicit hold). Remove the label if you intentionally want worker dispatch, or work on this issue operationally (post comments, post analysis) without /full-loop.\n"
-				;;
-			*HOLD_FOR_REVIEW_BLOCKED*)
-				blocked=true
-				reasons="${reasons}Issue #${issue_num} carries the \`hold-for-review\` label (maintainer-requested review hold). Remove the label when the hold is resolved.\n"
-				;;
-			esac
-		done <<<"$dedup_out"
+	local structural_reasons
+	if structural_reasons=$(_linked_issue_structural_blocker_reasons "$issue_num" "$repo"); then
+		blocked=true
+		reasons="${reasons}${structural_reasons}"
 	fi
 
 	if [[ "$blocked" == "true" ]]; then
