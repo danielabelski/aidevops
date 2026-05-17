@@ -1952,9 +1952,9 @@
       "pr": 16797
     },
     ".agents/scripts/commands/full-loop.md": {
-      "at": "2026-05-14T21:24:11Z",
-      "hash": "2ab1186de88bd6ed485be8d10de5a56758e838d0",
-      "passes": 22,
+      "at": "2026-05-17T03:57:58Z",
+      "hash": "8f6cd52dc63d33dca6af29cdd413292c22a0d796",
+      "passes": 23,
       "pr": 14590
     },
     ".agents/scripts/commands/init-routines.md": {
@@ -2238,9 +2238,9 @@
       "pr": 16879
     },
     ".agents/scripts/dispatch-dedup-helper.sh": {
-      "at": "2026-05-11T20:49:52Z",
-      "hash": "10860d6039bbf676bf217685464ae7bf9216f13b",
-      "passes": 32,
+      "at": "2026-05-17T03:58:29Z",
+      "hash": "c32c49fa5463b88dc928f4f6226d65f32d809500",
+      "passes": 33,
       "pr": 18917
     },
     ".agents/scripts/email-agent-helper.sh": {
@@ -2304,9 +2304,9 @@
       "pr": 15086
     },
     ".agents/scripts/headless-runtime-lib.sh": {
-      "at": "2026-05-15T22:28:19Z",
-      "hash": "82f1bde51455439b31d9303a487c7e2b88c5a6b0",
-      "passes": 28,
+      "at": "2026-05-17T03:58:40Z",
+      "hash": "821ec0e0a87f8aa84783093a13e2a2e38438d308",
+      "passes": 29,
       "pr": 18707
     },
     ".agents/scripts/interactive-session-helper.sh": {
@@ -2400,9 +2400,9 @@
       "pr": 18657
     },
     ".agents/scripts/pulse-cleanup.sh": {
-      "at": "2026-05-15T22:28:27Z",
-      "hash": "0b6603517ce12b1ba78cd1e89da519bcc5568959",
-      "passes": 22,
+      "at": "2026-05-17T03:59:05Z",
+      "hash": "fafee3a33d3c191b4c3611e418d4e2069d8a0219",
+      "passes": 23,
       "pr": 18704
     },
     ".agents/scripts/pulse-dep-graph.sh": {
@@ -7193,9 +7193,9 @@
       "pr": 13065
     },
     ".agents/workflows/full-loop.md": {
-      "at": "2026-05-14T22:20:35Z",
-      "hash": "2ab1186de88bd6ed485be8d10de5a56758e838d0",
-      "passes": 11,
+      "at": "2026-05-17T04:17:56Z",
+      "hash": "8f6cd52dc63d33dca6af29cdd413292c22a0d796",
+      "passes": 12,
       "pr": 19047
     },
     ".agents/workflows/git-workflow.md": {
@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-15T23:45:21Z",
-      "hash": "c0a8d0237995c169e6d644987134239f634a7a04",
-      "passes": 171,
+      "at": "2026-05-17T04:20:33Z",
+      "hash": "f01f2bba8f7ab41d934ca04343fab1aa5e34f1bf",
+      "passes": 172,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-15T23:45:28Z",
-      "hash": "4a62cbb0d2a529b0babf7281f975ab81b41a5305",
-      "passes": 166,
+      "at": "2026-05-17T04:20:42Z",
+      "hash": "e5f3717e993ce4f6efa06f5e3293edc38a171e8c",
+      "passes": 167,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
