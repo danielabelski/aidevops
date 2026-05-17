@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.59] - 2026-05-17
+
+### Changed
+
+- Tests: isolate dispatch tests from gh REST fallback env (#23741)
+- Maintenance: update simplification state registry
+- fix: harden profile AI stats source selection (#23740)
+
+### Fixed
+
+- consolidate dispatch hold label semantics
+- guard supply-chain test cleanup helper (#23754)
+- simplify pulse lifecycle pipe handling (#23753)
+- deduplicate supply-chain test cleanup (#23752)
+- guard issue create status label args (#23742)
+
 ## [3.15.58] - 2026-05-17
 
 ### Changed
