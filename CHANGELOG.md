@@ -10,6 +10,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.62] - 2026-05-18
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Tests: isolate complexity gate test outputs (#23596)
+- Maintenance: update simplification state registry
+- Documentation: categorize changelog fix entry (#23781)
+- Tests: include cp and jq in no-node path (#23777)
+- Maintenance: update simplification state registry
+- Maintenance: mark t3591 complete (pr:#23764 completed:2026-05-18) [skip ci]
+
+### Fixed
+
+- parse compact blocked-by dispatch refs (#23786)
+- salvage labelless PR fixture cleanup (#23538)
+- name person stats partial exit (#23783)
+- bound person stats GitHub calls (#23764)
+
 ## [3.15.61] - 2026-05-18
 
 ### Changed
