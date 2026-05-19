@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.66] - 2026-05-19
+
+### Changed
+
+- Maintenance: update simplification state registry
+- Maintenance: update simplification state registry
+- Documentation: clarify person-stats timeout brief (#23815)
+- Exempt machine protocols from signature repair (#23811)
+- Maintenance: update simplification state registry
+
+### Fixed
+
+- prioritize PR state in cleanup classifier (#23822)
+- simplify blocked-by parser regex (#23819)
+- support exact PR salvage scans (#23797)
+- no-op repair for signed dynamic gh bodies (#23796)
+
 ## [3.15.65] - 2026-05-19
 
 ### Changed
