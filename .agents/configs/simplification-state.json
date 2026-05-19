@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-19T04:50:55Z",
-      "hash": "cc87eb5a7ba2215d115a74377931788b48127215",
-      "passes": 179,
+      "at": "2026-05-19T10:00:00Z",
+      "hash": "256190c433f3b508566b8b245d3718b6128a23d6",
+      "passes": 180,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-19T04:51:00Z",
-      "hash": "4598ccc0d2666f45467a36a17cfdabaf55a36e29",
-      "passes": 174,
+      "at": "2026-05-19T10:00:01Z",
+      "hash": "8f140791eb24ceb4c53afe2b80916c1c8b5b51b5",
+      "passes": 175,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
