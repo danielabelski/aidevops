@@ -522,7 +522,14 @@ _WT_CLEAN_PROOF_GH_MERGED_PR_STATE="github-merged-pr-state"
 _WT_CLEAN_REASON_BRANCH_MERGED="branch-merged"
 _WT_CLEAN_REASON_PR_PROOF_UNKNOWN="unknown:pr-proof-unavailable"
 _WT_CLEAN_REASON_PROTECTED_PASS="protected-pass-skip"
+_WT_CLEAN_REASON_CLOSED_ISSUE_ARCHIVE="closed-issue-branch-preserved"
+_WT_CLEAN_TYPE_CLOSED_ISSUE_ARCHIVE="closed issue branch archive"
 _WT_CLEAN_MODE_SKIPPED="skipped"
+_WT_CLEAN_MODE_BRANCH_PRESERVED="branch-preserved"
+_WT_CLEAN_MODE_PERMANENT="permanent"
+_WT_CLEAN_BOOL_TRUE=true
+_WT_CLEAN_BOOL_FALSE=false
+_WT_CLEAN_LAST_PRESERVE_BRANCH="${_WT_CLEAN_LAST_PRESERVE_BRANCH:-$_WT_CLEAN_BOOL_FALSE}"
 
 _clean_protected_mark() {
 	local wt_path="$1"
@@ -557,6 +564,52 @@ _clean_branch_merge_proof_context() {
 	local proof_method="${5:-merge-base-is-ancestor}"
 	printf 'target_branch=%s merge_proof=%s merge_proof_result=%s head=%s branch=%s owner_guard=clear protected_status=clear' \
 		"$default_br" "$proof_method" "$proof_result" "$head_sha" "$wt_branch"
+	return 0
+}
+
+_clean_issue_from_branch() {
+	local wt_branch="$1"
+	if [[ "$wt_branch" =~ gh[-]?([0-9]+) ]]; then
+		printf '%s\n' "${BASH_REMATCH[1]}"
+		return 0
+	fi
+	if [[ "$wt_branch" =~ (^|[-/])t([0-9]+)([-/]|$) ]]; then
+		printf '%s\n' "${BASH_REMATCH[2]}"
+		return 0
+	fi
+	return 1
+}
+
+_clean_issue_is_closed() {
+	local issue_number="$1"
+	local repo_slug="$2"
+	local issue_state
+
+	[[ "$issue_number" =~ ^[0-9]+$ ]] || return 1
+	[[ -n "$repo_slug" ]] || return 1
+	issue_state=$(gh issue view "$issue_number" --repo "$repo_slug" --json state --jq '.state // empty' 2>/dev/null) || return 1
+	[[ "$issue_state" == "CLOSED" ]] || return 1
+	return 0
+}
+
+_clean_closed_issue_archive_allowed() {
+	local wt_path="$1"
+	local wt_branch="$2"
+	local default_br="$3"
+	local open_prs="$4"
+	local issue_number
+	local repo_slug
+
+	_clean_branch_list_contains_exact "$wt_branch" "$open_prs" && return 1
+	worktree_has_changes "$wt_path" && return 1
+	issue_number=$(_clean_issue_from_branch "$wt_branch" 2>/dev/null) || return 1
+	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
+	_clean_issue_is_closed "$issue_number" "$repo_slug" || return 1
+	if should_skip_cleanup "$wt_path" "$wt_branch" "$default_br" "$open_prs" "$_WT_CLEAN_BOOL_FALSE"; then
+		_clean_protected_mark "$wt_path"
+		return 1
+	fi
+	printf '%s\n' "$issue_number"
 	return 0
 }
 
@@ -642,6 +695,7 @@ _clean_classify_worktree() {
 	local audit_context=""
 	_WT_CLEAN_LAST_MERGE_TYPE=""
 	_WT_CLEAN_LAST_AUDIT_CONTEXT=""
+	_WT_CLEAN_LAST_PRESERVE_BRANCH="$_WT_CLEAN_BOOL_FALSE"
 
 	if _clean_protected_contains "$wt_path"; then
 		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "$_WT_CLEAN_REASON_PROTECTED_PASS" "$_WT_CLEAN_MODE_SKIPPED" \
@@ -676,6 +730,17 @@ _clean_classify_worktree() {
 		IFS=$'\t' read -r merge_type proof_result <<<"$proof_pair"
 		proof_result="not-ancestor"
 		if _clean_skip_unknown_pr_proof "$wt_path" "$wt_branch" "$default_br" "$head_sha"; then
+			return 0
+		fi
+		local closed_issue_number
+		if closed_issue_number=$(_clean_closed_issue_archive_allowed "$wt_path" "$wt_branch" "$default_br" "$open_prs"); then
+			merge_type="$_WT_CLEAN_TYPE_CLOSED_ISSUE_ARCHIVE"
+			audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$proof_result")
+			audit_context="${audit_context} issue=${closed_issue_number} recovery_path=branch-preserved-closed-issue"
+			_WT_CLEAN_LAST_MERGE_TYPE="$merge_type"
+			_WT_CLEAN_LAST_AUDIT_CONTEXT="$audit_context"
+			_WT_CLEAN_LAST_PRESERVE_BRANCH="$_WT_CLEAN_BOOL_TRUE"
+			printf '%s\t%s\n' "$merge_type" "$audit_context"
 			return 0
 		fi
 		audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$proof_result")
@@ -758,6 +823,50 @@ _clean_scan_merged() {
 	return 1
 }
 
+_clean_remove_classified_worktree() {
+	local worktree_path="$1"
+	local worktree_branch="$2"
+	local force_merged="$3"
+	local preserve_branch="$4"
+	local audit_context="$5"
+	local use_force="$_WT_CLEAN_BOOL_FALSE"
+	local removed="$_WT_CLEAN_BOOL_FALSE"
+
+	if worktree_has_changes "$worktree_path" && [[ "$force_merged" == "$_WT_CLEAN_BOOL_TRUE" ]]; then
+		use_force="$_WT_CLEAN_BOOL_TRUE"
+	fi
+	if [[ "$preserve_branch" == "$_WT_CLEAN_BOOL_TRUE" ]]; then
+		if git worktree remove --force "$worktree_path" 2>/dev/null; then
+			git worktree prune 2>/dev/null || true
+			log_worktree_removal_event "$_WTAR_REMOVED" "$_WTAR_WH_CALLER" "$worktree_path" "$_WT_CLEAN_REASON_CLOSED_ISSUE_ARCHIVE" "$_WT_CLEAN_MODE_BRANCH_PRESERVED" "$audit_context"
+			removed="$_WT_CLEAN_BOOL_TRUE"
+		fi
+	elif remove_worktree_path_permanently "$worktree_path" "$_WTAR_WH_CALLER" "$_WT_CLEAN_REASON_BRANCH_MERGED" "$audit_context"; then
+		git worktree prune 2>/dev/null || true
+		removed="$_WT_CLEAN_BOOL_TRUE"
+	else
+		local remove_flag
+		if [[ "$use_force" == "$_WT_CLEAN_BOOL_TRUE" ]]; then
+			remove_flag="--force"
+		fi
+		# shellcheck disable=SC2086
+		if git worktree remove $remove_flag "$worktree_path" 2>/dev/null; then
+			log_worktree_removal_event "$_WTAR_REMOVED" "$_WTAR_WH_CALLER" "$worktree_path" "$_WT_CLEAN_REASON_BRANCH_MERGED" "$_WT_CLEAN_MODE_PERMANENT" "$audit_context"
+			removed="$_WT_CLEAN_BOOL_TRUE"
+		fi
+	fi
+	if [[ "$removed" != "$_WT_CLEAN_BOOL_TRUE" ]]; then
+		echo -e "${RED}Failed to remove $worktree_branch - may have uncommitted changes${NC}" >&2
+		return 1
+	fi
+	unregister_worktree "$worktree_path"
+	if [[ "$preserve_branch" != "$_WT_CLEAN_BOOL_TRUE" ]]; then
+		localdev_auto_branch_rm "$worktree_branch"
+		git branch -D "$worktree_branch" 2>/dev/null || true
+	fi
+	return 0
+}
+
 # Remove worktrees that are eligible for cleanup (second pass after user confirmation).
 # Args: $1=default_branch, $2=main_worktree_path, $3=remote_state_unknown,
 #       $4=merged_pr_branches, $5=open_pr_branches, $6=force_merged,
@@ -793,11 +902,8 @@ _clean_remove_merged() {
 				_clean_classify_worktree "$worktree_path" "$worktree_branch" "$default_br" "$remote_unknown" "$merged_prs" "$open_prs" "$force_merged" "$closed_prs" >/dev/null
 				merge_type="$_WT_CLEAN_LAST_MERGE_TYPE"
 				audit_context="$_WT_CLEAN_LAST_AUDIT_CONTEXT"
+				local preserve_branch="$_WT_CLEAN_LAST_PRESERVE_BRANCH"
 				if [[ -n "$merge_type" ]]; then
-					local use_force=false
-					if worktree_has_changes "$worktree_path" && [[ "$force_merged" == "true" ]]; then
-						use_force=true
-					fi
 					echo -e "${BLUE}Removing $worktree_branch...${NC}" >&2
 					if _clean_protected_contains "$worktree_path"; then
 						log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$worktree_path" "$_WT_CLEAN_REASON_PROTECTED_PASS" "$_WT_CLEAN_MODE_SKIPPED" \
@@ -818,33 +924,7 @@ _clean_remove_merged() {
 					rm -rf "$worktree_path/node_modules" 2>/dev/null || true
 					rm -rf "$worktree_path/.next" 2>/dev/null || true
 					rm -rf "$worktree_path/.turbo" 2>/dev/null || true
-					# Safety gates above prove the completed worktree is disposable; remove
-					# permanently to avoid growing system Trash, then prune git's registry.
-					local removed=false
-					if remove_worktree_path_permanently "$worktree_path" "$_WTAR_WH_CALLER" "$_WT_CLEAN_REASON_BRANCH_MERGED" "$audit_context"; then
-						git worktree prune 2>/dev/null || true
-						removed=true
-					else
-						local remove_flag=""
-						if [[ "$use_force" == "true" ]]; then
-							remove_flag="--force"
-						fi
-						# shellcheck disable=SC2086
-						if git worktree remove $remove_flag "$worktree_path" 2>/dev/null; then
-							log_worktree_removal_event "$_WTAR_REMOVED" "$_WTAR_WH_CALLER" "$worktree_path" "$_WT_CLEAN_REASON_BRANCH_MERGED" "permanent" "$audit_context"
-							removed=true
-						fi
-					fi
-					if [[ "$removed" != "true" ]]; then
-						echo -e "${RED}Failed to remove $worktree_branch - may have uncommitted changes${NC}" >&2
-					else
-						# Unregister ownership (t189)
-						unregister_worktree "$worktree_path"
-						# Localdev integration (t1224.8): auto-remove branch route
-						localdev_auto_branch_rm "$worktree_branch"
-						# Also delete the local branch
-						git branch -D "$worktree_branch" 2>/dev/null || true
-					fi
+					_clean_remove_classified_worktree "$worktree_path" "$worktree_branch" "$force_merged" "$preserve_branch" "$audit_context" || true
 				fi
 			fi
 			worktree_path=""

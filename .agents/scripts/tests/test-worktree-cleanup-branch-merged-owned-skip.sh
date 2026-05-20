@@ -75,6 +75,7 @@ source_clean_lib_with_stubs() {
 	trash_path() { return 0; }
 	get_default_branch() { printf '%s\n' "main"; return 0; }
 	localdev_auto_branch_rm() { return 0; }
+	unregister_worktree() { return 0; }
 	assert_git_available() { return 0; }
 	assert_main_worktree_sane() { return 0; }
 	gh_pr_list() { return 0; }
@@ -394,6 +395,46 @@ test_remote_deleted_without_ancestor_proof_skips() {
 	return 0
 }
 
+test_closed_issue_unproven_branch_removes_worktree_preserves_branch() {
+	local repo_path="${TEST_ROOT}/repo-closed-issue-unproven"
+	local wt_path="${TEST_ROOT}/wt-closed-issue-unproven"
+	local log_file="${TEST_ROOT}/closed-issue-unproven-cleanup.log"
+	local branch="feature/auto-20260520-gh99029"
+	local rc=0
+	export AIDEVOPS_CLEANUP_LOG="$log_file"
+	setup_repo "$repo_path" || rc=1
+	git -C "$repo_path" checkout -q -b "$branch" || rc=1
+	printf 'closed issue unproven\n' >"$repo_path/closed-issue-unproven.txt" || rc=1
+	git -C "$repo_path" add closed-issue-unproven.txt || rc=1
+	git -C "$repo_path" commit -q -m "closed issue unproven branch" || rc=1
+	git -C "$repo_path" checkout -q main || rc=1
+	git -C "$repo_path" worktree add -q "$wt_path" "$branch" || rc=1
+
+	(
+		cd "$repo_path" || exit 1
+		source_clean_lib_with_stubs || exit 1
+		branch_was_pushed() { return 0; }
+		_branch_exists_on_any_remote() { return 1; }
+		gh() {
+			if [[ "${1:-}" == "issue" && "${2:-}" == "view" && "${3:-}" == "99029" ]]; then
+				printf '%s\n' "CLOSED"
+				return 0
+			fi
+			return 1
+		}
+		_clean_remove_merged "main" "$repo_path" "false" "" "" "false" ""
+	) || rc=1
+
+	local branch_exists=1
+	git -C "$repo_path" rev-parse --verify "refs/heads/${branch}" >/dev/null 2>&1 && branch_exists=0
+	[[ ! -d "$wt_path" ]] || rc=1
+	[[ "$branch_exists" -eq 0 ]] || rc=1
+	assert_file_contains "$log_file" "worktree-removed.*closed-issue-branch-preserved.*mode=branch-preserved.*recovery_path=branch-preserved-closed-issue" || rc=1
+	print_result "closed issue unproven branch removes worktree and preserves branch" "$rc" \
+		"Expected removed worktree, preserved branch, and branch-preserved audit entry"
+	return 0
+}
+
 echo "=== test-worktree-cleanup-branch-merged-owned-skip.sh ==="
 test_protected_pass_set_blocks_branch_merged_removal
 test_squash_merged_pr_without_ancestor_proof_classifies
@@ -404,6 +445,7 @@ test_exact_head_merged_pr_proof_wins_when_global_list_misses
 test_exact_merged_pr_proof_recovers_unproven_traditional_merge
 test_closed_pr_without_ancestor_proof_classifies
 test_remote_deleted_without_ancestor_proof_skips
+test_closed_issue_unproven_branch_removes_worktree_preserves_branch
 
 printf '\nResults: %d/%d passed, %d failed.\n' "$((TESTS_RUN - TESTS_FAILED))" "$TESTS_RUN" "$TESTS_FAILED"
 if [[ "$TESTS_FAILED" -gt 0 ]]; then
