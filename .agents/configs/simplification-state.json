@@ -2298,9 +2298,9 @@
       "pr": 13021
     },
     ".agents/scripts/headless-runtime-helper.sh": {
-      "at": "2026-05-16T16:34:10Z",
-      "hash": "bfedb27a5a41a2acc83e7efe057bcbacbc6e4020",
-      "passes": 47,
+      "at": "2026-05-20T17:38:14Z",
+      "hash": "904c4b0610c13b965815d18456b4ef3ea0e9636b",
+      "passes": 48,
       "pr": 15086
     },
     ".agents/scripts/headless-runtime-lib.sh": {
@@ -2394,15 +2394,15 @@
       "pr": 17590
     },
     ".agents/scripts/pulse-ancillary-dispatch.sh": {
-      "at": "2026-05-18T11:46:05Z",
-      "hash": "d9569605e65d13a242b7944c780dd9c9a39dcfda",
-      "passes": 17,
+      "at": "2026-05-20T17:38:43Z",
+      "hash": "9b5961e40c55b27ca28b9ea91b90062bde65f11b",
+      "passes": 18,
       "pr": 18657
     },
     ".agents/scripts/pulse-cleanup.sh": {
-      "at": "2026-05-19T21:29:19Z",
-      "hash": "539a363c2ef0da2c320c02c7ac85abafc65fa7ae",
-      "passes": 25,
+      "at": "2026-05-20T17:38:45Z",
+      "hash": "22a6fc108917c31c40faffa564d3c7cdcaafaac4",
+      "passes": 26,
       "pr": 18704
     },
     ".agents/scripts/pulse-dep-graph.sh": {
@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-20T08:47:55Z",
-      "hash": "f8f6e27355ebef566725f20c42ffd9a5524faec0",
-      "passes": 182,
+      "at": "2026-05-20T17:56:12Z",
+      "hash": "19acf13c9fcf020c03bf158d526ecd2d1bdbc8a2",
+      "passes": 183,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-20T08:47:57Z",
-      "hash": "2de79cea1c489f4e34420bae372346d975e35204",
-      "passes": 177,
+      "at": "2026-05-20T17:56:14Z",
+      "hash": "d17532740aa31d6711150d5b60d5b1a6e142ff96",
+      "passes": 178,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7768,10 +7768,10 @@
       "passes": 5
     },
     ".agents/scripts/pulse-dispatch-worker-launch.sh": {
-      "hash": "c396c26b30fe31e8776d2cc5bbba6e294bf2e44a",
-      "at": "2026-05-14T21:35:03Z",
+      "hash": "bc91141b6c26036f2783ca3ba5654608422b8a21",
+      "at": "2026-05-20T17:38:50Z",
       "pr": 20617,
-      "passes": 22
+      "passes": 23
     },
     ".agents/reference/dispatch-blockers.md": {
       "hash": "f851df78931bea90695c3a46e9c95f98a6c03d9a",
