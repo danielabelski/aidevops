@@ -261,6 +261,51 @@ test_exact_head_merged_pr_proof_wins_when_global_list_misses() {
 	return 0
 }
 
+test_exact_merged_pr_proof_recovers_unproven_traditional_merge() {
+	local repo_path="${TEST_ROOT}/repo-unproven-traditional"
+	local wt_path="${TEST_ROOT}/wt-unproven-traditional"
+	local log_file="${TEST_ROOT}/unproven-traditional-cleanup.log"
+	local branch="feature/gh-99028-unproven-traditional"
+	local classification=""
+	local rc=0
+	export AIDEVOPS_CLEANUP_LOG="$log_file"
+	setup_repo "$repo_path" || rc=1
+	git -C "$repo_path" checkout -q -b "$branch" || rc=1
+	printf 'traditional false positive\n' >"$repo_path/unproven-traditional.txt" || rc=1
+	git -C "$repo_path" add unproven-traditional.txt || rc=1
+	git -C "$repo_path" commit -q -m "traditional false-positive branch" || rc=1
+	git -C "$repo_path" checkout -q main || rc=1
+	git -C "$repo_path" worktree add -q "$wt_path" "$branch" || rc=1
+
+	classification=$(
+		cd "$repo_path" || exit 1
+		source_clean_lib_with_stubs || exit 1
+		git() {
+			if [[ "${1:-}" == "branch" && "${2:-}" == "--merged" ]]; then
+				printf '  %s\n' "$branch"
+				return 0
+			fi
+			command git "$@"
+		}
+		gh_pr_list() {
+			local args="$*"
+			[[ "$args" == *"--state merged"* ]] || return 1
+			[[ "$args" == *"--json number"* ]] || return 1
+			printf '1\n'
+			return 0
+		}
+		_clean_classify_worktree "$wt_path" "$branch" "main" "false" "" "" "false" ""
+	) || rc=1
+
+	[[ "$classification" == *"squash-merged PR"* ]] || rc=1
+	[[ "$classification" == *"merge_proof=github-merged-pr-state"* ]] || rc=1
+	[[ "$classification" == *"merge_proof_result=github-merged-pr"* ]] || rc=1
+	[[ -d "$wt_path" ]] || rc=1
+	print_result "exact merged PR proof recovers unproven traditional merge" "$rc" \
+		"Expected exact merged PR lookup to override branch-merged-unproven"
+	return 0
+}
+
 test_closed_pr_without_ancestor_proof_classifies() {
 	local repo_path="${TEST_ROOT}/repo-closed-pr"
 	local wt_path="${TEST_ROOT}/wt-closed-pr"
@@ -330,6 +375,7 @@ test_squash_merged_pr_without_ancestor_proof_classifies
 test_prefetched_merged_pr_metadata_skips_exact_head_lookup
 test_deleted_squash_merged_pr_metadata_wins_over_remote_deleted
 test_exact_head_merged_pr_proof_wins_when_global_list_misses
+test_exact_merged_pr_proof_recovers_unproven_traditional_merge
 test_closed_pr_without_ancestor_proof_classifies
 test_remote_deleted_without_ancestor_proof_skips
 

@@ -430,6 +430,10 @@ _clean_branch_list_contains_exact() {
 _WT_CLEAN_PROTECTED_PATHS="${_WT_CLEAN_PROTECTED_PATHS:-}"
 _WT_CLEAN_LAST_MERGE_TYPE="${_WT_CLEAN_LAST_MERGE_TYPE:-}"
 _WT_CLEAN_LAST_AUDIT_CONTEXT="${_WT_CLEAN_LAST_AUDIT_CONTEXT:-}"
+_WT_CLEAN_TYPE_SQUASH_MERGED_PR="squash-merged PR"
+_WT_CLEAN_PROOF_GH_MERGED_PR="github-merged-pr"
+_WT_CLEAN_PROOF_GH_MERGED_PR_STATE="github-merged-pr-state"
+_WT_CLEAN_REASON_BRANCH_MERGED="branch-merged"
 
 _clean_protected_mark() {
 	local wt_path="$1"
@@ -471,7 +475,7 @@ _clean_branch_requires_ancestor_proof() {
 	local merge_type="$1"
 
 	case "$merge_type" in
-	"squash-merged PR" | "closed PR")
+	"$_WT_CLEAN_TYPE_SQUASH_MERGED_PR" | "closed PR")
 		# GitHub squash merges intentionally create a new target-branch commit,
 		# and abandoned closed PRs are not expected to reach the default branch.
 		# In both cases, GitHub PR state is the proof source rather than ancestry.
@@ -488,6 +492,29 @@ _clean_branch_head_is_ancestor() {
 	head_sha=$(_clean_branch_head "$wt_branch") || return 1
 	git merge-base --is-ancestor "$head_sha" "$default_br" 2>/dev/null
 	return $?
+}
+
+_clean_resolve_merge_proof() {
+	local wt_branch="$1"
+	local default_br="$2"
+	local merge_type="$3"
+	local merged_prs="$4"
+
+	if ! _clean_branch_requires_ancestor_proof "$merge_type"; then
+		printf '%s\t%s\n' "$merge_type" "$_WT_CLEAN_PROOF_GH_MERGED_PR"
+		return 0
+	fi
+	if _clean_branch_head_is_ancestor "$wt_branch" "$default_br"; then
+		printf '%s\t%s\n' "$merge_type" "ancestor"
+		return 0
+	fi
+	if _clean_branch_has_exact_merged_pr "$wt_branch" "$merged_prs"; then
+		printf '%s\t%s\n' "$_WT_CLEAN_TYPE_SQUASH_MERGED_PR" "$_WT_CLEAN_PROOF_GH_MERGED_PR"
+		return 0
+	fi
+
+	printf '%s\t%s\n' "$merge_type" "not-ancestor"
+	return 1
 }
 
 # Determine if a worktree entry is merged, and print it if so.
@@ -537,7 +564,7 @@ _clean_classify_worktree() {
 	# issue/PR cross-reference text must not be treated as cleanup proof.
 	elif _clean_branch_has_exact_merged_pr "$wt_branch" "$merged_prs"; then
 		is_merged=true
-		merge_type="squash-merged PR"
+		merge_type="$_WT_CLEAN_TYPE_SQUASH_MERGED_PR"
 	# Check 3: Closed (abandoned) PR — PR was closed without merging.
 	# The remote branch may still exist (auto-delete only fires on merge).
 	# Work is abandoned; worktree is safe to remove.
@@ -558,11 +585,11 @@ _clean_classify_worktree() {
 	fi
 
 	head_sha=$(_clean_branch_head "$wt_branch" 2>/dev/null || printf '%s' "unknown")
-	if ! _clean_branch_requires_ancestor_proof "$merge_type"; then
-		proof_result="github-merged-pr"
-	elif _clean_branch_head_is_ancestor "$wt_branch" "$default_br"; then
-		proof_result="ancestor"
+	local proof_pair
+	if proof_pair=$(_clean_resolve_merge_proof "$wt_branch" "$default_br" "$merge_type" "$merged_prs"); then
+		IFS=$'\t' read -r merge_type proof_result <<<"$proof_pair"
 	else
+		IFS=$'\t' read -r merge_type proof_result <<<"$proof_pair"
 		proof_result="not-ancestor"
 		audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$proof_result")
 		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "branch-merged-unproven" "skipped" "$audit_context"
@@ -578,7 +605,7 @@ _clean_classify_worktree() {
 	if _clean_branch_requires_ancestor_proof "$merge_type"; then
 		audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$proof_result")
 	else
-		audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$proof_result" "github-merged-pr-state")
+		audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$proof_result" "$_WT_CLEAN_PROOF_GH_MERGED_PR_STATE")
 	fi
 
 	if worktree_has_changes "$wt_path" && [[ "$force_merged" == "true" ]]; then
@@ -687,7 +714,7 @@ _clean_remove_merged() {
 						worktree_branch=""
 						continue
 					fi
-					if ! worktree_removal_guard "$worktree_path" "$_WTAR_WH_CALLER" "branch-merged"; then
+					if ! worktree_removal_guard "$worktree_path" "$_WTAR_WH_CALLER" "$_WT_CLEAN_REASON_BRANCH_MERGED"; then
 						echo -e "${YELLOW}Skipped $worktree_branch - removal guard refused path${NC}" >&2
 						worktree_path=""
 						worktree_branch=""
@@ -701,7 +728,7 @@ _clean_remove_merged() {
 					# Safety gates above prove the completed worktree is disposable; remove
 					# permanently to avoid growing system Trash, then prune git's registry.
 					local removed=false
-					if remove_worktree_path_permanently "$worktree_path" "$_WTAR_WH_CALLER" "branch-merged" "$audit_context"; then
+					if remove_worktree_path_permanently "$worktree_path" "$_WTAR_WH_CALLER" "$_WT_CLEAN_REASON_BRANCH_MERGED" "$audit_context"; then
 						git worktree prune 2>/dev/null || true
 						removed=true
 					else
@@ -711,7 +738,7 @@ _clean_remove_merged() {
 						fi
 						# shellcheck disable=SC2086
 						if git worktree remove $remove_flag "$worktree_path" 2>/dev/null; then
-							log_worktree_removal_event "$_WTAR_REMOVED" "$_WTAR_WH_CALLER" "$worktree_path" "branch-merged" "permanent" "$audit_context"
+							log_worktree_removal_event "$_WTAR_REMOVED" "$_WTAR_WH_CALLER" "$worktree_path" "$_WT_CLEAN_REASON_BRANCH_MERGED" "permanent" "$audit_context"
 							removed=true
 						fi
 					fi
