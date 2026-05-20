@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.17.1] - 2026-05-20
+
+### Fixed
+
+- add pulse account multiplier config fallback (#23852)
+
 ## [3.17.0] - 2026-05-20
 
 ### Added
