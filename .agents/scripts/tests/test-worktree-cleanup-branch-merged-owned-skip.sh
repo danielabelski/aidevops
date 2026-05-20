@@ -186,6 +186,31 @@ test_prefetched_merged_pr_metadata_skips_exact_head_lookup() {
 	return 0
 }
 
+test_merged_pr_list_passes_explicit_repo_slug() {
+	local repo_path="${TEST_ROOT}/repo-explicit-slug"
+	local args_file="${TEST_ROOT}/explicit-slug-args"
+	local output=""
+	local rc=0
+	setup_repo "$repo_path" || rc=1
+
+	output=$(
+		cd "$repo_path" || exit 1
+		source_clean_lib_with_stubs || exit 1
+		gh_pr_list() {
+			printf '%s' "$*" >"$args_file"
+			printf 'feature/explicit-repo\n'
+			return 0
+		}
+		_clean_build_merged_pr_branches
+	) || rc=1
+
+	[[ "$output" == *"feature/explicit-repo"* ]] || rc=1
+	grep -q -- '--repo testowner/testrepo' "$args_file" 2>/dev/null || rc=1
+	print_result "merged PR list passes explicit repo slug" "$rc" \
+		"Expected --repo testowner/testrepo in gh_pr_list args"
+	return 0
+}
+
 test_deleted_squash_merged_pr_metadata_wins_over_remote_deleted() {
 	local repo_path="${TEST_ROOT}/repo-deleted-squash-pr"
 	local wt_path="${TEST_ROOT}/wt-deleted-squash-pr"
@@ -373,6 +398,7 @@ echo "=== test-worktree-cleanup-branch-merged-owned-skip.sh ==="
 test_protected_pass_set_blocks_branch_merged_removal
 test_squash_merged_pr_without_ancestor_proof_classifies
 test_prefetched_merged_pr_metadata_skips_exact_head_lookup
+test_merged_pr_list_passes_explicit_repo_slug
 test_deleted_squash_merged_pr_metadata_wins_over_remote_deleted
 test_exact_head_merged_pr_proof_wins_when_global_list_misses
 test_exact_merged_pr_proof_recovers_unproven_traditional_merge

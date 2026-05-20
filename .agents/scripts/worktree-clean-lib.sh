@@ -374,16 +374,41 @@ _clean_fetch_remotes() {
 # Outputs two lines: merged_branches and open_branches (each may be empty).
 # Caller splits on a delimiter. Returns 0 always.
 # Usage: _clean_build_pr_lists; merged_pr_branches=...; open_pr_branches=...
+_clean_repo_slug() {
+	local remote_url=""
+	remote_url=$(git remote get-url origin 2>/dev/null || true)
+	[[ -z "$remote_url" ]] && return 1
+	remote_url="${remote_url%.git}"
+	remote_url="${remote_url#git@github.com:}"
+	remote_url="${remote_url#https://github.com/}"
+	remote_url="${remote_url#http://github.com/}"
+	[[ "$remote_url" == */* ]] || return 1
+	printf '%s\n' "$remote_url"
+	return 0
+}
+
 _clean_build_merged_pr_branches() {
+	local repo_slug=""
+	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
 	if command -v gh &>/dev/null; then
-		gh_pr_list --state merged --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+		if [[ -n "$repo_slug" ]]; then
+			gh_pr_list --repo "$repo_slug" --state merged --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+		else
+			gh_pr_list --state merged --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+		fi
 	fi
 	return 0
 }
 
 _clean_build_open_pr_branches() {
+	local repo_slug=""
+	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
 	if command -v gh &>/dev/null; then
-		gh_pr_list --state open --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+		if [[ -n "$repo_slug" ]]; then
+			gh_pr_list --repo "$repo_slug" --state open --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+		else
+			gh_pr_list --state open --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+		fi
 	fi
 	return 0
 }
@@ -393,8 +418,14 @@ _clean_build_open_pr_branches() {
 # worktree is safe to remove. The remote branch may still exist if auto-delete
 # only fires on merge.
 _clean_build_closed_pr_branches() {
+	local repo_slug=""
+	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
 	if command -v gh &>/dev/null; then
-		gh_pr_list --state closed --limit 200 --json headRefName,mergedAt --jq '[.[] | select(.mergedAt == null)] | .[].headRefName' 2>/dev/null || true
+		if [[ -n "$repo_slug" ]]; then
+			gh_pr_list --repo "$repo_slug" --state closed --limit 200 --json headRefName,mergedAt --jq '[.[] | select(.mergedAt == null)] | .[].headRefName' 2>/dev/null || true
+		else
+			gh_pr_list --state closed --limit 200 --json headRefName,mergedAt --jq '[.[] | select(.mergedAt == null)] | .[].headRefName' 2>/dev/null || true
+		fi
 	fi
 	return 0
 }
@@ -411,7 +442,13 @@ _clean_branch_has_exact_merged_pr() {
 	if ! command -v gh_pr_list &>/dev/null; then
 		return 1
 	fi
-	merged_count=$(gh_pr_list --head "$wt_branch" --state merged --limit 1 --json number --jq 'length' 2>/dev/null || true)
+	local repo_slug=""
+	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
+	if [[ -n "$repo_slug" ]]; then
+		merged_count=$(gh_pr_list --repo "$repo_slug" --head "$wt_branch" --state merged --limit 1 --json number --jq 'length' 2>/dev/null || true)
+	else
+		merged_count=$(gh_pr_list --head "$wt_branch" --state merged --limit 1 --json number --jq 'length' 2>/dev/null || true)
+	fi
 	if [[ "$merged_count" =~ ^[1-9][0-9]*$ ]]; then
 		return 0
 	fi
