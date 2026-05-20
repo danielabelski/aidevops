@@ -133,6 +133,30 @@ _pc_branch_has_pr() {
 }
 
 #######################################
+# Check whether a parsed branch issue is closed.
+#
+# Used only as an acceleration signal for branch-preserving cleanup: the
+# worktree directory may be removed early, but the local branch remains as the
+# recovery path. Lookup failures fail closed to the normal age threshold.
+#
+# Args:
+#   $1 - issue number
+#   $2 - repo slug (owner/repo)
+# Returns: 0 when the issue is verified closed, 1 otherwise
+#######################################
+_pc_issue_closed_for_branch_archive() {
+	local issue_number="$1"
+	local repo_slug="$2"
+	local issue_state
+
+	[[ "$issue_number" =~ ^[0-9]+$ ]] || return 1
+	[[ -n "$repo_slug" ]] || return 1
+	issue_state=$(gh issue view "$issue_number" --repo "$repo_slug" --json state --jq '.state // ""' 2>/dev/null) || return 1
+	[[ "$issue_state" == "CLOSED" ]] || return 1
+	return 0
+}
+
+#######################################
 # Build safe audit context for orphan cleanup decisions.
 #
 # Args:
@@ -975,6 +999,7 @@ _pc_local_commit_archive_secs() {
 #   $6 - dirty_count:     dirty file count
 #   $7 - wt_age_secs:     age in seconds
 #   $8 - repo_name_age:   repo basename for logs
+#   $9 - repo_slug_age:   owner/repo slug for issue-state proof
 # Outputs: nothing
 # Returns: 0 if it removed the worktree; 1 if it skipped or failed
 #######################################
@@ -987,8 +1012,16 @@ _pc_handle_local_commit_no_pr_worktree() {
 	local dirty_count="$6"
 	local wt_age_secs="$7"
 	local repo_name_age="$8"
+	local repo_slug_age="${9:-}"
 	local archive_secs
 	local audit_context
+
+	if [[ "$dirty_count" -eq 0 ]] && _pc_issue_closed_for_branch_archive "$orphan_issue_num" "$repo_slug_age"; then
+		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "clear" "clear" "clear" "branch-preserved-closed-issue")
+		echo "[pulse-wrapper] Orphan cleanup ($repo_name_age): removing ${wt_branch_age:-detached} — issue #${orphan_issue_num} is closed; local commits preserved on branch" >>"$LOGFILE"
+		_pc_remove_local_commit_worktree_preserving_branch "$rp_age" "$wt_path_age" "$wt_branch_age" "$audit_context"
+		return $?
+	fi
 
 	archive_secs=$(_pc_local_commit_archive_secs)
 	if [[ "$wt_age_secs" -lt "$archive_secs" ]]; then
@@ -1080,7 +1113,7 @@ _cleanup_single_worktree() {
 		return 1
 	fi
 	if [[ "$commits_ahead" -gt 0 && "$reason" == *"no PR"* ]]; then
-		_pc_handle_local_commit_no_pr_worktree "$rp_age" "$wt_path_age" "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "$repo_name_age"
+		_pc_handle_local_commit_no_pr_worktree "$rp_age" "$wt_path_age" "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "$repo_name_age" "$repo_slug_age"
 		return $?
 	fi
 

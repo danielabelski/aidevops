@@ -82,6 +82,7 @@ source_pulse_cleanup_with_stubs() {
 
 	is_worktree_owned_by_others() { return 1; }
 	unregister_worktree() { local wt_path="$1"; : "$wt_path"; return 0; }
+	gh() { return 1; }
 	gh_pr_list() { return 0; }
 	recover_failed_launch_state() { return 0; }
 	gh_issue_comment() { return 0; }
@@ -92,6 +93,42 @@ source_pulse_cleanup_with_stubs() {
 	source "${SCRIPT_DIR}/../portable-stat.sh"
 	# shellcheck source=../pulse-cleanup.sh
 	source "$PULSE_CLEANUP"
+	return 0
+}
+
+test_closed_issue_local_commit_no_pr_removes_before_age_threshold() {
+	local repo_dir="${TEST_ROOT}/repo-closed-issue"
+	local wt_path="${TEST_ROOT}/worker-wt-closed-issue"
+	local branch_name="feature/auto-20260507-190804-gh23077"
+	setup_repo_with_worker_worktree "$repo_dir" "$wt_path" "$branch_name" || return 1
+	source_pulse_cleanup_with_stubs || return 1
+	gh() {
+		if [[ "${1:-}" == "issue" && "${2:-}" == "view" && "${3:-}" == "23077" ]]; then
+			printf '%s\n' "CLOSED"
+			return 0
+		fi
+		return 1
+	}
+
+	local now_epoch
+	now_epoch=$(date +%s)
+	AIDEVOPS_HEADLESS_METRICS_FILE="${TEST_ROOT}/missing-closed-issue-metrics.jsonl"
+	export AIDEVOPS_HEADLESS_METRICS_FILE
+
+	_cleanup_single_worktree "$repo_dir" "$wt_path" "$branch_name" "$now_epoch" "testowner/testrepo" "main" >/dev/null 2>&1
+	local cleanup_rc=$?
+
+	local branch_exists=1
+	git -C "$repo_dir" rev-parse --verify "refs/heads/${branch_name}" >/dev/null 2>&1 && branch_exists=0
+
+	local rc=0
+	[[ "$cleanup_rc" -eq 0 ]] || rc=1
+	[[ ! -d "$wt_path" ]] || rc=1
+	[[ "$branch_exists" -eq 0 ]] || rc=1
+	grep -q 'worktree-removed.*local-commits-branch-preserved.*mode=branch-preserved' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	grep -q 'recovery_path=branch-preserved-closed-issue' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	print_result "closed issue local commits/no PR archives before age threshold" "$rc" \
+		"cleanup_rc=$cleanup_rc branch_exists=$branch_exists log=$(cat "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null)"
 	return 0
 }
 
@@ -241,6 +278,7 @@ mkdir -p "${HOME}/.aidevops/logs"
 echo "=== test-pulse-cleanup-worker-owned-no-pr.sh ==="
 test_recent_metric_blocks_local_commit_no_pr_removal
 test_local_commit_no_pr_skips_without_recent_metric
+test_closed_issue_local_commit_no_pr_removes_before_age_threshold
 test_stale_local_commit_no_pr_removes_worktree_preserves_branch
 test_no_newline_pr_output_blocks_local_commit_cleanup
 test_no_newline_open_pr_output_blocks_clean_fastpath
