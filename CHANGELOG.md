@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.17.11] - 2026-05-20
+
+### Changed
+
+- Documentation: clean up changelog duplicates (#23900)
+
+### Fixed
+
+- preserve closed issue unproven cleanup branches
+- reduce triage dispatch complexity (#23899)
+
 ## [3.17.10] - 2026-05-20
 
 ### Fixed
