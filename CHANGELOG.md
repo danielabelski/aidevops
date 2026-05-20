@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.17.13] - 2026-05-21
+
+### Fixed
+
+- migrate worktree owner registry on reads
+
 ## [3.17.12] - 2026-05-20
 
 ### Fixed
