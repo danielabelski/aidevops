@@ -132,6 +132,43 @@ test_closed_issue_local_commit_no_pr_removes_before_age_threshold() {
 	return 0
 }
 
+test_closed_pr_reference_local_commit_no_pr_removes_before_age_threshold() {
+	local repo_dir="${TEST_ROOT}/repo-closed-pr-ref"
+	local wt_path="${TEST_ROOT}/worker-wt-closed-pr-ref"
+	local branch_name="repair/pr-23078-followup"
+	setup_repo_with_worker_worktree "$repo_dir" "$wt_path" "$branch_name" || return 1
+	source_pulse_cleanup_with_stubs || return 1
+	gh() {
+		if [[ "${1:-}" == "pr" && "${2:-}" == "view" && "${3:-}" == "23078" ]]; then
+			printf '%s\n' "CLOSED"
+			return 0
+		fi
+		return 1
+	}
+
+	local now_epoch
+	now_epoch=$(date +%s)
+	AIDEVOPS_HEADLESS_METRICS_FILE="${TEST_ROOT}/missing-closed-pr-metrics.jsonl"
+	export AIDEVOPS_HEADLESS_METRICS_FILE
+
+	_cleanup_single_worktree "$repo_dir" "$wt_path" "$branch_name" "$now_epoch" "testowner/testrepo" "main" >/dev/null 2>&1
+	local cleanup_rc=$?
+
+	local branch_exists=1
+	git -C "$repo_dir" rev-parse --verify "refs/heads/${branch_name}" >/dev/null 2>&1 && branch_exists=0
+
+	local rc=0
+	[[ "$cleanup_rc" -eq 0 ]] || rc=1
+	[[ ! -d "$wt_path" ]] || rc=1
+	[[ "$branch_exists" -eq 0 ]] || rc=1
+	grep -q 'worktree-removed.*local-commits-branch-preserved.*mode=branch-preserved' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	grep -q 'pr_state=pr-CLOSED' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	grep -q 'recovery_path=branch-preserved-closed-pr-23078' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	print_result "closed PR reference local commits/no PR archives before age threshold" "$rc" \
+		"cleanup_rc=$cleanup_rc branch_exists=$branch_exists log=$(cat "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null)"
+	return 0
+}
+
 test_recent_metric_blocks_local_commit_no_pr_removal() {
 	local repo_dir="${TEST_ROOT}/repo"
 	local wt_path="${TEST_ROOT}/worker-wt"
@@ -301,6 +338,7 @@ echo "=== test-pulse-cleanup-worker-owned-no-pr.sh ==="
 test_recent_metric_blocks_local_commit_no_pr_removal
 test_local_commit_no_pr_skips_without_recent_metric
 test_closed_issue_local_commit_no_pr_removes_before_age_threshold
+test_closed_pr_reference_local_commit_no_pr_removes_before_age_threshold
 test_stale_local_commit_no_pr_removes_worktree_preserves_branch
 test_no_newline_pr_output_blocks_local_commit_cleanup
 test_no_newline_open_pr_output_blocks_clean_fastpath

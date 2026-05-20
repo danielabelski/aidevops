@@ -101,6 +101,23 @@ _pc_issue_from_branch() {
 }
 
 #######################################
+# Extract a GitHub PR number from local review/repair branch names.
+#
+# Args:
+#   $1 - branch name
+# Outputs: PR number when present
+# Returns: 0 when a PR number was found, 1 otherwise
+#######################################
+_pc_pr_from_branch() {
+	local branch_name="$1"
+	if [[ "$branch_name" =~ (^|[-/])pr[-/]?([0-9]+)([-/]|$) ]]; then
+		printf '%s\n' "${BASH_REMATCH[2]}"
+		return 0
+	fi
+	return 1
+}
+
+#######################################
 # Check whether a branch has at least one matching PR.
 #
 # `gh_pr_list` intentionally emits cached/output text with `printf '%s'`, so
@@ -154,6 +171,36 @@ _pc_issue_closed_for_branch_archive() {
 	issue_state=$(gh issue view "$issue_number" --repo "$repo_slug" --json state --jq '.state // ""' 2>/dev/null) || return 1
 	[[ "$issue_state" == "CLOSED" ]] || return 1
 	return 0
+}
+
+#######################################
+# Check whether a parsed PR reference is closed or merged.
+#
+# Used only as an acceleration signal for branch-preserving cleanup: the
+# worktree directory may be removed early, but the local branch remains as the
+# recovery path. Lookup failures fail closed to the normal age threshold.
+#
+# Args:
+#   $1 - PR number
+#   $2 - repo slug (owner/repo)
+# Outputs: terminal PR state when verified
+# Returns: 0 when the PR is not open, 1 otherwise
+#######################################
+_pc_pr_terminal_for_branch_archive() {
+	local pr_number="$1"
+	local repo_slug="$2"
+	local pr_state
+
+	[[ "$pr_number" =~ ^[0-9]+$ ]] || return 1
+	[[ -n "$repo_slug" ]] || return 1
+	pr_state=$(gh pr view "$pr_number" --repo "$repo_slug" --json state --jq '.state // ""' 2>/dev/null) || return 1
+	case "$pr_state" in
+	CLOSED | MERGED)
+		printf '%s\n' "$pr_state"
+		return 0
+		;;
+	esac
+	return 1
 }
 
 #######################################
@@ -1015,10 +1062,20 @@ _pc_handle_local_commit_no_pr_worktree() {
 	local repo_slug_age="${9:-}"
 	local archive_secs
 	local audit_context
+	local branch_pr_num=""
+	local branch_pr_state=""
 
 	if [[ "$dirty_count" -eq 0 ]] && _pc_issue_closed_for_branch_archive "$orphan_issue_num" "$repo_slug_age"; then
 		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "clear" "clear" "clear" "branch-preserved-closed-issue")
 		echo "[pulse-wrapper] Orphan cleanup ($repo_name_age): removing ${wt_branch_age:-detached} — issue #${orphan_issue_num} is closed; local commits preserved on branch" >>"$LOGFILE"
+		_pc_remove_local_commit_worktree_preserving_branch "$rp_age" "$wt_path_age" "$wt_branch_age" "$audit_context"
+		return $?
+	fi
+
+	branch_pr_num=$(_pc_pr_from_branch "$wt_branch_age" 2>/dev/null || true)
+	if [[ "$dirty_count" -eq 0 ]] && branch_pr_state=$(_pc_pr_terminal_for_branch_archive "$branch_pr_num" "$repo_slug_age"); then
+		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "pr-${branch_pr_state}" "clear" "clear" "clear" "branch-preserved-closed-pr-${branch_pr_num}")
+		echo "[pulse-wrapper] Orphan cleanup ($repo_name_age): removing ${wt_branch_age:-detached} — PR #${branch_pr_num} is ${branch_pr_state}; local commits preserved on branch" >>"$LOGFILE"
 		_pc_remove_local_commit_worktree_preserving_branch "$rp_age" "$wt_path_age" "$wt_branch_age" "$audit_context"
 		return $?
 	fi
