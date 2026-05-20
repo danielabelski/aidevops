@@ -98,9 +98,12 @@ branch_has_open_pr() {
 	local branch="${1:-}"
 	[[ -z "$branch" ]] && return 1
 	command -v gh &>/dev/null || return 0
+	local repo_slug
+	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
+	[[ -z "$repo_slug" ]] && return 0
 
 	local open_count
-	if ! open_count=$(gh_pr_list --state open --head "$branch" --json number --jq 'length' 2>/dev/null); then
+	if ! open_count=$(gh_pr_list --repo "$repo_slug" --state open --head "$branch" --json number --jq 'length' 2>/dev/null); then
 		# gh command failed - return 0 to skip deletion (safety-first)
 		return 0
 	fi
@@ -193,9 +196,9 @@ should_skip_cleanup() {
 		"$wt_path" | "$wt_path"/*)
 			echo -e "  ${RED}$wt_branch${NC} (current working tree - skipping)"
 			echo "    $wt_path"
-			echo ""
+			printf '\n'
 			# t2976: audit log — cleanup skipped, caller is inside this worktree
-			log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "current-worktree" "skipped"
+			log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "current-worktree" "$_WT_CLEAN_MODE_SKIPPED"
 			return 0
 			;;
 		esac
@@ -209,9 +212,9 @@ should_skip_cleanup() {
 	if _branch_has_active_interactive_claim "$wt_path" "$wt_branch"; then
 		echo -e "  ${RED}$wt_branch${NC} (active interactive claim - skipping)"
 		echo "    $wt_path"
-		echo ""
+		printf '\n'
 		# t2976: audit log — cleanup skipped, interactive claim active
-		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "active-claim" "skipped"
+		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "active-claim" "$_WT_CLEAN_MODE_SKIPPED"
 		return 0
 	fi
 
@@ -228,16 +231,16 @@ should_skip_cleanup() {
 		if [[ -n "$owner_dead_seen_at" ]] && ! kill -0 "$owner_pid" 2>/dev/null; then
 			echo -e "  ${RED}$wt_branch${NC} (dead owner PID $owner_pid in cooldown since $owner_dead_seen_at - skipping)"
 			echo "    $wt_path"
-			echo ""
+			printf '\n'
 			# GH#23024: audit log — cleanup skipped, stale owner is quarantined
-			log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "owner-pid-dead" "skipped"
+			log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "owner-pid-dead" "$_WT_CLEAN_MODE_SKIPPED"
 			return 0
 		fi
 		echo -e "  ${RED}$wt_branch${NC} (owned by active session PID $owner_pid - skipping)"
 		echo "    $wt_path"
-		echo ""
+		printf '\n'
 		# t2976: audit log — cleanup skipped, registry owner is alive
-		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "owned-skip" "skipped"
+		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "owned-skip" "$_WT_CLEAN_MODE_SKIPPED"
 		return 0
 	fi
 
@@ -250,9 +253,9 @@ should_skip_cleanup() {
 		grace_hours=$(get_validated_grace_hours)
 		echo -e "  ${RED}$wt_branch${NC} (within grace period ${grace_hours}h - skipping)"
 		echo "    $wt_path"
-		echo ""
+		printf '\n'
 		# t2976: audit log — cleanup skipped, within grace period
-		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "grace-period" "skipped"
+		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "grace-period" "$_WT_CLEAN_MODE_SKIPPED"
 		return 0
 	fi
 
@@ -262,9 +265,9 @@ should_skip_cleanup() {
 	if [[ -n "$open_pr_list" ]] && echo "$open_pr_list" | grep -Fxq "$wt_branch"; then
 		echo -e "  ${RED}$wt_branch${NC} (has open PR - skipping)"
 		echo "    $wt_path"
-		echo ""
+		printf '\n'
 		# t2976: audit log — cleanup skipped, open PR exists
-		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "open-pr" "skipped"
+		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "open-pr" "$_WT_CLEAN_MODE_SKIPPED"
 		return 0
 	fi
 
@@ -286,9 +289,9 @@ should_skip_cleanup() {
 	if [[ "$force_merged_flag" != "true" ]] && branch_has_zero_commits_ahead "$wt_branch" "$default_br"; then
 		echo -e "  ${RED}$wt_branch${NC} (0 commits ahead = empty/pre-work branch - skipping)"
 		echo "    $wt_path"
-		echo ""
+		printf '\n'
 		# t2976: audit log — cleanup skipped, empty-branch safety check (t3545)
-		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "empty-branch" "skipped"
+		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "empty-branch" "$_WT_CLEAN_MODE_SKIPPED"
 		return 0
 	fi
 
@@ -299,9 +302,9 @@ should_skip_cleanup() {
 	if worktree_has_changes "$wt_path" && branch_has_zero_commits_ahead "$wt_branch" "$default_br"; then
 		echo -e "  ${RED}$wt_branch${NC} (0 commits ahead + dirty files = in-progress, not merged - skipping)"
 		echo "    $wt_path"
-		echo ""
+		printf '\n'
 		# t2976: audit log — cleanup skipped, zero-commit+dirty safety check
-		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "zero-commit-dirty" "skipped"
+		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "zero-commit-dirty" "$_WT_CLEAN_MODE_SKIPPED"
 		return 0
 	fi
 
@@ -311,9 +314,9 @@ should_skip_cleanup() {
 		if [[ "$force_merged_flag" != "true" ]]; then
 			echo -e "  ${RED}$wt_branch${NC} (has uncommitted changes - skipping)"
 			echo "    $wt_path"
-			echo ""
+			printf '\n'
 			# t2976: audit log — cleanup skipped, uncommitted changes present
-			log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "dirty-skip" "skipped"
+			log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "dirty-skip" "$_WT_CLEAN_MODE_SKIPPED"
 			return 0
 		fi
 		# force_merged=true: dirty state is abandoned WIP, safe to force-remove
@@ -387,15 +390,43 @@ _clean_repo_slug() {
 	return 0
 }
 
+_WT_CLEAN_PR_PROOF_UNKNOWN_REASONS=${_WT_CLEAN_PR_PROOF_UNKNOWN_REASONS:-}
+
+_clean_pr_proof_unknown_add() {
+	local reason="$1"
+	[[ -z "$reason" ]] && return 0
+	case $'\n'"$_WT_CLEAN_PR_PROOF_UNKNOWN_REASONS"$'\n' in
+	*$'\n'"$reason"$'\n'*) ;;
+	*) _WT_CLEAN_PR_PROOF_UNKNOWN_REASONS="${_WT_CLEAN_PR_PROOF_UNKNOWN_REASONS}${reason}"$'\n' ;;
+	esac
+	return 0
+}
+
+_clean_pr_proof_unknown_context() {
+	local reasons="$_WT_CLEAN_PR_PROOF_UNKNOWN_REASONS"
+	[[ -n "$reasons" ]] || return 1
+	reasons="${reasons//$'\n'/,}"
+	reasons="${reasons%,}"
+	printf '%s' "$reasons"
+	return 0
+}
+
 _clean_build_merged_pr_branches() {
 	local repo_slug=""
 	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
 	if command -v gh &>/dev/null; then
 		if [[ -n "$repo_slug" ]]; then
-			gh_pr_list --repo "$repo_slug" --state merged --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+			if ! gh_pr_list --repo "$repo_slug" --state merged --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null; then
+				_clean_pr_proof_unknown_add "unknown:merged-pr-list-unavailable"
+				return 1
+			fi
 		else
-			gh_pr_list --state merged --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+			_clean_pr_proof_unknown_add "unknown:repo-slug-unavailable"
+			return 1
 		fi
+	else
+		_clean_pr_proof_unknown_add "unknown:gh-unavailable"
+		return 1
 	fi
 	return 0
 }
@@ -405,10 +436,17 @@ _clean_build_open_pr_branches() {
 	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
 	if command -v gh &>/dev/null; then
 		if [[ -n "$repo_slug" ]]; then
-			gh_pr_list --repo "$repo_slug" --state open --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+			if ! gh_pr_list --repo "$repo_slug" --state open --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null; then
+				_clean_pr_proof_unknown_add "unknown:open-pr-list-unavailable"
+				return 1
+			fi
 		else
-			gh_pr_list --state open --limit 200 --json headRefName --jq '.[].headRefName' 2>/dev/null || true
+			_clean_pr_proof_unknown_add "unknown:repo-slug-unavailable"
+			return 1
 		fi
+	else
+		_clean_pr_proof_unknown_add "unknown:gh-unavailable"
+		return 1
 	fi
 	return 0
 }
@@ -422,10 +460,17 @@ _clean_build_closed_pr_branches() {
 	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
 	if command -v gh &>/dev/null; then
 		if [[ -n "$repo_slug" ]]; then
-			gh_pr_list --repo "$repo_slug" --state closed --limit 200 --json headRefName,mergedAt --jq '[.[] | select(.mergedAt == null)] | .[].headRefName' 2>/dev/null || true
+			if ! gh_pr_list --repo "$repo_slug" --state closed --limit 200 --json headRefName,mergedAt --jq '[.[] | select(.mergedAt == null)] | .[].headRefName' 2>/dev/null; then
+				_clean_pr_proof_unknown_add "unknown:closed-pr-list-unavailable"
+				return 1
+			fi
 		else
-			gh_pr_list --state closed --limit 200 --json headRefName,mergedAt --jq '[.[] | select(.mergedAt == null)] | .[].headRefName' 2>/dev/null || true
+			_clean_pr_proof_unknown_add "unknown:repo-slug-unavailable"
+			return 1
 		fi
+	else
+		_clean_pr_proof_unknown_add "unknown:gh-unavailable"
+		return 1
 	fi
 	return 0
 }
@@ -433,7 +478,7 @@ _clean_build_closed_pr_branches() {
 _clean_branch_has_exact_merged_pr() {
 	local wt_branch="$1"
 	local merged_prs="${2:-}"
-	local merged_count=""
+	local merged_count
 
 	[[ -z "$wt_branch" ]] && return 1
 	if _clean_branch_list_contains_exact "$wt_branch" "$merged_prs"; then
@@ -445,9 +490,13 @@ _clean_branch_has_exact_merged_pr() {
 	local repo_slug=""
 	repo_slug=$(_clean_repo_slug 2>/dev/null || true)
 	if [[ -n "$repo_slug" ]]; then
-		merged_count=$(gh_pr_list --repo "$repo_slug" --head "$wt_branch" --state merged --limit 1 --json number --jq 'length' 2>/dev/null || true)
+		if ! merged_count=$(gh_pr_list --repo "$repo_slug" --head "$wt_branch" --state merged --limit 1 --json number --jq 'length' 2>/dev/null); then
+			_clean_pr_proof_unknown_add "unknown:exact-merged-pr-unavailable"
+			return 1
+		fi
 	else
-		merged_count=$(gh_pr_list --head "$wt_branch" --state merged --limit 1 --json number --jq 'length' 2>/dev/null || true)
+		_clean_pr_proof_unknown_add "unknown:repo-slug-unavailable"
+		return 1
 	fi
 	if [[ "$merged_count" =~ ^[1-9][0-9]*$ ]]; then
 		return 0
@@ -471,6 +520,9 @@ _WT_CLEAN_TYPE_SQUASH_MERGED_PR="squash-merged PR"
 _WT_CLEAN_PROOF_GH_MERGED_PR="github-merged-pr"
 _WT_CLEAN_PROOF_GH_MERGED_PR_STATE="github-merged-pr-state"
 _WT_CLEAN_REASON_BRANCH_MERGED="branch-merged"
+_WT_CLEAN_REASON_PR_PROOF_UNKNOWN="unknown:pr-proof-unavailable"
+_WT_CLEAN_REASON_PROTECTED_PASS="protected-pass-skip"
+_WT_CLEAN_MODE_SKIPPED="skipped"
 
 _clean_protected_mark() {
 	local wt_path="$1"
@@ -505,6 +557,20 @@ _clean_branch_merge_proof_context() {
 	local proof_method="${5:-merge-base-is-ancestor}"
 	printf 'target_branch=%s merge_proof=%s merge_proof_result=%s head=%s branch=%s owner_guard=clear protected_status=clear' \
 		"$default_br" "$proof_method" "$proof_result" "$head_sha" "$wt_branch"
+	return 0
+}
+
+_clean_skip_unknown_pr_proof() {
+	local wt_path="$1"
+	local wt_branch="$2"
+	local default_br="$3"
+	local head_sha="$4"
+	local unknown_context
+	local audit_context
+
+	unknown_context=$(_clean_pr_proof_unknown_context) || return 1
+	audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$_WT_CLEAN_REASON_PR_PROOF_UNKNOWN" "github-pr-state")
+	log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "$_WT_CLEAN_REASON_PR_PROOF_UNKNOWN" "$_WT_CLEAN_MODE_SKIPPED" "${audit_context} unknown_reasons=${unknown_context}"
 	return 0
 }
 
@@ -578,40 +644,21 @@ _clean_classify_worktree() {
 	_WT_CLEAN_LAST_AUDIT_CONTEXT=""
 
 	if _clean_protected_contains "$wt_path"; then
-		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "protected-pass-skip" "skipped" \
+		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "$_WT_CLEAN_REASON_PROTECTED_PASS" "$_WT_CLEAN_MODE_SKIPPED" \
 			"branch=$wt_branch target_branch=$default_br owner_guard=protected protected_status=pass-local"
 		return 0
 	fi
 
-	# Check 1: Traditional merge detection
-	# t3545/GH#22606: require ≥1 commit ahead of default. git branch --merged
-	# matches 0-commit branches because their HEAD == default's HEAD, but a
-	# zero-commit branch is pre-work, not merged work. Misclassifying it as
-	# "merged" routes it through permanent removal and destroys any
-	# uncommitted edits the worktree holds.
 	if git branch --merged "$default_br" 2>/dev/null | grep -q "^\s*$wt_branch$" \
 		&& ! branch_has_zero_commits_ahead "$wt_branch" "$default_br"; then
 		is_merged=true
 		merge_type="merged"
-	# Check 2: Squash-merge detection via GitHub PR state
-	# GitHub squash merges create a new commit — the original branch is NOT
-	# an ancestor of the target, so git branch --merged misses it. The remote
-	# branch may still exist if "auto-delete head branches" is off, or may be
-	# gone when auto-delete is on. Trust only exact headRefName metadata here;
-	# issue/PR cross-reference text must not be treated as cleanup proof.
 	elif _clean_branch_has_exact_merged_pr "$wt_branch" "$merged_prs"; then
 		is_merged=true
 		merge_type="$_WT_CLEAN_TYPE_SQUASH_MERGED_PR"
-	# Check 3: Closed (abandoned) PR — PR was closed without merging.
-	# The remote branch may still exist (auto-delete only fires on merge).
-	# Work is abandoned; worktree is safe to remove.
 	elif _clean_branch_list_contains_exact "$wt_branch" "$closed_prs"; then
 		is_merged=true
 		merge_type="closed PR"
-	# Check 4: Remote branch deleted (indicates squash merge or PR closed)
-	# ONLY check this if the branch was previously pushed - unpushed branches should NOT be flagged
-	# Check all remotes, not just origin (consistent with branch_was_pushed)
-	# Skip if fetch failed — stale refs could cause false-positive deletion
 	elif [[ "$remote_unknown" == "false" ]] && branch_was_pushed "$wt_branch" && ! _branch_exists_on_any_remote "$wt_branch"; then
 		is_merged=true
 		merge_type="remote deleted"
@@ -628,8 +675,11 @@ _clean_classify_worktree() {
 	else
 		IFS=$'\t' read -r merge_type proof_result <<<"$proof_pair"
 		proof_result="not-ancestor"
+		if _clean_skip_unknown_pr_proof "$wt_path" "$wt_branch" "$default_br" "$head_sha"; then
+			return 0
+		fi
 		audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$proof_result")
-		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "branch-merged-unproven" "skipped" "$audit_context"
+		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$wt_path" "branch-merged-unproven" "$_WT_CLEAN_MODE_SKIPPED" "$audit_context"
 		return 0
 	fi
 
@@ -643,6 +693,12 @@ _clean_classify_worktree() {
 		audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$proof_result")
 	else
 		audit_context=$(_clean_branch_merge_proof_context "$wt_branch" "$default_br" "$head_sha" "$proof_result" "$_WT_CLEAN_PROOF_GH_MERGED_PR_STATE")
+	fi
+
+	if [[ "$merge_type" == "remote deleted" ]]; then
+		if _clean_skip_unknown_pr_proof "$wt_path" "$wt_branch" "$default_br" "$head_sha"; then
+			return 0
+		fi
 	fi
 
 	if worktree_has_changes "$wt_path" && [[ "$force_merged" == "true" ]]; then
@@ -726,7 +782,7 @@ _clean_remove_merged() {
 		elif [[ -z "$line" ]]; then
 			if [[ -n "$worktree_branch" ]] && [[ "$worktree_branch" != "$default_br" ]] && [[ "$worktree_path" != "$main_wt_path" ]]; then
 				if _clean_protected_contains "$worktree_path"; then
-					log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$worktree_path" "protected-pass-skip" "skipped" \
+					log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$worktree_path" "$_WT_CLEAN_REASON_PROTECTED_PASS" "$_WT_CLEAN_MODE_SKIPPED" \
 						"branch=$worktree_branch target_branch=$default_br owner_guard=protected protected_status=pass-local"
 					worktree_path=""
 					worktree_branch=""
@@ -744,7 +800,7 @@ _clean_remove_merged() {
 					fi
 					echo -e "${BLUE}Removing $worktree_branch...${NC}" >&2
 					if _clean_protected_contains "$worktree_path"; then
-						log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$worktree_path" "protected-pass-skip" "skipped" \
+						log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_WH_CALLER" "$worktree_path" "$_WT_CLEAN_REASON_PROTECTED_PASS" "$_WT_CLEAN_MODE_SKIPPED" \
 							"branch=$worktree_branch target_branch=$default_br owner_guard=protected protected_status=pass-local"
 						echo -e "${YELLOW}Skipped $worktree_branch - protected earlier in this cleanup pass${NC}" >&2
 						worktree_path=""
@@ -897,16 +953,23 @@ cmd_clean() {
 
 	# Build PR branch lists for squash-merge detection and open-PR safety check.
 	# NOTE: bash 3.2 (macOS default) lacks declare -A — do NOT use associative arrays.
+	_WT_CLEAN_PR_PROOF_UNKNOWN_REASONS=
 	local merged_pr_branches
-	merged_pr_branches=$(_clean_build_merged_pr_branches)
+	if ! merged_pr_branches=$(_clean_build_merged_pr_branches); then
+		_clean_pr_proof_unknown_add "unknown:merged-pr-list-unavailable"
+	fi
 
 	local open_pr_branches
-	open_pr_branches=$(_clean_build_open_pr_branches)
+	if ! open_pr_branches=$(_clean_build_open_pr_branches); then
+		_clean_pr_proof_unknown_add "unknown:open-pr-list-unavailable"
+	fi
 
 	# Closed (abandoned) PRs: closed without merging. Remote branch may linger
 	# because auto-delete only fires on merge.
 	local closed_pr_branches
-	closed_pr_branches=$(_clean_build_closed_pr_branches)
+	if ! closed_pr_branches=$(_clean_build_closed_pr_branches); then
+		_clean_pr_proof_unknown_add "unknown:closed-pr-list-unavailable"
+	fi
 
 	# First pass: scan and display merged worktrees
 	if ! _clean_scan_merged "$default_branch" "$main_worktree_path" "$remote_state_unknown" "$merged_pr_branches" "$open_pr_branches" "$force_merged" "$closed_pr_branches"; then
