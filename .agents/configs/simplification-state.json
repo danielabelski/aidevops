@@ -462,9 +462,9 @@
       "pr": 12172
     },
     ".agents/content/distribution-social.md": {
-      "at": "2026-03-28T11:20:38Z",
-      "hash": "1c701b07899e27c5362c4a10021c092dc4318319",
-      "passes": 1,
+      "at": "2026-05-20T08:32:56Z",
+      "hash": "4486167c1dd197a3f6f6d1533336ccc258e6948b",
+      "passes": 2,
       "pr": 11733
     },
     ".agents/content/distribution-youtube-channel-intel.md": {
@@ -659,9 +659,9 @@
       "pr": 13425
     },
     ".agents/content/platform-personas.md": {
-      "at": "2026-04-02T21:19:52Z",
-      "hash": "f5446d15c6fbf451f4fb33db65c7c919a72cc247",
-      "passes": 2,
+      "at": "2026-05-20T08:33:06Z",
+      "hash": "4c7a587daca4376d2ce0a653a968864b7bbea0c7",
+      "passes": 3,
       "pr": 12167
     },
     ".agents/content/production-audio.md": {
@@ -718,9 +718,9 @@
       "pr": 15339
     },
     ".agents/content/social-bird.md": {
-      "at": "2026-03-28T05:10:07Z",
-      "hash": "d85f0e70e5d12f5238e3b44cc777bbeecc7d265f",
-      "passes": 1,
+      "at": "2026-05-20T08:33:10Z",
+      "hash": "3e4d80d6ddb4f284f86b7a866d2fcecb98b5faff",
+      "passes": 2,
       "pr": 11354
     },
     ".agents/content/social-linkedin.md": {
@@ -2214,9 +2214,9 @@
       "pr": 17713
     },
     ".agents/scripts/config-helper.sh": {
-      "at": "2026-05-09T23:10:04Z",
-      "hash": "1bf907ee4746d240d1b028b72efe296ef9615e3e",
-      "passes": 5,
+      "at": "2026-05-20T08:35:03Z",
+      "hash": "8152db4c2e00efc60182c249bb823f36b5877709",
+      "passes": 6,
       "pr": 16084
     },
     ".agents/scripts/cron-helper.sh": {
@@ -7486,15 +7486,15 @@
       "pr": 15490
     },
     "aidevops.sh": {
-      "at": "2026-05-19T17:01:44Z",
-      "hash": "5352560ecb437d2dd5ecddc7880f44667f0509cf",
-      "passes": 181,
+      "at": "2026-05-20T08:47:55Z",
+      "hash": "f8f6e27355ebef566725f20c42ffd9a5524faec0",
+      "passes": 182,
       "pr": 19029
     },
     "setup.sh": {
-      "at": "2026-05-19T17:01:46Z",
-      "hash": "98f9337a3dcfb8097547c4e1d50829d0c4f577ce",
-      "passes": 176,
+      "at": "2026-05-20T08:47:57Z",
+      "hash": "2de79cea1c489f4e34420bae372346d975e35204",
+      "passes": 177,
       "pr": 15470
     },
     "todo/tasks/GH#15363-brief.md": {
@@ -7756,10 +7756,10 @@
       "passes": 4
     },
     ".agents/scripts/shared-gh-wrappers-rest-fallback.sh": {
-      "hash": "dcf6ad63107923dceedd374b1c1ca062ce8f895d",
-      "at": "2026-05-12T10:06:56Z",
+      "hash": "b00ac5cc94aa1b5e7b70d8cef0196f2b632f0ee2",
+      "at": "2026-05-20T08:36:37Z",
       "pr": 20552,
-      "passes": 13
+      "passes": 14
     },
     ".agents/scripts/pulse-dirty-pr-sweep.sh": {
       "hash": "f568032b08445dcc0e69c8e55fa18401d1a063eb",
@@ -7799,9 +7799,9 @@
     },
     ".agents/scripts/framework-routing-helper.sh": {
       "hash": "a4c1a12ac6f5bbeccc05d77dd6c05b835a549c37",
-      "at": "2026-04-27T16:07:10Z",
+      "at": "2026-05-20T08:48:13Z",
       "pr": 20876,
-      "passes": 2
+      "passes": 4
     },
     ".agents/scripts/upstream-watch-helper.sh": {
       "hash": "1b2034466ffc2433d1f95cb5fea8fbe1c71fcf85",
