@@ -242,6 +242,42 @@ test_closed_issue_dirty_worktree_stashes_and_preserves_branch() {
 	return 0
 }
 
+test_fix_numeric_closed_issue_worktree_archives() {
+	local repo_dir="${TEST_ROOT}/repo-fix-numeric-closed-issue"
+	local wt_path="${TEST_ROOT}/worker-wt-fix-numeric-closed-issue"
+	local branch_name="fix/23082-overload-ci"
+	setup_repo_with_worker_worktree "$repo_dir" "$wt_path" "$branch_name" || return 1
+	source_pulse_cleanup_with_stubs || return 1
+	gh() {
+		if [[ "${1:-}" == "issue" && "${2:-}" == "view" && "${3:-}" == "23082" ]]; then
+			printf '%s\n' "CLOSED"
+			return 0
+		fi
+		return 1
+	}
+
+	local now_epoch
+	now_epoch=$(date +%s)
+	AIDEVOPS_HEADLESS_METRICS_FILE="${TEST_ROOT}/missing-fix-numeric-closed-issue-metrics.jsonl"
+	export AIDEVOPS_HEADLESS_METRICS_FILE
+
+	_cleanup_single_worktree "$repo_dir" "$wt_path" "$branch_name" "$now_epoch" "testowner/testrepo" "main" >/dev/null 2>&1
+	local cleanup_rc=$?
+
+	local branch_exists=1
+	git -C "$repo_dir" rev-parse --verify "refs/heads/${branch_name}" >/dev/null 2>&1 && branch_exists=0
+
+	local rc=0
+	[[ "$cleanup_rc" -eq 0 ]] || rc=1
+	[[ ! -d "$wt_path" ]] || rc=1
+	[[ "$branch_exists" -eq 0 ]] || rc=1
+	grep -q 'issue=23082' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	grep -q 'recovery_path=branch-preserved-closed-issue' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	print_result "fix numeric closed issue worktree archives" "$rc" \
+		"cleanup_rc=$cleanup_rc branch_exists=$branch_exists log=$(cat "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null)"
+	return 0
+}
+
 test_recent_metric_blocks_local_commit_no_pr_removal() {
 	local repo_dir="${TEST_ROOT}/repo"
 	local wt_path="${TEST_ROOT}/worker-wt"
@@ -467,6 +503,7 @@ test_closed_issue_local_commit_no_pr_removes_before_age_threshold
 test_closed_pr_reference_local_commit_no_pr_removes_before_age_threshold
 test_merged_branch_pr_removes_before_age_threshold
 test_closed_issue_dirty_worktree_stashes_and_preserves_branch
+test_fix_numeric_closed_issue_worktree_archives
 test_stale_local_commit_no_pr_removes_worktree_preserves_branch
 test_no_newline_pr_output_blocks_local_commit_cleanup
 test_no_newline_open_pr_output_blocks_clean_fastpath

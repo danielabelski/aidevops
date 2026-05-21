@@ -97,6 +97,10 @@ _pc_issue_from_branch() {
 		printf '%s\n' "${BASH_REMATCH[1]}"
 		return 0
 	fi
+	if [[ "$branch_name" =~ (^|/)fix/([0-9]{3,})([-/]|$) ]]; then
+		printf '%s\n' "${BASH_REMATCH[2]}"
+		return 0
+	fi
 	return 1
 }
 

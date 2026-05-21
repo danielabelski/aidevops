@@ -435,6 +435,46 @@ test_closed_issue_unproven_branch_removes_worktree_preserves_branch() {
 	return 0
 }
 
+test_fix_numeric_closed_issue_branch_removes_worktree_preserves_branch() {
+	local repo_path="${TEST_ROOT}/repo-fix-numeric-closed-issue"
+	local wt_path="${TEST_ROOT}/wt-fix-numeric-closed-issue"
+	local log_file="${TEST_ROOT}/fix-numeric-closed-issue-cleanup.log"
+	local branch="fix/99031-overload-ci"
+	local rc=0
+	export AIDEVOPS_CLEANUP_LOG="$log_file"
+	setup_repo "$repo_path" || rc=1
+	git -C "$repo_path" checkout -q -b "$branch" || rc=1
+	printf 'fix numeric closed issue\n' >"$repo_path/fix-numeric-closed-issue.txt" || rc=1
+	git -C "$repo_path" add fix-numeric-closed-issue.txt || rc=1
+	git -C "$repo_path" commit -q -m "fix numeric closed issue branch" || rc=1
+	git -C "$repo_path" checkout -q main || rc=1
+	git -C "$repo_path" worktree add -q "$wt_path" "$branch" || rc=1
+
+	(
+		cd "$repo_path" || exit 1
+		source_clean_lib_with_stubs || exit 1
+		branch_was_pushed() { return 0; }
+		_branch_exists_on_any_remote() { return 1; }
+		gh() {
+			if [[ "${1:-}" == "issue" && "${2:-}" == "view" && "${3:-}" == "99031" ]]; then
+				printf '%s\n' "CLOSED"
+				return 0
+			fi
+			return 1
+		}
+		_clean_remove_merged "main" "$repo_path" "false" "" "" "false" ""
+	) || rc=1
+
+	local branch_exists=1
+	git -C "$repo_path" rev-parse --verify "refs/heads/${branch}" >/dev/null 2>&1 && branch_exists=0
+	[[ ! -d "$wt_path" ]] || rc=1
+	[[ "$branch_exists" -eq 0 ]] || rc=1
+	assert_file_contains "$log_file" "worktree-removed.*closed-issue-branch-preserved.*mode=branch-preserved.*issue=99031" || rc=1
+	print_result "fix numeric closed issue branch removes worktree and preserves branch" "$rc" \
+		"Expected fix/<issue> branch to parse issue and preserve branch"
+	return 0
+}
+
 test_closed_issue_dirty_unproven_branch_stashes_and_preserves_branch() {
 	local repo_path="${TEST_ROOT}/repo-closed-issue-dirty-unproven"
 	local wt_path="${TEST_ROOT}/wt-closed-issue-dirty-unproven"
@@ -490,6 +530,7 @@ test_exact_merged_pr_proof_recovers_unproven_traditional_merge
 test_closed_pr_without_ancestor_proof_classifies
 test_remote_deleted_without_ancestor_proof_skips
 test_closed_issue_unproven_branch_removes_worktree_preserves_branch
+test_fix_numeric_closed_issue_branch_removes_worktree_preserves_branch
 test_closed_issue_dirty_unproven_branch_stashes_and_preserves_branch
 
 printf '\nResults: %d/%d passed, %d failed.\n' "$((TESTS_RUN - TESTS_FAILED))" "$TESTS_RUN" "$TESTS_FAILED"
