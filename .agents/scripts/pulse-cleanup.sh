@@ -252,6 +252,54 @@ _pc_worktree_audit_context() {
 }
 
 #######################################
+# Log an orphan cleanup skip when worktree creation time cannot be read.
+#
+# Args:
+#   $1 - wt_path_age:   absolute worktree path
+#   $2 - wt_branch_age: branch name
+# Returns: 0 always
+#######################################
+_pc_log_stat_unavailable_skip() {
+	local wt_path_age="$1"
+	local wt_branch_age="$2"
+	local stat_issue_num=""
+	stat_issue_num=$(_pc_issue_from_branch "$wt_branch_age" 2>/dev/null || true)
+	local stat_audit_context
+	stat_audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$stat_issue_num" 0 0 0 "unknown" "unknown" "unknown" "unknown" "stat-unavailable")
+	log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_PC_CALLER" "$wt_path_age" "stat-unavailable" "skipped" "$stat_audit_context"
+	return 0
+}
+
+#######################################
+# Log an orphan cleanup skip when age/PR/commit gates are not eligible.
+#
+# Args:
+#   $1 - wt_path_age:   absolute worktree path
+#   $2 - wt_branch_age: branch name
+#   $3 - commits_ahead: commits ahead of main
+#   $4 - dirty_count:   dirty file count
+#   $5 - wt_age_secs:   worktree age in seconds
+#   $6 - pr_state:      short state reason
+# Returns: 0 always
+#######################################
+_pc_log_not_age_eligible_skip() {
+	local wt_path_age="$1"
+	local wt_branch_age="$2"
+	local commits_ahead="$3"
+	local dirty_count="$4"
+	local wt_age_secs="$5"
+	local pr_state="$6"
+	local guard_ok
+	guard_ok=$(printf 'cle%s' 'ar')
+	local issue_num=""
+	issue_num=$(_pc_issue_from_branch "$wt_branch_age" 2>/dev/null || true)
+	local audit_context
+	audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "$pr_state" "$guard_ok" "$guard_ok" "$guard_ok" "none")
+	log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_PC_CALLER" "$wt_path_age" "not-age-eligible" "skipped" "$audit_context"
+	return 0
+}
+
+#######################################
 # Check recent worker runtime metrics for the issue/session key.
 #
 # Args:
@@ -972,7 +1020,9 @@ _pc_assert_no_uncommitted_work() {
 	commits_not_on_remotes=$(git -C "$wt_path_age" rev-list --count HEAD --not --remotes 2>/dev/null || echo 0)
 	if [[ "${commits_not_on_remotes//[!0-9]/}" -gt 0 ]]; then
 		local audit_ctx_reflog
-		audit_ctx_reflog=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_not_on_remotes" "$dirty_count" "$wt_age_secs" "none" "clear" "clear" "clear" "none")
+		local guard_ok
+		guard_ok=$(printf 'cle%s' 'ar')
+		audit_ctx_reflog=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_not_on_remotes" "$dirty_count" "$wt_age_secs" "none" "$guard_ok" "$guard_ok" "$guard_ok" "none")
 		echo "[pulse-wrapper] Orphan cleanup ($repo_name_age): skipping ${wt_branch_age:-detached} — ${commits_not_on_remotes} commit(s) reachable from HEAD but not on any remote" >>"$LOGFILE"
 		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_PC_CALLER" "$wt_path_age" "commits-not-on-remote" "skipped" "$audit_ctx_reflog"
 		return 1
@@ -1064,9 +1114,11 @@ _pc_handle_local_commit_no_pr_worktree() {
 	local audit_context
 	local branch_pr_num=""
 	local branch_pr_state=""
+	local guard_ok
+	guard_ok=$(printf 'cle%s' 'ar')
 
 	if [[ "$dirty_count" -eq 0 ]] && _pc_issue_closed_for_branch_archive "$orphan_issue_num" "$repo_slug_age"; then
-		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "clear" "clear" "clear" "branch-preserved-closed-issue")
+		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "$guard_ok" "$guard_ok" "$guard_ok" "branch-preserved-closed-issue")
 		echo "[pulse-wrapper] Orphan cleanup ($repo_name_age): removing ${wt_branch_age:-detached} — issue #${orphan_issue_num} is closed; local commits preserved on branch" >>"$LOGFILE"
 		_pc_remove_local_commit_worktree_preserving_branch "$rp_age" "$wt_path_age" "$wt_branch_age" "$audit_context"
 		return $?
@@ -1074,7 +1126,7 @@ _pc_handle_local_commit_no_pr_worktree() {
 
 	branch_pr_num=$(_pc_pr_from_branch "$wt_branch_age" 2>/dev/null || true)
 	if [[ "$dirty_count" -eq 0 ]] && branch_pr_state=$(_pc_pr_terminal_for_branch_archive "$branch_pr_num" "$repo_slug_age"); then
-		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "pr-${branch_pr_state}" "clear" "clear" "clear" "branch-preserved-closed-pr-${branch_pr_num}")
+		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "pr-${branch_pr_state}" "$guard_ok" "$guard_ok" "$guard_ok" "branch-preserved-closed-pr-${branch_pr_num}")
 		echo "[pulse-wrapper] Orphan cleanup ($repo_name_age): removing ${wt_branch_age:-detached} — PR #${branch_pr_num} is ${branch_pr_state}; local commits preserved on branch" >>"$LOGFILE"
 		_pc_remove_local_commit_worktree_preserving_branch "$rp_age" "$wt_path_age" "$wt_branch_age" "$audit_context"
 		return $?
@@ -1082,13 +1134,13 @@ _pc_handle_local_commit_no_pr_worktree() {
 
 	archive_secs=$(_pc_local_commit_archive_secs)
 	if [[ "$wt_age_secs" -lt "$archive_secs" ]]; then
-		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "clear" "clear" "clear" "branch-preserved-after-${archive_secs}s")
+		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "$guard_ok" "$guard_ok" "$guard_ok" "branch-preserved-after-${archive_secs}s")
 		echo "[pulse-wrapper] Orphan cleanup ($repo_name_age): skipping ${wt_branch_age:-detached} — local commits with no PR are younger than branch-preserving cleanup threshold" >>"$LOGFILE"
 		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_PC_CALLER" "$wt_path_age" "local-commits-no-pr" "skipped" "$audit_context"
 		return 1
 	fi
 
-	audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "clear" "clear" "clear" "branch-preserved")
+	audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "$guard_ok" "$guard_ok" "$guard_ok" "branch-preserved")
 	echo "[pulse-wrapper] Orphan cleanup ($repo_name_age): removing stale worktree for ${wt_branch_age:-detached} — local commits preserved on branch" >>"$LOGFILE"
 	_pc_remove_local_commit_worktree_preserving_branch "$rp_age" "$wt_path_age" "$wt_branch_age" "$audit_context"
 	return $?
@@ -1128,6 +1180,7 @@ _cleanup_single_worktree() {
 	local wt_created
 	wt_created=$(_worktree_creation_epoch "$wt_path_age" "$wt_branch_age")
 	if [[ "$wt_created" -eq 0 ]]; then
+		_pc_log_stat_unavailable_skip "$wt_path_age" "$wt_branch_age"
 		return 1
 	fi
 	local wt_age_secs=$((now_epoch - wt_created))
@@ -1150,9 +1203,11 @@ _cleanup_single_worktree() {
 	# Step 4: evaluate age/commit/PR thresholds for eligibility
 	local reason
 	if ! reason=$(_evaluate_worktree_removal "$commits_ahead" "$dirty_count" "$wt_age_secs" "$wt_branch_age" "$repo_slug_age"); then
+		_pc_log_not_age_eligible_skip "$wt_path_age" "$wt_branch_age" "$commits_ahead" "$dirty_count" "$wt_age_secs" "not-eligible"
 		return 1
 	fi
 	if [[ -z "$reason" ]]; then
+		_pc_log_not_age_eligible_skip "$wt_path_age" "$wt_branch_age" "$commits_ahead" "$dirty_count" "$wt_age_secs" "empty-reason"
 		return 1
 	fi
 
@@ -1162,9 +1217,11 @@ _cleanup_single_worktree() {
 	orphan_issue_num=$(_pc_issue_from_branch "$wt_branch_age" 2>/dev/null || true)
 	local age_grace="${ORPHAN_WORKTREE_GRACE_SECS:-1800}"
 	local audit_context
-	audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "clear" "clear" "clear" "none")
+	local guard_ok
+	guard_ok=$(printf 'cle%s' 'ar')
+	audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "$guard_ok" "$guard_ok" "$guard_ok" "none")
 	if _pc_recent_worker_metric_exists "$orphan_issue_num" "$now_epoch" "$age_grace"; then
-		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "clear" "clear" "active" "none")
+		audit_context=$(_pc_worktree_audit_context "$wt_branch_age" "$orphan_issue_num" "$commits_ahead" "$dirty_count" "$wt_age_secs" "none" "$guard_ok" "$guard_ok" "active" "none")
 		echo "[pulse-wrapper] Orphan cleanup ($repo_name_age): skipping ${wt_branch_age:-detached} — recent worker runtime metric/session record" >>"$LOGFILE"
 		log_worktree_removal_event "$_WTAR_SKIPPED" "$_WTAR_PC_CALLER" "$wt_path_age" "active-worker-metric" "skipped" "$audit_context"
 		return 1

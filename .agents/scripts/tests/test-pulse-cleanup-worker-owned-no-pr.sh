@@ -225,6 +225,33 @@ test_local_commit_no_pr_skips_without_recent_metric() {
 	return 0
 }
 
+test_young_local_commit_logs_not_age_eligible() {
+	local repo_dir="${TEST_ROOT}/repo-young-local-commit"
+	local wt_path="${TEST_ROOT}/worker-wt-young-local-commit"
+	local branch_name="feature/auto-20260507-190805-gh23079"
+	setup_repo_with_worker_worktree "$repo_dir" "$wt_path" "$branch_name" || return 1
+	source_pulse_cleanup_with_stubs || return 1
+	touch "$wt_path/.git"
+
+	local now_epoch
+	now_epoch=$(date +%s)
+	AIDEVOPS_HEADLESS_METRICS_FILE="${TEST_ROOT}/missing-young-metrics.jsonl"
+	export AIDEVOPS_HEADLESS_METRICS_FILE
+
+	_cleanup_single_worktree "$repo_dir" "$wt_path" "$branch_name" "$now_epoch" "testowner/testrepo" "main" >/dev/null 2>&1
+	local cleanup_rc=$?
+
+	local rc=0
+	[[ "$cleanup_rc" -eq 1 ]] || rc=1
+	[[ -d "$wt_path" ]] || rc=1
+	grep -q 'worktree-skipped.*not-age-eligible.*mode=skipped' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	grep -q 'pr_state=not-eligible' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	grep -q 'commits=1' "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null || rc=1
+	print_result "young local commit logs not-age-eligible skip" "$rc" \
+		"cleanup_rc=$cleanup_rc log=$(cat "$AIDEVOPS_CLEANUP_LOG" 2>/dev/null)"
+	return 0
+}
+
 test_stale_local_commit_no_pr_removes_worktree_preserves_branch() {
 	local repo_dir="${TEST_ROOT}/repo-stale-local-commit"
 	local wt_path="${TEST_ROOT}/worker-wt-stale-local-commit"
@@ -337,6 +364,7 @@ mkdir -p "${HOME}/.aidevops/logs"
 echo "=== test-pulse-cleanup-worker-owned-no-pr.sh ==="
 test_recent_metric_blocks_local_commit_no_pr_removal
 test_local_commit_no_pr_skips_without_recent_metric
+test_young_local_commit_logs_not_age_eligible
 test_closed_issue_local_commit_no_pr_removes_before_age_threshold
 test_closed_pr_reference_local_commit_no_pr_removes_before_age_threshold
 test_stale_local_commit_no_pr_removes_worktree_preserves_branch
