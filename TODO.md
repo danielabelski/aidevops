@@ -2087,7 +2087,7 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [ ] t19006 perf(dispatch): halve launch ceremony and dedup verdict time (For #38332 phase 3) #feat #auto-dispatch tier:thinking parent:t19002 ref:GH#38352 pr:#38398 logged:2026-11-14 -> [todo/tasks/t19006-brief.md]
 
-- [ ] t19007 fix(terminal-blocker): publish the external trigger and revisit external_trigger_pending holds #bug #auto-dispatch tier:thinking blocked-by:t19008 ref:GH#38353 logged:2026-11-14 -> [todo/tasks/t19007-brief.md]
+- [x] t19007 fix(terminal-blocker): publish the external trigger and revisit external_trigger_pending holds #bug #auto-dispatch tier:thinking blocked-by:t19008 ref:GH#38353 logged:2026-11-14 -> [todo/tasks/t19007-brief.md] pr:#38449 completed:2026-11-15
 
 - [x] t19008 fix(approval): accept every canonical terminal-blocker release the writer emits #auto-dispatch #bug tier:standard ref:GH#38351 pr:#38357 logged:2026-11-14 -> [todo/tasks/t19008-brief.md] completed:2026-11-15
 
@@ -2109,9 +2109,9 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [x] t19017 fix(opencode-db-archive): an archive-DB event-expiry deferral must not skip the live-DB session move #auto-dispatch #bug tier:standard ref:GH#38429 pr:#38442 logged:2026-11-15 -> [todo/tasks/t19017-brief.md] completed:2026-11-15
 
-- [ ] t19025 fix(ci): stop the main-push shell portability scan failing with Argument list too long #interactive #bug tier:simple assignee:marcusquinn ref:GH#38452 logged:2026-11-15 started:2026-11-15 -> [todo/tasks/t19025-brief.md]
+- [x] t19025 fix(ci): stop the main-push shell portability scan failing with Argument list too long #interactive #bug tier:simple assignee:marcusquinn ref:GH#38452 logged:2026-11-15 started:2026-11-15 -> [todo/tasks/t19025-brief.md] pr:#38453 completed:2026-11-15
 
-- [ ] t19028 perf(full-loop): drain the cleanup-receipt archive backlog in one run so worktree admission scans a small hot set #interactive #feat tier:standard assignee:marcusquinn ref:GH#38458 logged:2026-11-15 started:2026-11-15 -> [todo/tasks/t19028-brief.md]
+- [x] t19028 perf(full-loop): drain the cleanup-receipt archive backlog in one run so worktree admission scans a small hot set #interactive #feat tier:standard assignee:marcusquinn ref:GH#38458 logged:2026-11-15 started:2026-11-15 -> [todo/tasks/t19028-brief.md] pr:#38460 completed:2026-11-15
 
 - [x] t19018 feat(backups): detect a Backblaze safety freeze or stale last upload and surface it as a user action #auto-dispatch #feat tier:standard ref:GH#38430 pr:#38435 logged:2026-11-15 -> [todo/tasks/t19018-brief.md] completed:2026-11-15
 
@@ -2121,11 +2121,11 @@ t193,setup.sh fails in non-interactive supervisor deploy step,,bugfix|setup,1h,4
 
 - [x] t19021 fix(gh): stop shim temp-file leaks that bloat agent tmp and slow dispatch #interactive #bug tier:standard assignee:marcusquinn ref:GH#38443 pr:#38444 logged:2026-11-15 started:2026-11-15 -> [todo/tasks/t19021-brief.md] completed:2026-11-15
 
-- [ ] t19024 perf(session-time): project message role and completion time in SQL instead of sorting raw message JSON #interactive #performance tier:standard assignee:marcusquinn ref:GH#38451 logged:2026-11-15 started:2026-11-15 -> [todo/tasks/t19024-brief.md]
+- [x] t19024 perf(session-time): project message role and completion time in SQL instead of sorting raw message JSON #interactive #performance tier:standard assignee:marcusquinn ref:GH#38451 logged:2026-11-15 started:2026-11-15 -> [todo/tasks/t19024-brief.md] pr:#38454 completed:2026-11-15
 
-- [ ] t19026 fix(pulse): run Pulse launchd jobs and workers at normal priority instead of launchd's throttled default #interactive #bug tier:standard assignee:marcusquinn ref:GH#38455 logged:2026-11-15 started:2026-11-15 -> [todo/tasks/t19026-brief.md]
+- [x] t19026 fix(pulse): run Pulse launchd jobs and workers at normal priority instead of launchd's throttled default #interactive #bug tier:standard assignee:marcusquinn ref:GH#38455 logged:2026-11-15 started:2026-11-15 -> [todo/tasks/t19026-brief.md] pr:#38456 completed:2026-11-15
 
-- [ ] t19027 fix(test): test-pulse-defense-restart.sh fails 10 revival assertions on current main #interactive #bug tier:standard assignee:marcusquinn ref:GH#38457 logged:2026-11-15 started:2026-11-15
+- [x] t19027 fix(test): test-pulse-defense-restart.sh fails 10 revival assertions on current main #interactive #bug tier:standard assignee:marcusquinn ref:GH#38457 logged:2026-11-15 started:2026-11-15 pr:#38461 completed:2026-11-15
 
 ## In Progress
 
@@ -5752,3 +5752,4 @@ t019.3.4,Update AGENTS.md with Beads integration docs,,beads,1h,45m,2025-12-21T1
 - [x] t18967 secret-helper: systemd-creds backend for unattended worker secrets (encrypted at rest, no passphrase) #auto-dispatch #enhancement ref:GH#37725 pr:#37734 completed:2026-11-14
 
 - [x] t18998 feat(mcp): add on-demand NetBird MCP server (self-hosted URL + PAT from aidevops secrets) #enhancement ref:GH#38313 pr:#38315 completed:2026-11-15
+- [ ] t18980 Reclaim phase 2: observe worktree owners through the lifecycle registry and ProcessAdapter, not a /proc scan #bug #type:enhancement ref:GH#38107
